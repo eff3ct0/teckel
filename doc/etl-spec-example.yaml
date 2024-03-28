@@ -1,40 +1,3 @@
-# Teckel
-
-A simple DSL to generate ETLs from a YAML Specification file.
-
-## Formal Language Definition
-
-```txt
-Source         ::= Unknown | From
-From           ::= `From` <String> <Operation> <Select> <Where>
-Unknown        ::= `Unknown` <String>
-
-Operation      ::= Input | Transformation | Output
-Input          ::= `Input` <Format> [<Option>] <String>
-Output         ::= `Output` <Format> [<Option>] <String>
-Format         ::= `CSV` | `PARQUET` | `JSON` | `OCR` | ...
-Option         ::= `Option` <String> <String>
-
-Transformation ::= JoinOperation | GroupOperation | WindowOperation
-
-// Join
-JoinOperation  ::= `Join` <JoinType> <JoinRelation>
-JoinType       ::= `Inner` | `Left` | `Right` | `Cross` | ...
-JoinRelation   ::= `JoinRelation` <Source> <Source> [ <RelationField> ] 
-RelationField  ::= `RelationField` <Column> <Column>
-
-// Group
-GroupOperation ::= `Group` <Source> <By> <Agg>
-By             ::= `By` [Column]
-Agg            ::= `Agg` [Column]
-
-Select         ::= `Select` [Column]
-Where          ::= `Where` [Column]
-```
-
-## ETL Yaml Example Specification
-
-```yaml
 ## Inputs
 
 input:
@@ -126,4 +89,3 @@ output:
  - name: table4
    format: parquet
    path: 'prefix://bucket2/path/path2'
-```

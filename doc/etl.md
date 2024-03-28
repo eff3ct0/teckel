@@ -1,8 +1,42 @@
-# Teckel
+# ETL
 
-A simple DSL to generate ETLs from a YAML Specification file.
+version 1
 
-## Formal Language Definition
+```yaml
+etl:
+  name: table1
+  join: null
+  right:
+    - table2:
+        - 't2pk1:t1pk1'
+        - 't2pk2:t1pk2'
+    - table3:
+        - 't3pk1:t1pk1'
+  predicate:
+    - expr: expr
+```
+
+version 2
+
+```yaml
+- name: tableResult
+  join:
+    joinType: left
+    relation:
+      - table1:
+          - t1pk1: t2pk1
+          - t1pk2: t2pk1
+      - table2:
+          - t3pk1: t1pk1
+          - t3pk2: t1pk1
+
+- name: table2
+  source:
+    path: 'prefix://bucket1/path1/path2'
+
+```
+
+version 3
 
 ```txt
 Source         ::= Unknown | From
@@ -31,8 +65,6 @@ Agg            ::= `Agg` [Column]
 Select         ::= `Select` [Column]
 Where          ::= `Where` [Column]
 ```
-
-## ETL Yaml Example Specification
 
 ```yaml
 ## Inputs
