@@ -1,3 +1,6 @@
+import Dependencies.*
+import sbt.*
+
 lazy val teckel: Project =
   project
     .in(file("."))
@@ -11,13 +14,26 @@ lazy val core: Project =
   (project in file("core"))
     .settings(
       name           := "teckel-core",
-      publish / skip := false
+      publish / skip := false,
+      libraryDependencies ++= Seq(
+        spark.core,
+        spark.sql,
+        scalaTest.core,
+        scalaTest.flatspec
+      )
     )
 
 lazy val yaml: Project =
   (project in file("yaml"))
     .settings(
       name           := "teckel-yaml",
-      publish / skip := false
+      publish / skip := false,
+      libraryDependencies ++= Seq(
+        circe.generic,
+        circe.yaml,
+        tofu.core,
+        tofu.circe,
+        scalaTest.core,
+        scalaTest.flatspec
+      )
     )
-    .dependsOn(core)
