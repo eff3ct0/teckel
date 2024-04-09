@@ -1,19 +1,19 @@
 # Teckel
 
-A simple DSL to generate ETLs from a YAML Specification file.
+A simple DSL to generate ETLs from a YAML Specification file. The idea is to have a simple way to define ETLs in a declarative way and generate the code to run it.
 
 ## Formal Language Definition
 
 ```txt
 Source         ::= Unknown | From
-From           ::= `From` <String> <Operation> <Select> <Where>
-Unknown        ::= `Unknown` <String>
+From           ::= `From` <Name> <Operation> <Select> <Where>
+Unknown        ::= `Unknown` <Name>
 
 Operation      ::= Input | Transformation | Output
-Input          ::= `Input` <Format> [<Option>] <String>
-Output         ::= `Output` <Format> [<Option>] <String>
+Input          ::= `Input` <Format> [<Option>] <Path>
+Output         ::= `Output` <Format> [<Option>] <Path>
 Format         ::= `CSV` | `PARQUET` | `JSON` | `OCR` | ...
-Option         ::= `Option` <String> <String>
+Option         ::= `Option` <Key> <Value>
 
 Transformation ::= JoinOperation | GroupOperation | WindowOperation
 
@@ -30,6 +30,12 @@ Agg            ::= `Agg` [Column]
 
 Select         ::= `Select` [Column]
 Where          ::= `Where` [Column]
+
+// Type Alias
+Name           ::= <String>
+Path           ::= <String>
+Key            ::= <String>
+Value          ::= <String>
 ```
 
 ## ETL Yaml Example Specification
