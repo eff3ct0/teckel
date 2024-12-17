@@ -1,0 +1,13 @@
+input:
+  - name: table1
+    format: csv
+    path: 'prefix://bucket1/path/path1'
+    options:
+      header: true
+      sep: ','
+
+
+output:
+  - name: tableFinal
+    format: parquet
+    path: 'prefix://bucket2/path/path1'
