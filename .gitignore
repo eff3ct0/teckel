@@ -142,3 +142,8 @@ hs_err_pid*
 # End of https://www.toptal.com/developers/gitignore/api/scala,intellij,sbt
 /.idea/
 /data/
+
+*.parquet.*
+*.parquet*
+*.crc*
+*_SUCCESS*

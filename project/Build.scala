@@ -1,10 +1,11 @@
-import sbt.*
-import sbt.Keys.*
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.HeaderLicense
+import de.heikoseeberger.sbtheader.{HeaderPlugin, License}
+import sbt.Keys._
+import sbt._
 import sbt.plugins.JvmPlugin
-
 object Build extends AutoPlugin {
 
-  override def requires: Plugins = JvmPlugin
+  override def requires: Plugins = JvmPlugin && HeaderPlugin
 
   override def trigger: PluginTrigger = allRequirements
 
@@ -64,7 +65,7 @@ object Build extends AutoPlugin {
       "-Ywarn-unused:explicits", // Warn if a value parameter is unused.
       "-Ywarn-unused:params",    // Warn if a parameter is unused.
       "-Ywarn-unused:patvars",   // Warn if a variable bound in a pattern is unused.
-      "-Ywarn-unused:privates",  // Warn if a private member is unused.
+      "-Ywarn-unused:privates"   // Warn if a private member is unused.
 //      "-Ywarn-macros:after"      // Warn about macro annotations after expansion.
 //      "-Ymacro-annotations"      // Scala 2.13.x - Allow the use of macro annotations.
     ),
@@ -85,4 +86,28 @@ object Build extends AutoPlugin {
     Repository.maven(Repository.from(Path.userHome / ".sbt" / ".nexus-releases")),
     Repository.maven(Repository.from(Path.userHome / ".sbt" / ".nexus-snapshots"))
   ).flatten
+
+  /**
+   * SBT Header Plugin
+   */
+
+  lazy val headerText: String =
+    """|Invasion Order Software License Agreement
+       |
+       |This file is part of the proprietary software provided by Invasion Order.
+       |Use of this file is governed by the terms and conditions outlined in the
+       |Invasion Order Software License Agreement.
+       |
+       |Unauthorized copying, modification, or distribution of this file, via any
+       |medium, is strictly prohibited. The software is provided "as is," without
+       |warranty of any kind, express or implied.
+       |
+       |For the full license text, please refer to the LICENSE file included
+       |with this distribution, or contact Invasion Order at contact@iorder.dev.
+       |
+       |(c) 2024 Invasion Order. All rights reserved.
+       |""".stripMargin
+
+  lazy val headerIOLicense: License.Custom =
+    HeaderLicense.Custom(headerText)
 }

@@ -19,6 +19,7 @@ object Library {
   }
 
   object circe {
+    lazy val parser    = "io.circe" %% "circe-parser"    % Version.Circe
     lazy val yaml    = "io.circe" %% "circe-yaml"    % Version.Circe
     lazy val generic = "io.circe" %% "circe-generic" % Version.Circe
   }

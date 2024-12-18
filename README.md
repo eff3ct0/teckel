@@ -6,16 +6,13 @@ declarative way and generate the code to run it.
 ## Formal Language Definition
 
 ```txt
-Source         ::= Unknown | From
-From           ::= `From` <Name> <Operation> <Select> <Where>
-Unknown        ::= `Unknown` <Name>
+Asset          := `Asset` <AssetRef> <Source>
 
-Operation      ::= Input | Transformation | Output
-Input          ::= `Input` <Format> [<Option>] <Path>
-Output         ::= `Output` <Format> [<Option>] <Path>
-Format         ::= `CSV` | `PARQUET` | `JSON` | `OCR` | ...
-Option         ::= `Option` <Key> <Value>
+Source         := <Input> | <Output> | <Transformation>
+Input          := `Input` <Format> <Options> <SourceRef>
+Output         := `Output` <AssetRef> <Format> <Options> <SourceRef>
 
+// TODO: It need double-check and define correctly
 Transformation ::= JoinOperation | GroupOperation | WindowOperation
 
 // Join
@@ -33,10 +30,11 @@ Select         ::= `Select` [Column]
 Where          ::= `Where` [Column]
 
 // Type Alias
-Name           ::= <String>
-Path           ::= <String>
-Key            ::= <String>
-Value          ::= <String>
+AssetRef       := String
+Format         := String
+SourceRef      := String
+Options        := `Map` String String
+Context<T>     := `Map` <AssetRef> <T>
 ```
 
 ## ETL Yaml Example Specification

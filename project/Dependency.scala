@@ -20,8 +20,9 @@ object Dependency {
       catsEffect.std
     ) ++ testing
 
-  lazy val yaml: Seq[ModuleID] =
+  lazy val serializer: Seq[ModuleID] =
     Seq(
+      circe.parser,
       circe.generic,
       circe.yaml,
       tofu.core,
@@ -36,5 +37,7 @@ object Dependency {
     Seq(
       test.scalaTest
     ).map(d => d % "test")
+
+  lazy val api: Seq[ModuleID] = testing
 
 }
