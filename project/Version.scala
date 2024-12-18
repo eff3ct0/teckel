@@ -12,6 +12,8 @@ object Version {
 
   lazy val Circe         = "0.13.0"
   lazy val Tofu          = "0.13.0"
+  lazy val Estatico: String = "0.4.4"
+  lazy val Fs2: String = "3.9.3"
 
   lazy val Vault: String = "6.2.0"
 }

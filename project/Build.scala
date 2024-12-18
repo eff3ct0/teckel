@@ -22,7 +22,6 @@ object Build extends AutoPlugin {
     scalaVersion       := Version.Scala,
     crossScalaVersions := Vector(scalaVersion.value),
     javacOptions       := Seq("-g:none"),
-    libraryDependencies ++= Dependency.commons,
     run / javaOptions ++= localJvmSettings,
     run / fork  := true,
     Test / fork := true,

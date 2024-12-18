@@ -1,4 +1,4 @@
-import sbt.*
+import sbt._
 
 object Library {
 
@@ -18,12 +18,27 @@ object Library {
     lazy val std: ModuleID  = "org.typelevel" %% "cats-effect-std" % Version.CatsEffect
   }
 
-  object pureconfig {
-    lazy val pureconfig: ModuleID = "com.github.pureconfig" %% "pureconfig" % Version.Pureconfig
+  object circe {
+    lazy val yaml    = "io.circe" %% "circe-yaml"    % Version.Circe
+    lazy val generic = "io.circe" %% "circe-generic" % Version.Circe
   }
 
-  object test {
-    lazy val scalaTest: ModuleID = "org.scalatest" %% "scalatest" % Version.ScalaTest
+  object fs2 {
+    lazy val core: ModuleID = "co.fs2" %% "fs2-core" % Version.Fs2
+    lazy val io: ModuleID   = "co.fs2" %% "fs2-io"   % Version.Fs2
+  }
+
+  object tofu {
+    lazy val core  = "tf.tofu" %% "derevo-core"           % Version.Tofu
+    lazy val circe = "tf.tofu" %% "derevo-circe-magnolia" % Version.Tofu
+  }
+
+  object estatico {
+    lazy val newtype: ModuleID = "io.estatico" %% "newtype" % Version.Estatico
+  }
+
+  object pureconfig {
+    lazy val pureconfig: ModuleID = "com.github.pureconfig" %% "pureconfig" % Version.Pureconfig
   }
 
   object database {
@@ -34,14 +49,8 @@ object Library {
     lazy val vault: ModuleID = "io.github.jopenlibs" % "vault-java-driver" % Version.Vault
   }
 
-  object circe {
-    lazy val yaml    = "io.circe" %% "circe-yaml"    % Version.Circe
-    lazy val generic = "io.circe" %% "circe-generic" % Version.Circe
-  }
-
-  object tofu {
-    lazy val core  = "tf.tofu" %% "derevo-core"           % Version.Tofu
-    lazy val circe = "tf.tofu" %% "derevo-circe-magnolia" % Version.Tofu
+  object test {
+    lazy val scalaTest: ModuleID = "org.scalatest" %% "scalatest" % Version.ScalaTest
   }
 
 }
