@@ -7,6 +7,7 @@ name: Scala CI
 on:
   pull_request:
   push:
+    branches: [ "master" ]
 jobs:
   test:
     strategy:
@@ -17,8 +18,6 @@ jobs:
             java: 8
           - os: ubuntu-latest
             java: 11
-          - os: ubuntu-latest
-            java: 17
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -38,11 +37,11 @@ jobs:
           curl -L https://github.com/sbt/sbt/releases/download/v1.9.8/sbt-1.9.8.tgz | tar xz -C $HOME
           echo "$HOME/sbt/bin" >> $GITHUB_PATH
 
-      - name: Build and Test
-        run: sbt -v +test
-
       - name: Create header and run scalafmt
         run: sbt headerCreateAll scalafmtAll
+
+      - name: Build and Test
+        run: sbt -v +test
 
       # Optional: This step uploads information to the GitHub dependency graph and unblocking Dependabot alerts for the repository
       #- name: Upload dependency graph

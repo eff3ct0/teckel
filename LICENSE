@@ -1,72 +1,21 @@
-Invasion Order Software License Agreement
-Version 1.0, July 2024
+MIT License
 
-TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+Copyright (c) 2024 Rafael Fernandez
 
-1. Definitions
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-   "License" shall mean the terms and conditions for use, reproduction, and distribution as defined by Sections 1 through 12 of this document.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-   "Licensor" shall mean the copyright owner or entity authorized by the copyright owner that is granting the License.
-
-   "Licensee" shall mean the individual or entity exercising permissions granted by this License.
-
-   "Software" shall mean the proprietary software provided by Licensor.
-
-2. License Grant
-
-   Subject to the terms and conditions of this License, Licensor hereby grants Licensee a limited, non-exclusive, non-transferable, non-sublicensable license to install and use the Software solely for Licensee's internal business purposes.
-
-3. Restrictions
-
-   Licensee shall not:
-
-   (a) Copy, modify, or create derivative works of the Software;
-
-   (b) Distribute, transfer, sublicense, lease, lend, or rent the Software to any third party;
-
-   (c) Reverse engineer, decompile, or disassemble the Software;
-
-   (d) Remove or alter any proprietary notices or labels on the Software.
-
-4. Ownership
-
-   All right, title, and interest in and to the Software, including all intellectual property rights, are and will remain the exclusive property of Licensor. This License does not grant Licensee any ownership rights in the Software.
-
-5. Confidentiality
-
-   Licensee agrees to maintain the confidentiality of the Software and any proprietary information received from Licensor, using at least the same degree of care as Licensee uses to protect its own confidential information, but in no event less than reasonable care.
-
-6. Warranty Disclaimer
-
-   The Software is provided "as is," without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. Licensor does not warrant that the Software will meet Licensee's requirements or that the operation of the Software will be uninterrupted or error-free.
-
-7. Limitation of Liability
-
-   In no event shall Licensor be liable for any damages, including but not limited to direct, indirect, special, incidental, or consequential damages, arising out of or in connection with the use or inability to use the Software, even if Licensor has been advised of the possibility of such damages.
-
-8. Term and Termination
-
-   This License is effective upon Licensee's acceptance and shall continue until terminated. Licensee may terminate this License at any time by discontinuing use of the Software and destroying all copies of the Software. Licensor may terminate this License immediately if Licensee breaches any term of this License. Upon termination, Licensee must destroy all copies of the Software.
-
-9. Governing Law
-
-   This License shall be governed by and construed in accordance with the laws of Spain, without regard to its conflict of laws principles.
-
-10. Entire Agreement
-
-    This License constitutes the entire agreement between Licensor and Licensee regarding the Software and supersedes all prior or contemporaneous understandings or agreements, whether written or oral, regarding the Software.
-
-11. Severability
-
-    If any provision of this License is found to be invalid or unenforceable, the remaining provisions shall continue to be valid and enforceable according to their terms.
-
-12. Amendments
-
-    Licensor reserves the right to amend this License at any time by providing written notice to Licensee. Licensee's continued use of the Software following such notice constitutes acceptance of the amended terms.
-
-Contact Information
-
-If you have any questions about this License, please contact Invasion Order at contact@iorder.dev.
-
-(c) 2024 Invasion Order. All rights reserved.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

@@ -78,7 +78,7 @@ Once you have installed Teckel, you can use it to run ETL processes.
 
 Here's an example of a fully defined ETL configuration using a YAML file:
 
-- Simple Example: [here](./docs/etl/simple-example.yaml)
+- Simple Example: [here](./docs/etl/simple.yaml)
 - Other Example: [here](./docs/etl/example.yaml)
 
 ## Development and Contribution
@@ -88,8 +88,8 @@ with your changes.
 
 ## License
 
-Teckel is distributed under a private license. Please refer to the [LICENSE](./LICENSE) file for complete details.
+Teckel is available under the MIT License. See the [LICENSE](./LICENSE) file for more details.
 
-If you have any questions regarding the license, feel free to contact Invasion Order at contact@iorder.dev.
+If you have any questions regarding the license, feel free to contact Rafael Fernandez.
 
 For any issues or questions, feel free to open an issue on the GitHub repository.
