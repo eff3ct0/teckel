@@ -20,6 +20,7 @@ case class Repository(
 )
 object Repository {
 
+  val dummy: Repository = Repository()
   /**
    * Endpoint for the repository
    * @param repository repository
