@@ -6,7 +6,6 @@
 name: Scala CI
 on:
   pull_request:
-  push:
 jobs:
   test:
     strategy:
