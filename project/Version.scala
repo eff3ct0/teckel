@@ -1,6 +1,7 @@
 object Version {
 
   lazy val Scala: String = "2.13.12"
+  lazy val Scala12: String = "2.12.18"
   lazy val Spark: String = "3.5.3"
 
   lazy val Cats: String = "2.12.0"

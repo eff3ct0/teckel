@@ -1,7 +1,7 @@
 input:
   - name: table1
     format: csv
-    path: 'api/src/test/resources/data/csv/example.csv'
+    path: 'src/test/resources/data/csv/example.csv'
     options:
       header: true
       sep: '|'
@@ -11,4 +11,4 @@ output:
   - name: table1
     format: parquet
     mode: overwrite
-    path: 'api/src/test/resources/data/parquet/example'
+    path: 'src/test/resources/data/parquet/example'
