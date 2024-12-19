@@ -4,32 +4,26 @@
 # documentation.
 
 name: Scala CI
-
 on:
-  push:
-    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
-permissions:
-  contents: read
-  packages: write
-
 jobs:
-  build:
-
+  checks:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
+
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup JDK
-        uses: actions/setup-java@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 8
+          cache: sbt
 
       - name: Create header and run scalafmt
         run: sbt headerCreateAll scalafmtAll
