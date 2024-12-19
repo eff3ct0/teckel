@@ -23,7 +23,10 @@ object Build extends AutoPlugin {
     organization       := "com.neoris.hcr.sdk",
     scalaVersion       := Version.Scala,
     crossScalaVersions := Vector(scalaVersion.value),
-    javacOptions       := Seq("-g:none", "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED"),
+    javacOptions := Seq(
+      "-g:none",
+      "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED"
+    ),
     run / javaOptions ++= localJvmSettings,
     run / fork  := true,
     Test / fork := true,
