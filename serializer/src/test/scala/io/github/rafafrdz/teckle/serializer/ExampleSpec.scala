@@ -34,7 +34,7 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
 
   "ExampleSpec" should "work correctly using default serializer" in {
     Serializer[ETL].decode(
-      Source.fromFile("serializer/src/test/resources/simple.yaml").mkString
+      Source.fromFile("src/test/resources/simple.yaml").mkString
     ) shouldBe
       Right(
         ETL(
@@ -48,7 +48,7 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
 
   it should "work correctly using yaml serializer" in {
     Serializer[ETL].decode(
-      Source.fromFile("serializer/src/test/resources/simple.yaml").mkString
+      Source.fromFile("src/test/resources/simple.yaml").mkString
     ) shouldBe
       Right(
         ETL(
@@ -62,7 +62,7 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
 
   it should "work correctly using json serializer" in {
     Serializer[ETL].decode(
-      Source.fromFile("serializer/src/test/resources/simple.json").mkString
+      Source.fromFile("src/test/resources/simple.json").mkString
     ) shouldBe
       Right(
         ETL(

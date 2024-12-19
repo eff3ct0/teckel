@@ -45,11 +45,11 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
   implicit val spark: SparkSession = sparkBuilder()
 
   "ExampleSpec" should "work correctly in a ETL" in {
-    noException should be thrownBy etl[Unit]("api/src/test/resources/etl/simple.yaml").unsafeRunSync()
+    noException should be thrownBy etl[Unit]("src/test/resources/etl/simple.yaml").unsafeRunSync()
   }
 
   it should "work correctly in an unsafe ETL" in {
-    noException should be thrownBy unsafeETL[Unit]("api/src/test/resources/etl/simple.yaml")
+    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/simple.yaml")
   }
 
 }
