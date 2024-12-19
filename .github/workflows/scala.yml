@@ -31,6 +31,12 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: sbt
 
+      - name: Install sbt
+        shell: bash
+        run: |
+          echo "Installing sbt..."
+          curl -L https://github.com/sbt/sbt/releases/download/v1.9.8/sbt-1.9.8.tgz | tar xz -C /usr/local && ln -s /usr/local/sbt/bin/sbt /usr/local/bin/sbt
+
       - name: Build and Test
         run: sbt -v +test
 
