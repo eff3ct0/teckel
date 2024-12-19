@@ -22,7 +22,7 @@ object Build extends AutoPlugin {
   override def projectSettings: Seq[Setting[_]] = Seq(
     organization       := "io.github.rafafrdz",
     scalaVersion       := Version.Scala,
-    crossScalaVersions := Vector(scalaVersion.value, Version.Scala12),
+    crossScalaVersions := Vector(scalaVersion.value),
     javacOptions := Seq(
       "-g:none",
       "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED",
