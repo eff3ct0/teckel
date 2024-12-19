@@ -1,8 +1,10 @@
 # Teckel
 
-Teckel is a Domain-Specific Language (DSL) designed to simplify the creation of Apache Spark ETL (Extract, Transform,
+Teckel is a framework designed to simplify the creation of Apache Spark ETL (Extract, Transform,
 Load) processes using YAML configuration files. This tool aims to standardize and streamline ETL workflow creation by
 enabling the definition of data transformations in a declarative, user-friendly format without writing extensive code.
+
+![Logo](./docs/images/teckle-banner.png)
 
 This concept is further developed on my
 blog: [Big Data with Zero Code](https://blog.rafaelfernandez.dev/posts/big-data-with-zero-code/)
