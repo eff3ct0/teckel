@@ -4,10 +4,6 @@ Teckel is a Domain-Specific Language (DSL) designed to simplify the creation of 
 Load) processes using YAML configuration files. This tool aims to standardize and streamline ETL workflow creation by
 enabling the definition of data transformations in a declarative, user-friendly format without writing extensive code.
 
-The goal is to offer a declarative and user-friendly mechanism that standardizes and simplifies the process of creating
-Apache Spark ETL workflows. With this approach, you can build a Spark ETL by simply providing a YAML configuration file,
-much like following a recipe.
-
 This concept is further developed on my
 blog: [Big Data with Zero Code](https://blog.rafaelfernandez.dev/posts/big-data-with-zero-code/)
 
@@ -82,8 +78,8 @@ Once you have installed Teckel, you can use it to run ETL processes.
 
 Here's an example of a fully defined ETL configuration using a YAML file:
 
-- Simple Example: [here](.docs/etl/simple-example.yaml)
-- Other Example: [here](.docs/etl/example.yaml)
+- Simple Example: [here](./docs/etl/simple-example.yaml)
+- Other Example: [here](./docs/etl/example.yaml)
 
 ## Development and Contribution
 
