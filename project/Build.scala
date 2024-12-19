@@ -1,3 +1,4 @@
+import Publish.localCondition
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.HeaderLicense
 import de.heikoseeberger.sbtheader.{HeaderPlugin, License}
 import sbt.Keys._
@@ -82,10 +83,12 @@ object Build extends AutoPlugin {
     Test / testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-a")
   ) ++ Assembly.projectSettings ++ Publish.projectSettings
 
-  def resolversList: Seq[Resolver] = Seq(
-    Repository.maven(Repository.from(Path.userHome / ".sbt" / ".nexus-releases")),
-    Repository.maven(Repository.from(Path.userHome / ".sbt" / ".nexus-snapshots"))
-  ).flatten
+  def resolversList: Seq[Resolver] = if (localCondition)
+    Seq(
+      Repository.maven(Repository.from(Path.userHome / ".sbt" / ".nexus-releases")),
+      Repository.maven(Repository.from(Path.userHome / ".sbt" / ".nexus-snapshots"))
+    ).flatten
+  else Seq()
 
   /**
    * SBT Header Plugin
