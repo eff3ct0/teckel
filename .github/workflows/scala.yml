@@ -17,7 +17,7 @@ jobs:
             java: 8
           - os: ubuntu-latest
             java: 11
-          - os: windows-latest
+          - os: ubuntu-latest
             java: 17
     runs-on: ubuntu-latest
     steps:
