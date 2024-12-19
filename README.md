@@ -78,7 +78,7 @@ Once you have installed Teckel, you can use it to run ETL processes.
 
 Here's an example of a fully defined ETL configuration using a YAML file:
 
-- Simple Example: [here](./docs/etl/simple-example.yaml)
+- Simple Example: [here](./docs/etl/simple.yaml)
 - Other Example: [here](./docs/etl/example.yaml)
 
 ## Development and Contribution
