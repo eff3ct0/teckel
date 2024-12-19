@@ -20,9 +20,9 @@ object Build extends AutoPlugin {
     )
 
   override def projectSettings: Seq[Setting[_]] = Seq(
-    organization       := "com.neoris.hcr.sdk",
+    organization       := "io.github.rafafrdz",
     scalaVersion       := Version.Scala,
-    crossScalaVersions := Vector(scalaVersion.value),
+    crossScalaVersions := Vector(scalaVersion.value, Version.Scala12),
     javacOptions := Seq(
       "-g:none",
       "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED",
