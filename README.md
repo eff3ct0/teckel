@@ -1,9 +1,26 @@
 # Teckel
 
-A simple DSL to generate ETLs from a YAML Specification file. The idea is to have a simple way to define ETLs in a
-declarative way and generate the code to run it.
+Teckel is a Domain-Specific Language (DSL) designed to simplify the creation of Apache Spark ETL (Extract, Transform,
+Load) processes using YAML configuration files. This tool aims to standardize and streamline ETL workflow creation by
+enabling the definition of data transformations in a declarative, user-friendly format without writing extensive code.
+
+The goal is to offer a declarative and user-friendly mechanism that standardizes and simplifies the process of creating
+Apache Spark ETL workflows. With this approach, you can build a Spark ETL by simply providing a YAML configuration file,
+much like following a recipe.
+
+This concept is further developed on my
+blog: [Big Data with Zero Code](https://blog.rafaelfernandez.dev/posts/big-data-with-zero-code/)
+
+## Features
+
+- **Declarative ETL Configuration:** Define your ETL processes with simple YAML files.
+- **Support for Multiple Data Sources:** Easily integrate inputs in CSV, JSON, and Parquet formats.
+- **Flexible Transformations:** Perform joins, aggregations, and selections with clear syntax.
+- **Spark Compatibility:** Leverage the power of Apache Spark for large-scale data processing.
 
 ## Formal Language Definition
+
+Teckel uses a specific set of language constructs to define data flows. Below is the formal syntax for this DSL:
 
 ```txt
 Asset          := `Asset` <AssetRef> <Source>
@@ -37,98 +54,46 @@ Options        := `Map` String String
 Context<T>     := `Map` <AssetRef> <T>
 ```
 
+## Getting Started
+
+### Prerequisites
+
+- **Apache Spark**: Ensure you have Apache Spark installed and properly configured.
+- **YAML files**: Create configuration files specifying your data sources and transformations.
+
+### Installation
+
+To use Teckel, you can clone the repository and integrate it into your Spark setup:
+
+```bash
+git clone https://github.com/rafafrdz/teckel.git
+cd teckel
+```
+
+**TODO: Add instructions for building the project and integrating it into your Spark setup.**
+
+### Usage
+
+Once you have installed Teckel, you can use it to run ETL processes.
+
+**TODO: Add instructions for running ETL processes using Teckel.**
+
 ## ETL Yaml Example Specification
 
-```yaml
-## Inputs
+Here's an example of a fully defined ETL configuration using a YAML file:
 
-input:
-  - name: table1
-    format: csv
-    path: 'prefix://bucket1/path/path1'
-    options:
-      - header: true
-      - sep: ','
+- Simple Example: [here](.docs/etl/simple-example.yaml)
+- Other Example: [here](.docs/etl/example.yaml)
 
-  - name: table2
-    format: parquet
-    select:
-      - t2pk1
-      - t2pk2
-      - field2
-    path: 'prefix://bucket1/path/path2'
+## Development and Contribution
 
-  - name: table5
-    format: json
-    path: 'prefix://bucket1/path/path5'
+Contributions to Teckel are welcome. If you'd like to contribute, please fork the repository and create a pull request
+with your changes.
 
-  - name: table6
-    format: csv
-    select:
-      - t6pk1
-      - t6pk2
-      - field6
-    path: 'prefix://bucket1/path/path6'
-    options:
-      - header: true
-      - sep: '|'
+## License
 
-  - name: table8
-    format: parquet
-    path: 'prefix://bucket1/path/path8'
+Teckel is distributed under a private license. Please refer to the [LICENSE](./LICENSE) file for complete details.
 
+If you have any questions regarding the license, feel free to contact Invasion Order at contact@iorder.dev.
 
-## Transformations
-
-transformation:
-  - name: tableFinal
-    join:
-      joinType: left
-      relation:
-        left: table1
-        right:
-          - name: table2
-            fields:
-              - t1pk1:t2pk1 # left : right
-              - t1pk2:t2pk2 # table1 : table2
-
-          - name: table3
-            fields:
-              - t1pk1:t3pk1 # table1 : table3
-              - t1pk2:t3pk2 # table1 : table3
-
-          - name: table4
-            fields:
-              - t1pk1:t4pk1 # table1 : table4
-
-  - name: table3
-    group:
-      name: table8
-      by:
-        - f1
-        - f2
-      agg:
-        - expr1
-
-  - name: table4
-    join:
-      joinType: inner
-      relation:
-        left: table6
-        right:
-          - name: table7
-            fields:
-              - t6pk1:t7pk1 # left : right
-              - t6pk2:t7pk2 # table6 : table7
-
-## Output
-
-output:
-  - name: tableFinal
-    format: parquet
-    path: 'prefix://bucket2/path/path1'
-
-  - name: table4
-    format: parquet
-    path: 'prefix://bucket2/path/path2'
-```
+For any issues or questions, feel free to open an issue on the GitHub repository.
