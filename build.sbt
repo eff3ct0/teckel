@@ -1,4 +1,3 @@
-import sbtrelease.ReleaseStateTransformations._
 
 lazy val root =
   (project in file("."))
@@ -60,22 +59,3 @@ lazy val example =
     .settings(
       name := "teckle-example"
     )
-
-/** SBT-RELEASE PLUGIN */
-releaseCrossBuild := false // true if you cross-build the project for multiple Scala versions
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-        inquireVersions,
-        runClean,
-        runTest,
-        setReleaseVersion,
-        commitReleaseVersion,
-        tagRelease,
-        // For non cross-build projects, use releaseStepCommand("publishSigned")
-        // For cross-build projects, use releaseStepCommandAndRemaining("+publishSigned")
-        releaseStepCommand("publishSigned"),
-        releaseStepCommand("sonatypeBundleRelease"),
-        setNextVersion,
-        commitNextVersion,
-        pushChanges
-)

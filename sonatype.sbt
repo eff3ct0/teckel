@@ -1,9 +1,9 @@
 import xerial.sbt.Sonatype.GitHubHosting
 
-sonatypeProfileName := "com.eff3ct"
+organization        := "com.eff3ct"
+organizationName    := "eff3ct"
 homepage            := Some(url("https://github.com/rafafrdz/teckel"))
 licenses            := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
-publishMavenStyle   := true
 scmInfo := Some(
   ScmInfo(
     browseUrl = url("https://github.com/rafafrdz/teckel"),

@@ -3,11 +3,10 @@ import de.heikoseeberger.sbtheader.{HeaderPlugin, License}
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
-import sbtrelease.ReleasePlugin
 
 object BuildPlugin extends AutoPlugin {
 
-  override def requires: Plugins = JvmPlugin && HeaderPlugin && ReleasePlugin
+  override def requires: Plugins = JvmPlugin && HeaderPlugin
 
   override def trigger: PluginTrigger = allRequirements
 
