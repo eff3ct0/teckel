@@ -24,19 +24,25 @@
 
 package io.github.rafafrdz.teckle.transform
 
+import cats.Show
 import io.github.rafafrdz.teckle.model.Source.{Input => I, Output => O}
 import io.github.rafafrdz.teckle.model.{Asset, Context}
 import io.github.rafafrdz.teckle.serializer.model._
+import io.github.rafafrdz.teckle.serializer.types.PrimitiveType
+import io.github.rafafrdz.teckle.serializer.types.implicits._
 
 object Rewrite {
 
+  def rewrite(options: Map[String, PrimitiveType]): Map[String, String] =
+    options.map { case (k, v) => k -> Show[PrimitiveType].show(v) }
+
   def rewrite(item: Input): Asset =
-    Asset(item.name, I(item.format, item.options, item.path))
+    Asset(item.name, I(item.format, rewrite(item.options), item.path))
 
   def rewrite(item: Output): Asset =
     Asset(
       s"output_${item.name}",
-      O(item.name, item.format, item.mode, item.options, item.path)
+      O(item.name, item.format, item.mode, rewrite(item.options), item.path)
     )
 
   def rewrite(item: ETL): Context[Asset] =

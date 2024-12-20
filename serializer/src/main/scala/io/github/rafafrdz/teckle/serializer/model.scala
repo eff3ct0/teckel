@@ -24,7 +24,6 @@
 
 package io.github.rafafrdz.teckle.serializer
 
-import cats.Show
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import io.circe.{Decoder, HCursor}
@@ -38,7 +37,7 @@ object model {
       name: String,
       format: String,
       path: String,
-      options: Map[String, String]
+      options: Map[String, PrimitiveType]
   )
 
   @derive(encoder)
@@ -47,7 +46,7 @@ object model {
       format: String,
       mode: String,
       path: String,
-      options: Map[String, String]
+      options: Map[String, PrimitiveType]
   )
 
   @derive(encoder, decoder)
@@ -60,11 +59,10 @@ object model {
       format <- c.downField("format").as[String]
       mode   <- c.downField("mode").as[String]
       path   <- c.downField("path").as[String]
-      optionsRaw <- c
+      options <- c
         .downField("options")
         .as[Map[String, PrimitiveType]]
         .orElse(Right(Map.empty[String, PrimitiveType]))
-      options = optionsRaw.map { case (k, v) => k -> Show[PrimitiveType].show(v) }
 
     } yield Output(name, format, mode, path, options)
   }
@@ -74,11 +72,10 @@ object model {
       name   <- c.downField("name").as[String]
       format <- c.downField("format").as[String]
       path   <- c.downField("path").as[String]
-      optionsRaw <- c
+      options <- c
         .downField("options")
         .as[Map[String, PrimitiveType]]
         .orElse(Right(Map.empty[String, PrimitiveType]))
-      options = optionsRaw.map { case (k, v) => k -> Show[PrimitiveType].show(v) }
 
     } yield Input(name, format, path, options)
   }
