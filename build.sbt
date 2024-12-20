@@ -1,11 +1,12 @@
-import Build.headerIOLicense
+import sbtrelease.ReleaseStateTransformations._
 
 lazy val root =
   (project in file("."))
-    .disablePlugins(Build)
-    .disablePlugins(AssemblyPlugin, HeaderPlugin)
-    .enablePlugins(NoPublish)
-    .settings(name := "teckle")
+    .disablePlugins(BuildPlugin, AssemblyPlugin, HeaderPlugin)
+    .settings(
+      name           := "teckle",
+      publish / skip := true
+    )
     .aggregate(
       model,
       semantic,
@@ -15,15 +16,14 @@ lazy val root =
     )
 
 /**
- * Serializers --> Model --> Semantic \ /
- * -----> API <---------
+ * Serializers --> Model --> Semantic
+ *      \-----> API <--------- /
  */
 
 lazy val model =
   (project in file("./model"))
     .settings(
-      name          := "model",
-      headerLicense := Some(headerIOLicense),
+      name := "teckle-model",
       libraryDependencies ++= Dependency.model
     )
 
@@ -31,8 +31,7 @@ lazy val semantic =
   (project in file("./semantic"))
     .dependsOn(model)
     .settings(
-      name          := "semantic",
-      headerLicense := Some(headerIOLicense),
+      name := "teckle-semantic",
       libraryDependencies ++= Dependency.semantic
     )
 
@@ -41,9 +40,8 @@ lazy val serializer =
   (project in file("./serializer"))
     .dependsOn(model)
     .settings(
-      name           := "serializer",
+      name           := "teckle-serializer",
       publish / skip := false,
-      headerLicense  := Some(headerIOLicense),
       libraryDependencies ++= Dependency.serializer
     )
 
@@ -51,9 +49,8 @@ lazy val api =
   (project in file("./api"))
     .dependsOn(serializer, semantic)
     .settings(
-      name           := "api",
+      name           := "teckle-api",
       publish / skip := false,
-      headerLicense  := Some(headerIOLicense),
       libraryDependencies ++= Dependency.api
     )
 
@@ -61,6 +58,24 @@ lazy val example =
   (project in file("./example"))
     .dependsOn(api)
     .settings(
-      name          := "example",
-      headerLicense := Some(headerIOLicense)
+      name := "teckle-example"
     )
+
+/** SBT-RELEASE PLUGIN */
+releaseCrossBuild := false // true if you cross-build the project for multiple Scala versions
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+        inquireVersions,
+        runClean,
+        runTest,
+        setReleaseVersion,
+        commitReleaseVersion,
+        tagRelease,
+        // For non cross-build projects, use releaseStepCommand("publishSigned")
+        // For cross-build projects, use releaseStepCommandAndRemaining("+publishSigned")
+        releaseStepCommand("publishSigned"),
+        releaseStepCommand("sonatypeBundleRelease"),
+        setNextVersion,
+        commitNextVersion,
+        pushChanges
+)
