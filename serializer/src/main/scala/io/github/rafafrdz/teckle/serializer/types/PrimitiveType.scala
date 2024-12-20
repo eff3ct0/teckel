@@ -28,6 +28,7 @@ sealed trait PrimitiveType extends Serializable with Product
 
 object PrimitiveType {
   case class StringType(value: String)   extends PrimitiveType
+  case class CharType(value: Char)       extends PrimitiveType
   case class BooleanType(value: Boolean) extends PrimitiveType
   case class IntegerType(value: Int)     extends PrimitiveType
   case class DoubleType(value: Double)   extends PrimitiveType

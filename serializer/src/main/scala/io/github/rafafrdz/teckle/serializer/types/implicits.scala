@@ -32,18 +32,24 @@ object implicits {
 
   implicit val showPrimitiveType: Show[PrimitiveType] = Show.show[PrimitiveType] {
     case StringType(value)  => value
+    case CharType(value)    => value.toString
     case BooleanType(value) => value.toString
     case IntegerType(value) => value.toString
     case DoubleType(value)  => value.toString
   }
   implicit val encodePrimitiveType: Encoder[PrimitiveType] = {
     case StringType(value)  => Json.fromString(value)
+    case CharType(value)    => Json.fromString(value.toString)
     case BooleanType(value) => Json.fromBoolean(value)
     case IntegerType(value) => Json.fromInt(value)
     case DoubleType(value)  => Json.fromDoubleOrNull(value)
   }
+
   implicit val decodeStringType: Decoder[StringType] =
     Decoder.decodeString.map(v => StringType(v))
+
+  implicit val decodeCharType: Decoder[CharType] =
+    Decoder.decodeChar.map(v => CharType(v))
 
   implicit val decodeBooleanType: Decoder[BooleanType] =
     Decoder.decodeBoolean.map(v => BooleanType(v))
@@ -57,9 +63,10 @@ object implicits {
   implicit val decodePrimitiveType: Decoder[PrimitiveType] =
     Decoder
       .instance { c =>
-        c.as[StringType]
-          .orElse(c.as[BooleanType])
+        c.as[BooleanType]
           .orElse(c.as[IntegerType])
           .orElse(c.as[DoubleType])
+          .orElse(c.as[CharType])
+          .orElse(c.as[StringType])
       }
 }
