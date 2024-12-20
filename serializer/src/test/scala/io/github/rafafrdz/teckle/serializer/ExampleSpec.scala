@@ -24,7 +24,7 @@
 
 package io.github.rafafrdz.teckle.serializer
 
-import io.github.rafafrdz.teckle.serializer.model.{ETL, Input, OptionItem, Output}
+import io.github.rafafrdz.teckle.serializer.model.{ETL, Input, Output}
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
@@ -39,9 +39,9 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
       Right(
         ETL(
           List(
-            Input("table1", "csv", "data/csv/example.csv", Some(OptionItem(Some(true), Some("|"))))
+            Input("table1", "csv", "data/csv/example.csv", Map("header" -> "true", "sep" -> "|"))
           ),
-          List(Output("table1", "parquet", "overwrite", "data/parquet/example", None))
+          List(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
         )
       )
   }
@@ -53,9 +53,9 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
       Right(
         ETL(
           List(
-            Input("table1", "csv", "data/csv/example.csv", Some(OptionItem(Some(true), Some("|"))))
+            Input("table1", "csv", "data/csv/example.csv", Map("header" -> "true", "sep" -> "|"))
           ),
-          List(Output("table1", "parquet", "overwrite", "data/parquet/example", None))
+          List(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
         )
       )
   }
@@ -67,9 +67,9 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
       Right(
         ETL(
           List(
-            Input("table1", "csv", "data/csv/example.csv", Some(OptionItem(Some(true), Some("|"))))
+            Input("table1", "csv", "data/csv/example.csv", Map("header" -> "true", "sep" -> "|"))
           ),
-          List(Output("table1", "parquet", "overwrite", "data/parquet/example", None))
+          List(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
         )
       )
   }
