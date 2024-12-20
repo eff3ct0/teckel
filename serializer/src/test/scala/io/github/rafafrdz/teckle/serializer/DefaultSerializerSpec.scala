@@ -25,6 +25,7 @@
 package io.github.rafafrdz.teckle.serializer
 
 import io.github.rafafrdz.teckle.serializer.model._
+import io.github.rafafrdz.teckle.serializer.types.PrimitiveType._
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
@@ -64,7 +65,12 @@ class DefaultSerializerSpec extends AnyFlatSpecLike with Matchers {
   object Model {
 
     val input: Input =
-      Input("table1", "csv", "/path/path1/file.csv", Map("header" -> "true", "sep" -> "|"))
+      Input(
+        "table1",
+        "csv",
+        "/path/path1/file.csv",
+        Map("header" -> BooleanType(true), "sep" -> CharType('|'))
+      )
 
     val output: Output =
       Output("table1", "parquet", "overwrite", "/path/path1", Map())
@@ -72,7 +78,12 @@ class DefaultSerializerSpec extends AnyFlatSpecLike with Matchers {
     val etl: ETL =
       ETL(
         List(
-          Input("table1", "csv", "data/csv/example.csv", Map("header" -> "true", "sep" -> "|"))
+          Input(
+            "table1",
+            "csv",
+            "data/csv/example.csv",
+            Map("header" -> BooleanType(true), "sep" -> CharType('|'))
+          )
         ),
         List(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
       )
