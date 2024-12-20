@@ -39,7 +39,7 @@ object evaluation {
         asset.source match {
           case Input(format, options, ref) =>
             S.read.format(format).options(options).load(ref)
-          case Output(assetRef, _,_, _, _) =>
+          case Output(assetRef, _, _, _, _) =>
             eval(context, context(assetRef))
         }
     }

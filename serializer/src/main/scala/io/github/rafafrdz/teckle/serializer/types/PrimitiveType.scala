@@ -22,31 +22,14 @@
  * SOFTWARE.
  */
 
-package io.github.rafafrdz.teckle.transform
+package io.github.rafafrdz.teckle.serializer.types
 
-import io.github.rafafrdz.teckle.model.Source.{Input => I, Output => O}
-import io.github.rafafrdz.teckle.model.{Asset, Context}
-import io.github.rafafrdz.teckle.serializer.model._
+sealed trait PrimitiveType extends Serializable with Product
 
-object Rewrite {
-
-  def rewrite(item: Input): Asset =
-    Asset(item.name, I(item.format, item.options, item.path))
-
-  def rewrite(item: Output): Asset =
-    Asset(
-      s"output_${item.name}",
-      O(item.name, item.format, item.mode, item.options, item.path)
-    )
-
-  def rewrite(item: ETL): Context[Asset] =
-    (item.input.map { i =>
-      val asset: Asset = rewrite(i)
-      asset.assetRef -> asset
-    } :::
-      item.output.map { i =>
-        val asset: Asset = rewrite(i)
-        asset.assetRef -> asset
-      }).toMap
-
+object PrimitiveType {
+  case class StringType(value: String)   extends PrimitiveType
+  case class CharType(value: Char)       extends PrimitiveType
+  case class BooleanType(value: Boolean) extends PrimitiveType
+  case class IntegerType(value: Int)     extends PrimitiveType
+  case class DoubleType(value: Double)   extends PrimitiveType
 }

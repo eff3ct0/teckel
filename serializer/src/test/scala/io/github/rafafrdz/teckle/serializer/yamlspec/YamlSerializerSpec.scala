@@ -67,17 +67,17 @@ class YamlSerializerSpec extends AnyFlatSpecLike with Matchers {
   object Model {
 
     val input: Input =
-      Input("table1", "csv", "/path/path1/file.csv", Some(OptionItem(Some(true), Some("|"))))
+      Input("table1", "csv", "/path/path1/file.csv", Map("header" -> "true", "sep" -> "|"))
 
     val output: Output =
-      Output("table1", "parquet", "overwrite", "/path/path1", None)
+      Output("table1", "parquet", "overwrite", "/path/path1", Map())
 
     val etl: ETL =
       ETL(
         List(
-          Input("table1", "csv", "data/csv/example.csv", Some(OptionItem(Some(true), Some("|"))))
+          Input("table1", "csv", "data/csv/example.csv", Map("header" -> "true", "sep" -> "|"))
         ),
-        List(Output("table1", "parquet", "overwrite", "data/parquet/example", None))
+        List(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
       )
   }
 

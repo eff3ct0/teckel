@@ -24,27 +24,63 @@
 
 package io.github.rafafrdz.teckle.serializer
 
+import cats.Show
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
+import io.circe.{Decoder, HCursor}
+import io.github.rafafrdz.teckle.serializer.types.PrimitiveType
+import io.github.rafafrdz.teckle.serializer.types.implicits._
 
 object model {
 
-  @derive(encoder, decoder)
-  case class Input(name: String, format: String, path: String, options: Option[OptionItem])
+  @derive(encoder)
+  case class Input(
+      name: String,
+      format: String,
+      path: String,
+      options: Map[String, String]
+  )
 
-  @derive(encoder, decoder)
+  @derive(encoder)
   case class Output(
       name: String,
       format: String,
       mode: String,
       path: String,
-      options: Option[OptionItem]
+      options: Map[String, String]
   )
 
   @derive(encoder, decoder)
   case class ETL(input: List[Input], output: List[Output])
 
-  @derive(encoder, decoder)
-  case class OptionItem(header: Option[Boolean], sep: Option[String])
+  /** Decoders */
+  implicit val decodeOutput: Decoder[Output] = (c: HCursor) => {
+    for {
+      name   <- c.downField("name").as[String]
+      format <- c.downField("format").as[String]
+      mode   <- c.downField("mode").as[String]
+      path   <- c.downField("path").as[String]
+      optionsRaw <- c
+        .downField("options")
+        .as[Map[String, PrimitiveType]]
+        .orElse(Right(Map.empty[String, PrimitiveType]))
+      options = optionsRaw.map { case (k, v) => k -> Show[PrimitiveType].show(v) }
+
+    } yield Output(name, format, mode, path, options)
+  }
+
+  implicit val decodeInput: Decoder[Input] = (c: HCursor) => {
+    for {
+      name   <- c.downField("name").as[String]
+      format <- c.downField("format").as[String]
+      path   <- c.downField("path").as[String]
+      optionsRaw <- c
+        .downField("options")
+        .as[Map[String, PrimitiveType]]
+        .orElse(Right(Map.empty[String, PrimitiveType]))
+      options = optionsRaw.map { case (k, v) => k -> Show[PrimitiveType].show(v) }
+
+    } yield Input(name, format, path, options)
+  }
 
 }

@@ -29,6 +29,11 @@ sealed trait Source
 object Source {
   case class Input(format: Format, options: Options, sourceRef: SourceRef) extends Source
 
-  case class Output(assetRef: AssetRef, format: Format, mode: Mode, options: Options, sourceRef: SourceRef)
-      extends Source
+  case class Output(
+      assetRef: AssetRef,
+      format: Format,
+      mode: Mode,
+      options: Options,
+      sourceRef: SourceRef
+  ) extends Source
 }
