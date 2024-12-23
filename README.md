@@ -86,10 +86,10 @@ Here's an example of a fully defined ETL configuration using a YAML file:
 - Other Example: [here](./docs/etl/example.yaml)
 
 ### SQL Transformations
-- Select Example: [here](./docs/etl/select.yaml)
-- Where Example: [here](./docs/etl/where.yaml)
-- Group By Example: [here](./docs/etl/group-by.yaml)
-- Order By Example: [here](./docs/etl/order-by.yaml)
+- `Select` Example: [here](./docs/etl/select.yaml)
+- `Where` Example: [here](./docs/etl/where.yaml)
+- `Group By` Example: [here](./docs/etl/group-by.yaml)
+- `Order By` Example: [here](./docs/etl/order-by.yaml)
 
 
 ## Development and Contribution
