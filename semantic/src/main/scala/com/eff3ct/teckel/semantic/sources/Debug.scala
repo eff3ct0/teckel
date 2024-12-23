@@ -31,7 +31,7 @@ import com.eff3ct.teckel.semantic.core.Semantic
 import org.apache.spark.sql.functions.expr
 import org.apache.spark.sql.{DataFrame, RelationalGroupedDataset, SparkSession}
 
-trait Debug[-S] extends Semantic[S, DataFrame, DataFrame] {
+trait Debug[S] extends Semantic[S, DataFrame, DataFrame] {
   def debug(df: DataFrame, source: S): DataFrame = eval(df, source)
 }
 
@@ -75,6 +75,7 @@ object Debug {
     }
 
   /** OrderBy */
+  // TODO: implement the asc/desc order
   implicit val orderByS: Debug[OrderBy] =
     (df, source) => df.orderBy(source.by.toList.map(df(_)): _*)
 }
