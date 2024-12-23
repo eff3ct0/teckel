@@ -4,7 +4,7 @@ lazy val root =
   (project in file("."))
     .disablePlugins(BuildPlugin, AssemblyPlugin, HeaderPlugin)
     .settings(
-      name           := "teckle",
+      name           := "teckel",
       publish / skip := true
     )
     .aggregate(
@@ -23,7 +23,7 @@ lazy val root =
 lazy val model =
   (project in file("./model"))
     .settings(
-      name := "teckle-model",
+      name := "teckel-model",
       libraryDependencies ++= Dependency.model
     )
 
@@ -31,7 +31,7 @@ lazy val semantic =
   (project in file("./semantic"))
     .dependsOn(model)
     .settings(
-      name := "teckle-semantic",
+      name := "teckel-semantic",
       libraryDependencies ++= Dependency.semantic
     ).withKindProjector
 
@@ -40,7 +40,7 @@ lazy val serializer =
   (project in file("./serializer"))
     .dependsOn(model)
     .settings(
-      name           := "teckle-serializer",
+      name           := "teckel-serializer",
       publish / skip := false,
       libraryDependencies ++= Dependency.serializer
     )
@@ -49,7 +49,7 @@ lazy val api =
   (project in file("./api"))
     .dependsOn(serializer, semantic)
     .settings(
-      name           := "teckle-api",
+      name           := "teckel-api",
       publish / skip := false,
       libraryDependencies ++= Dependency.api
     )
@@ -58,5 +58,5 @@ lazy val example =
   (project in file("./example"))
     .dependsOn(api)
     .settings(
-      name := "teckle-example"
+      name := "teckel-example"
     )
