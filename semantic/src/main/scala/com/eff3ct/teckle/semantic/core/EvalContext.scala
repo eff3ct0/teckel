@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckle.semantic
+package com.eff3ct.teckle.semantic.core
 
 import com.eff3ct.teckle.model.{Asset, Context}
 

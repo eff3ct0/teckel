@@ -24,9 +24,12 @@
 
 package com.eff3ct.teckle.model
 
+import cats.data.NonEmptyList
+
 sealed trait Source
 
 object Source {
+
   case class Input(format: Format, options: Options, sourceRef: SourceRef) extends Source
 
   case class Output(
@@ -36,4 +39,21 @@ object Source {
       options: Options,
       sourceRef: SourceRef
   ) extends Source
+      with WithAssetRef
+
+  trait WithAssetRef {
+    def assetRef: AssetRef
+  }
+
+  sealed trait Transformation extends Source with WithAssetRef
+
+  case class Select(assetRef: AssetRef, columns: NonEmptyList[Column]) extends Transformation
+
+  case class Where(assetRef: AssetRef, condition: Condition) extends Transformation
+
+  case class GroupBy(assetRef: AssetRef, by: NonEmptyList[Column], aggregate: NonEmptyList[Column])
+      extends Transformation
+
+  case class OrderBy(assetRef: AssetRef, by: NonEmptyList[Column], order: Order)
+      extends Transformation
 }

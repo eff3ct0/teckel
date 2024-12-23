@@ -28,8 +28,8 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import cats.{Id, MonadThrow}
+import com.eff3ct.teckle.semantic.core.EvalContext
 import fs2.io.file.{Files, Path}
-import com.eff3ct.teckle.semantic.EvalContext
 import com.eff3ct.teckle.serializer._
 import com.eff3ct.teckle.serializer.model.ETL
 import com.eff3ct.teckle.transform.Rewrite

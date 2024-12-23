@@ -24,27 +24,28 @@
 
 package com.eff3ct.teckle.semantic
 
-import com.eff3ct.teckle.model.Source.{Input, Output}
-import com.eff3ct.teckle.model.{Asset, Context}
-import org.apache.spark.sql.{DataFrame, SparkSession}
-
-import scala.annotation.tailrec
+import com.eff3ct.teckle.model.Source._
+import com.eff3ct.teckle.model._
+import com.eff3ct.teckle.semantic.core._
+import com.eff3ct.teckle.semantic.sources.Debug
+import com.eff3ct.teckle.semantic.sources.Debug._
+import org.apache.spark.sql._
 
 object evaluation {
 
-  implicit def evalAssetDebug(implicit S: SparkSession): EvalAsset[DataFrame] =
+  implicit def debug(implicit S: SparkSession): EvalAsset[DataFrame] =
     new EvalAsset[DataFrame] {
-      @tailrec
-      override def eval(context: Context[Asset], asset: Asset): DataFrame =
+      override def eval(context: Context[Asset], asset: Asset): DataFrame = {
         asset.source match {
-          case Input(format, options, ref) =>
-            S.read.format(format).options(options).load(ref)
-          case Output(assetRef, _, _, _, _) =>
-            eval(context, context(assetRef))
+          case s: Input  => Semantic.any[Input, DataFrame](s)
+          case s: Output => Debug[Output].debug(eval(context, context(s.assetRef)), s)
+          case s: Transformation =>
+            Debug[Transformation].debug(eval(context, context(s.assetRef)), s)
         }
+      }
     }
 
-  implicit def evalContextDebug[T: EvalAsset]: EvalContext[Context[T]] =
+  implicit def debugContext[T: EvalAsset]: EvalContext[Context[T]] =
     (context: Context[Asset]) =>
       context.map { case (ref, asset) =>
         ref -> EvalAsset[T].eval(context, asset)

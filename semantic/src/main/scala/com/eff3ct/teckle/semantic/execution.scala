@@ -24,26 +24,29 @@
 
 package com.eff3ct.teckle.semantic
 import com.eff3ct.teckle.model.Source.Output
-import com.eff3ct.teckle.model.{Asset, Context}
-import org.apache.spark.sql.DataFrame
+import com.eff3ct.teckle.model._
+import com.eff3ct.teckle.semantic.core._
+import com.eff3ct.teckle.semantic.evaluation._
+import com.eff3ct.teckle.semantic.sources.Exec
+import com.eff3ct.teckle.semantic.sources.Exec._
+import org.apache.spark.sql._
 
 object execution {
 
-  implicit def evalAssetExecution(implicit E: EvalAsset[DataFrame]): EvalAsset[Unit] =
-    (context: Context[Asset], asset: Asset) =>
+  implicit def exec(implicit S: SparkSession): EvalAsset[Unit] =
+    (context: Context[Asset], asset: Asset) => {
       asset.source match {
-        case Output(_, format, mode, options, ref) =>
-          EvalAsset[DataFrame]
-            .eval(context, asset)
-            .write
-            .format(format)
-            .mode(mode)
-            .options(options)
-            .save(ref)
+        case o: Output =>
+          val EA: EvalAsset[DataFrame] = debug
+          Exec[Output].eval(
+            EA.eval(context, asset),
+            o
+          ) // TODO: Check if the asset is already evaluated
         case _ => ()
       }
+    }
 
-  implicit def evalContextExecution(implicit E: EvalAsset[Unit]): EvalContext[Unit] =
+  implicit def execContext(implicit E: EvalAsset[Unit]): EvalContext[Unit] =
     (context: Context[Asset]) =>
       context.foreach {
         case (ref, asset @ Asset(_, _: Output)) =>

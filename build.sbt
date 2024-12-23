@@ -1,3 +1,4 @@
+import Dependency.ProjectOps
 
 lazy val root =
   (project in file("."))
@@ -32,7 +33,7 @@ lazy val semantic =
     .settings(
       name := "teckle-semantic",
       libraryDependencies ++= Dependency.semantic
-    )
+    ).withKindProjector
 
 /** Serializer */
 lazy val serializer =

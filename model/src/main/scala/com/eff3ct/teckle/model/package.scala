@@ -32,4 +32,8 @@ package object model {
   type Mode       = String
   type Options    = Map[String, String]
   type Context[T] = Map[AssetRef, T]
+
+  type Column = String
+  type Condition = String
+  type Order = String
 }

@@ -25,12 +25,18 @@
 package com.eff3ct.teckle
 
 import com.eff3ct.teckle.model.{Asset, Context}
+import com.eff3ct.teckle.semantic.core._
 
 package object semantic {
 
+  type SemanticA[S, O] = Semantic[S, Any, O]
+
+  /** Evaluate the context */
   def eval[T: EvalContext](context: Context[Asset]): T =
     EvalContext[T].eval(context)
 
+  /** Evaluate an asset */
   def eval[T: EvalAsset](context: Context[Asset], asset: Asset): T =
     EvalAsset[T].eval(context, asset)
+
 }

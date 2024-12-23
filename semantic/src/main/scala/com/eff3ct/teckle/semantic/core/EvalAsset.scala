@@ -22,13 +22,11 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckle.semantic
+package com.eff3ct.teckle.semantic.core
 
 import com.eff3ct.teckle.model._
 
-trait EvalAsset[T] {
-  def eval(context: Context[Asset], asset: Asset): T
-}
+trait EvalAsset[+T] extends Semantic[Asset, Context[Asset], T]
 
 object EvalAsset {
   def apply[T: EvalAsset]: EvalAsset[T] =

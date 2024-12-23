@@ -26,8 +26,8 @@ package com.eff3ct.teckle.api
 
 import cats.Id
 import cats.effect.IO
+import com.eff3ct.teckle.semantic.core.EvalContext
 import fs2.Compiler
-import com.eff3ct.teckle.semantic.EvalContext
 
 package object etl {
 
