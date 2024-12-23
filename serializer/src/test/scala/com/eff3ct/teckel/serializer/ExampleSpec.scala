@@ -25,11 +25,11 @@
 package com.eff3ct.teckel.serializer
 
 import cats.data.NonEmptyList
+import com.eff3ct.teckel.serializer.model.etl._
 import com.eff3ct.teckel.serializer.model.input._
+import com.eff3ct.teckel.serializer.model.operations._
 import com.eff3ct.teckel.serializer.model.output._
 import com.eff3ct.teckel.serializer.model.transformation._
-import com.eff3ct.teckel.serializer.model.operations._
-import com.eff3ct.teckel.serializer.model.etl._
 import com.eff3ct.teckel.serializer.types.PrimitiveType._
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -38,61 +38,96 @@ import scala.io.Source
 
 class ExampleSpec extends AnyFlatSpecLike with Matchers {
 
-  "ExampleSpec" should "work correctly using default serializer" in {
-    Serializer[ETL].decode(
-      Source.fromFile("src/test/resources/simple.yaml").mkString
-    ) shouldBe
-      Right(
-        ETL(
+  object Model {
+    val simple: ETL = ETL(
+      NonEmptyList.of(
+        Input(
+          "table1",
+          "csv",
+          "data/csv/example.csv",
+          Map("header" -> BooleanType(true), "sep" -> CharType('|'))
+        )
+      ),
+      NonEmptyList.of(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
+    )
+
+    val complexETL: ETL =
+      ETL(
+        NonEmptyList.of(
+          Input(
+            "table1",
+            "csv",
+            "data/csv/example.csv",
+            Map("header" -> BooleanType(true), "sep" -> CharType('|'))
+          )
+        ),
+        Some(
           NonEmptyList.of(
-            Input(
-              "table1",
-              "csv",
-              "data/csv/example.csv",
-              Map("header" -> BooleanType(true), "sep" -> CharType('|'))
+            Select("selectTable1", SelectOp("table1", NonEmptyList.of("col1", "col2"))),
+            Where("whereTable1", WhereOp("selectTable1", "col1 > 10")),
+            GroupBy(
+              "groupByTable1",
+              GroupByOp(
+                "whereTable1",
+                NonEmptyList.of("col1", "col2"),
+                NonEmptyList.of("sum(col1)", "max(col2)")
+              )
+            ),
+            OrderBy(
+              "orderByTable1",
+              OrderByOp("groupByTable1", NonEmptyList.of("col1", "col2"), Some("Desc"))
             )
-          ),
-          NonEmptyList.of(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
+          )
+        ),
+        NonEmptyList.of(
+          Output("orderByTable1", "parquet", "overwrite", "data/parquet/example", Map())
         )
       )
   }
 
-  it should "work correctly using yaml serializer" in {
+  /** Default */
+  "ExampleSpec" should "work correctly using a simple yaml with default serializer" in {
     Serializer[ETL].decode(
       Source.fromFile("src/test/resources/simple.yaml").mkString
     ) shouldBe
-      Right(
-        ETL(
-          NonEmptyList.of(
-            Input(
-              "table1",
-              "csv",
-              "data/csv/example.csv",
-              Map("header" -> BooleanType(true), "sep" -> CharType('|'))
-            )
-          ),
-          NonEmptyList.of(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
-        )
-      )
+      Right(Model.simple)
   }
 
-  it should "work correctly using json serializer" in {
+  it should "work correctly using a complex yaml with default serializer" in {
+    Serializer[ETL].decode(
+      Source.fromFile("src/test/resources/complex.yaml").mkString
+    ) shouldBe
+      Right(Model.complexETL)
+  }
+
+  /** Yaml */
+  it should "work correctly using a simple yaml with yaml serializer" in {
+    Serializer[ETL].decode(
+      Source.fromFile("src/test/resources/simple.yaml").mkString
+    ) shouldBe
+      Right(Model.simple)
+  }
+
+  it should "work correctly using a complex yaml with yaml serializer" in {
+    Serializer[ETL].decode(
+      Source.fromFile("src/test/resources/complex.yaml").mkString
+    ) shouldBe
+      Right(Model.complexETL)
+  }
+
+  /** Json */
+  it should "work correctly using a simple json with json serializer" in {
     Serializer[ETL].decode(
       Source.fromFile("src/test/resources/simple.json").mkString
     ) shouldBe
-      Right(
-        ETL(
-          NonEmptyList.of(
-            Input(
-              "table1",
-              "csv",
-              "data/csv/example.csv",
-              Map("header" -> BooleanType(true), "sep" -> CharType('|'))
-            )
-          ),
-          NonEmptyList.of(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
-        )
-      )
+      Right(Model.simple)
+  }
+
+  it should "work correctly using a complex json with json serializer" in {
+    Serializer[ETL].decode(
+      Source.fromFile("src/test/resources/complex.json").mkString
+    ) shouldBe
+      Right(Model.complexETL)
   }
 
 }
