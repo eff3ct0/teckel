@@ -22,37 +22,35 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel.api.etl
+package com.eff3ct.teckel.serializer.model
 
-import cats.effect.IO
-import cats.effect.unsafe.implicits.global
-import cats.implicits._
-import cats.{Id, MonadThrow}
-import com.eff3ct.teckel.semantic.core.EvalContext
-import fs2.io.file.{Files, Path}
-import com.eff3ct.teckel.serializer._
-import com.eff3ct.teckel.serializer.model.output.ETL
-import com.eff3ct.teckel.transform.Rewrite
+import com.eff3ct.teckel.serializer.types.PrimitiveType
+import com.eff3ct.teckel.serializer.types.implicits._
+import derevo.circe.magnolia.encoder
+import derevo.derive
+import io.circe.{Decoder, HCursor}
 
-trait Run[F[_]] {
-  def run[O: EvalContext](path: String): F[O]
+object input {
 
-}
-object Run {
+  @derive(encoder)
+  case class Input(
+      name: String,
+      format: String,
+      path: String,
+      options: Map[String, PrimitiveType]
+  )
 
-  def apply[F[_]: Run]: Run[F] = implicitly[Run[F]]
+  implicit val decodeInput: Decoder[Input] = (c: HCursor) => {
+    for {
+      name   <- c.downField("name").as[String]
+      format <- c.downField("format").as[String]
+      path   <- c.downField("path").as[String]
+      options <- c
+        .downField("options")
+        .as[Map[String, PrimitiveType]]
+        .orElse(Right(Map.empty[String, PrimitiveType]))
 
-  implicit def runF[F[_]: Compile: Files: MonadThrow]: Run[F] = new Run[F] {
-    override def run[O: EvalContext](path: String): F[O] =
-      for {
-        data <- Files[F].readUtf8(Path(path)).compile.lastOrError
-        etl  <- MonadThrow[F].fromEither(Serializer[ETL].decode(data))
-        context = Rewrite.rewrite(etl)
-      } yield EvalContext[O].eval(context)
+    } yield Input(name, format, path, options)
   }
 
-  implicit val runId: Run[Id] = new Run[Id] {
-    override def run[O: EvalContext](path: String): Id[O] =
-      Run[IO].run(path).unsafeRunSync()
-  }
 }

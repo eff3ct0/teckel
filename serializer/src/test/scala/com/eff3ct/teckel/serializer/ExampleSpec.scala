@@ -25,7 +25,11 @@
 package com.eff3ct.teckel.serializer
 
 import cats.data.NonEmptyList
-import com.eff3ct.teckel.serializer.model.{ETL, Input, Output}
+import com.eff3ct.teckel.serializer.model.input._
+import com.eff3ct.teckel.serializer.model.output._
+import com.eff3ct.teckel.serializer.model.transformation._
+import com.eff3ct.teckel.serializer.model.operations._
+import com.eff3ct.teckel.serializer.model.etl._
 import com.eff3ct.teckel.serializer.types.PrimitiveType._
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers

@@ -27,7 +27,10 @@ package com.eff3ct.teckel.transform
 import cats.Show
 import cats.data.NonEmptyList
 import com.eff3ct.teckel.model.{Asset, Context, Source}
-import com.eff3ct.teckel.serializer.model._
+import com.eff3ct.teckel.serializer.model.etl._
+import com.eff3ct.teckel.serializer.model.input._
+import com.eff3ct.teckel.serializer.model.output._
+import com.eff3ct.teckel.serializer.model.transformation._
 import com.eff3ct.teckel.serializer.types.PrimitiveType
 import com.eff3ct.teckel.serializer.types.implicits._
 
@@ -93,6 +96,6 @@ object Rewrite {
     } yield context.toList.toMap).getOrElse(Map())
 
   def rewrite(item: ETL): Context[Asset] =
-    (icontext(item.input) ++ ocontext(item.output) ++ tcontext(item.transformation))
+    icontext(item.input) ++ ocontext(item.output) ++ tcontext(item.transformation)
 
 }

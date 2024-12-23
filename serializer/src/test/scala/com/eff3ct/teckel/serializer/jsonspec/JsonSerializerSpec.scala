@@ -26,7 +26,11 @@ package com.eff3ct.teckel.serializer.jsonspec
 
 import cats.data.NonEmptyList
 import com.eff3ct.teckel.serializer.Serializer
-import com.eff3ct.teckel.serializer.model._
+import com.eff3ct.teckel.serializer.model.etl._
+import com.eff3ct.teckel.serializer.model.input._
+import com.eff3ct.teckel.serializer.model.operations._
+import com.eff3ct.teckel.serializer.model.output._
+import com.eff3ct.teckel.serializer.model.transformation._
 import com.eff3ct.teckel.serializer.types.PrimitiveType.{BooleanType, CharType}
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -54,6 +58,40 @@ class JsonSerializerSpec extends AnyFlatSpecLike with Matchers {
                            |  "path": "/path/path1"
                            |}""".stripMargin
 
+    val select: String = """{
+                           |  "name": "selectTable1",
+                           |  "select": {
+                           |    "from": "table1",
+                           |    "columns": ["col1", "col2"]
+                           |  }
+                           |}""".stripMargin
+
+    val where: String = """{
+                          |  "name": "whereTable1",
+                          |  "where": {
+                          |    "from": "table1",
+                          |    "filter": "col1 > 10"
+                          |  }
+                          |}""".stripMargin
+
+    val groupBy: String = """{
+                            |  "name": "groupByTable1",
+                            |  "group": {
+                            |    "from": "table1",
+                            |    "by": ["col1", "col2"],
+                            |    "agg": ["sum(col1)", "max(col2)"]
+                            |  }
+                            |}""".stripMargin
+
+    val orderBy: String = """{
+                            |  "name": "orderByTable1",
+                            |  "order": {
+                            |    "from": "table1",
+                            |    "by": ["col1", "col2"],
+                            |    "order": "Desc"
+                            |  }
+                            |}""".stripMargin
+
     val etl: String = """{
                         |  "input": [
                         |    {
@@ -76,6 +114,60 @@ class JsonSerializerSpec extends AnyFlatSpecLike with Matchers {
                         |  ]
                         |}""".stripMargin
 
+    val complexETL: String = """{
+                               |  "input": [
+                               |    {
+                               |      "name": "table1",
+                               |      "format": "csv",
+                               |      "path": "data/csv/example.csv",
+                               |      "options": {
+                               |        "header": true,
+                               |        "sep": "|"
+                               |      }
+                               |    }
+                               |  ],
+                               |  "transformation": [
+                               |    {
+                               |      "name": "selectTable1",
+                               |      "select": {
+                               |        "from": "table1",
+                               |        "columns": ["col1", "col2"]
+                               |      }
+                               |    },
+                               |    {
+                               |      "name": "whereTable1",
+                               |      "where": {
+                               |        "from": "selectTable1",
+                               |        "filter": "col1 > 10"
+                               |      }
+                               |    },
+                               |    {
+                               |      "name": "groupByTable1",
+                               |      "group": {
+                               |        "from": "whereTable1",
+                               |        "by": ["col1", "col2"],
+                               |        "agg": ["sum(col1)", "max(col2)"]
+                               |      }
+                               |    },
+                               |    {
+                               |      "name": "orderByTable1",
+                               |      "order": {
+                               |        "from": "groupByTable1",
+                               |        "by": ["col1", "col2"],
+                               |        "order": "Desc"
+                               |      }
+                               |    }
+                               |  ],
+                               |  "output": [
+                               |    {
+                               |      "name": "orderByTable1",
+                               |      "format": "parquet",
+                               |      "mode": "overwrite",
+                               |      "path": "data/parquet/example"
+                               |    }
+                               |  ]
+                               |}""".stripMargin
+
   }
 
   object Model {
@@ -91,6 +183,34 @@ class JsonSerializerSpec extends AnyFlatSpecLike with Matchers {
     val output: Output =
       Output("table1", "parquet", "overwrite", "/path/path1", Map())
 
+    val select: Select =
+      Select(
+        "selectTable1",
+        SelectOp("table1", NonEmptyList.of("col1", "col2"))
+      )
+
+    val where: Where =
+      Where(
+        "whereTable1",
+        WhereOp("table1", "col1 > 10")
+      )
+
+    val groupBy: GroupBy =
+      GroupBy(
+        "groupByTable1",
+        GroupByOp(
+          "table1",
+          NonEmptyList.of("col1", "col2"),
+          NonEmptyList.of("sum(col1)", "max(col2)")
+        )
+      )
+
+    val orderBy: OrderBy =
+      OrderBy(
+        "orderByTable1",
+        OrderByOp("table1", NonEmptyList.of("col1", "col2"), Some("Desc"))
+      )
+
     val etl: ETL =
       ETL(
         NonEmptyList.of(
@@ -103,9 +223,42 @@ class JsonSerializerSpec extends AnyFlatSpecLike with Matchers {
         ),
         NonEmptyList.of(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
       )
+
+    val complexETL: ETL =
+      ETL(
+        NonEmptyList.of(
+          Input(
+            "table1",
+            "csv",
+            "data/csv/example.csv",
+            Map("header" -> BooleanType(true), "sep" -> CharType('|'))
+          )
+        ),
+        Some(
+          NonEmptyList.of(
+            Select("selectTable1", SelectOp("table1", NonEmptyList.of("col1", "col2"))),
+            Where("whereTable1", WhereOp("selectTable1", "col1 > 10")),
+            GroupBy(
+              "groupByTable1",
+              GroupByOp(
+                "whereTable1",
+                NonEmptyList.of("col1", "col2"),
+                NonEmptyList.of("sum(col1)", "max(col2)")
+              )
+            ),
+            OrderBy(
+              "orderByTable1",
+              OrderByOp("groupByTable1", NonEmptyList.of("col1", "col2"), Some("Desc"))
+            )
+          )
+        ),
+        NonEmptyList.of(
+          Output("orderByTable1", "parquet", "overwrite", "data/parquet/example", Map())
+        )
+      )
   }
 
-  "JsonSerializer" should "decode into an Input" in {
+  "DefaultSerializer" should "decode into an Input" in {
     Serializer[Input].decode(Json.input) shouldBe Right(Model.input)
   }
 
@@ -113,7 +266,27 @@ class JsonSerializerSpec extends AnyFlatSpecLike with Matchers {
     Serializer[Output].decode(Json.output) shouldBe Right(Model.output)
   }
 
+  it should "decode into a Select" in {
+    Serializer[Select].decode(Json.select) shouldBe Right(Model.select)
+  }
+
+  it should "decode into a Where" in {
+    Serializer[Where].decode(Json.where) shouldBe Right(Model.where)
+  }
+
+  it should "decode into a GroupBy" in {
+    Serializer[GroupBy].decode(Json.groupBy) shouldBe Right(Model.groupBy)
+  }
+
+  it should "decode into a OrderBy" in {
+    Serializer[OrderBy].decode(Json.orderBy) shouldBe Right(Model.orderBy)
+  }
+
   it should "decode into a simple ETL" in {
     Serializer[ETL].decode(Json.etl) shouldBe Right(Model.etl)
+  }
+
+  it should "decode into a complex ETL" in {
+    Serializer[ETL].decode(Json.complexETL) shouldBe Right(Model.complexETL)
   }
 }

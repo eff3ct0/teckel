@@ -22,37 +22,40 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel.api.etl
+package com.eff3ct.teckel.serializer.model
 
-import cats.effect.IO
-import cats.effect.unsafe.implicits.global
 import cats.implicits._
-import cats.{Id, MonadThrow}
-import com.eff3ct.teckel.semantic.core.EvalContext
-import fs2.io.file.{Files, Path}
-import com.eff3ct.teckel.serializer._
-import com.eff3ct.teckel.serializer.model.output.ETL
-import com.eff3ct.teckel.transform.Rewrite
+import com.eff3ct.teckel.serializer.model.operations._
+import derevo.circe.magnolia.{decoder, encoder}
+import derevo.derive
+import io.circe.syntax._
+import io.circe.{Decoder, Encoder}
 
-trait Run[F[_]] {
-  def run[O: EvalContext](path: String): F[O]
+object transformation {
+  sealed trait Transformation
 
-}
-object Run {
+  implicit val encodeEvent: Encoder[Transformation] =
+    Encoder.instance {
+      case s: Select  => s.asJson
+      case w: Where   => w.asJson
+      case g: GroupBy => g.asJson
+      case o: OrderBy => o.asJson
+    }
 
-  def apply[F[_]: Run]: Run[F] = implicitly[Run[F]]
+  implicit val decodeEvent: Decoder[Transformation] =
+    List[Decoder[Transformation]](
+      Decoder[Select].widen,
+      Decoder[Where].widen,
+      Decoder[GroupBy].widen,
+      Decoder[OrderBy].widen
+    ).reduceLeft(_ or _)
 
-  implicit def runF[F[_]: Compile: Files: MonadThrow]: Run[F] = new Run[F] {
-    override def run[O: EvalContext](path: String): F[O] =
-      for {
-        data <- Files[F].readUtf8(Path(path)).compile.lastOrError
-        etl  <- MonadThrow[F].fromEither(Serializer[ETL].decode(data))
-        context = Rewrite.rewrite(etl)
-      } yield EvalContext[O].eval(context)
-  }
-
-  implicit val runId: Run[Id] = new Run[Id] {
-    override def run[O: EvalContext](path: String): Id[O] =
-      Run[IO].run(path).unsafeRunSync()
-  }
+  @derive(encoder, decoder)
+  case class Select(name: String, select: SelectOp) extends Transformation
+  @derive(encoder, decoder)
+  case class Where(name: String, where: WhereOp) extends Transformation
+  @derive(encoder, decoder)
+  case class GroupBy(name: String, group: GroupByOp) extends Transformation
+  @derive(encoder, decoder)
+  case class OrderBy(name: String, order: OrderByOp) extends Transformation
 }

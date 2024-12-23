@@ -22,37 +22,27 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel.api.etl
+package com.eff3ct.teckel.serializer.model
 
-import cats.effect.IO
-import cats.effect.unsafe.implicits.global
-import cats.implicits._
-import cats.{Id, MonadThrow}
-import com.eff3ct.teckel.semantic.core.EvalContext
-import fs2.io.file.{Files, Path}
-import com.eff3ct.teckel.serializer._
-import com.eff3ct.teckel.serializer.model.output.ETL
-import com.eff3ct.teckel.transform.Rewrite
+import cats.data.NonEmptyList
+import com.eff3ct.teckel.serializer.model.input._
+import com.eff3ct.teckel.serializer.model.output._
+import com.eff3ct.teckel.serializer.model.transformation._
+import derevo.circe.magnolia.{decoder, encoder}
+import derevo.derive
 
-trait Run[F[_]] {
-  def run[O: EvalContext](path: String): F[O]
+object etl {
 
-}
-object Run {
+  @derive(encoder, decoder)
+  case class ETL(
+      input: NonEmptyList[Input],
+      transformation: Option[NonEmptyList[Transformation]],
+      output: NonEmptyList[Output]
+  )
 
-  def apply[F[_]: Run]: Run[F] = implicitly[Run[F]]
-
-  implicit def runF[F[_]: Compile: Files: MonadThrow]: Run[F] = new Run[F] {
-    override def run[O: EvalContext](path: String): F[O] =
-      for {
-        data <- Files[F].readUtf8(Path(path)).compile.lastOrError
-        etl  <- MonadThrow[F].fromEither(Serializer[ETL].decode(data))
-        context = Rewrite.rewrite(etl)
-      } yield EvalContext[O].eval(context)
+  object ETL {
+    def apply(input: NonEmptyList[Input], output: NonEmptyList[Output]): ETL =
+      ETL(input, None, output)
   }
 
-  implicit val runId: Run[Id] = new Run[Id] {
-    override def run[O: EvalContext](path: String): Id[O] =
-      Run[IO].run(path).unsafeRunSync()
-  }
 }
