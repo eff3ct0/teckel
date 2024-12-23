@@ -31,10 +31,10 @@ object BuildPlugin extends AutoPlugin {
       "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED"
     ),
     run / javaOptions ++= localJvmSettings,
-    run / fork    := true,
-    Test / fork   := true,
-    parallelExecution in Test := false,
-    headerLicense := Some(headerIOLicense),
+    run / fork               := true,
+    Test / fork              := true,
+    Test / parallelExecution := false,
+    headerLicense            := Some(headerIOLicense),
     scalacOptions ++= Vector(
 //      "-release:11",
       "-Ymacro-annotations",
