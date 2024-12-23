@@ -29,15 +29,15 @@ import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import cats.{Id, MonadThrow}
 import com.eff3ct.teckel.semantic.core.EvalContext
-import fs2.io.file.{Files, Path}
 import com.eff3ct.teckel.serializer._
-import com.eff3ct.teckel.serializer.model.output.ETL
+import com.eff3ct.teckel.serializer.model.etl._
 import com.eff3ct.teckel.transform.Rewrite
+import fs2.io.file.{Files, Path}
 
 trait Run[F[_]] {
   def run[O: EvalContext](path: String): F[O]
-
 }
+
 object Run {
 
   def apply[F[_]: Run]: Run[F] = implicitly[Run[F]]

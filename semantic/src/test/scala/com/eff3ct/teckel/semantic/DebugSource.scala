@@ -29,12 +29,17 @@ import com.eff3ct.teckel.model.Source._
 import com.eff3ct.teckel.semantic.core.Semantic
 import com.eff3ct.teckel.semantic.sources.Debug
 import com.eff3ct.teckel.semantic.sources.Debug._
+import com.holdenkarau.spark.testing._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
-class DebugSource extends AnyFlatSpecLike with Matchers with SparkTestUtils {
+class DebugSource
+    extends AnyFlatSpecLike
+    with Matchers
+    with DataFrameSuiteBase
+    with SparkTestUtils {
 
   object Resources {
     val input: DataFrame = spark.read
@@ -70,39 +75,37 @@ class DebugSource extends AnyFlatSpecLike with Matchers with SparkTestUtils {
 
   }
   "DebugSource" should "debug an input source" in {
-    Semantic.any[Input, DataFrame](Sources.input) shouldBe Resources.input
+    Semantic.any[Input, DataFrame](Sources.input) :===: Resources.input
   }
 
   it should "debug an output source" in {
-    Debug[Output].debug(Resources.input, Sources.output) shouldBe Resources.input
+    Debug[Output].debug(Resources.input, Sources.output) :===: Resources.input
   }
 
   it should "debug a select transformation" in {
-    Debug[Select]
-      .debug(Resources.input, Sources.select) shouldBe Resources.input.select("Symbol", "Date")
+    Debug[Select].debug(Resources.input, Sources.select) :===:
+      Resources.input.select("Symbol", "Date")
   }
 
   it should "debug a where transformation" in {
-    Debug[Where].debug(Resources.input, Sources.where) shouldBe Resources.input.where(
-      "Date > '2024-12-12'"
-    )
+    Debug[Where].debug(Resources.input, Sources.where) :===:
+      Resources.input.where("Date > '2024-12-12'")
   }
 
   it should "debug a groupBy transformation" in {
-    Debug[GroupBy]
-      .debug(Resources.input, Sources.groupBy) shouldBe Resources.input
-      .groupBy("Symbol")
-      .agg(
-        sum("Adj Close") as "TotalClose",
-        max("High") as "Highest",
-        min("Low") as "Lowest"
-      )
+    Debug[GroupBy].debug(Resources.input, Sources.groupBy) :===:
+      Resources.input
+        .groupBy("Symbol")
+        .agg(
+          sum("Adj Close") as "TotalClose",
+          max("High") as "Highest",
+          min("Low") as "Lowest"
+        )
   }
 
   it should "debug an orderBy transformation" in {
-    Debug[OrderBy]
-      .debug(Resources.input, Sources.orderBy) shouldBe Resources.input
-      .orderBy("High")
+    Debug[OrderBy].debug(Resources.input, Sources.orderBy) :===:
+      Resources.input.orderBy("High")
   }
 
 }

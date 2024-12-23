@@ -37,7 +37,8 @@ object Dependency {
 
   lazy val testing: Seq[ModuleID] =
     Seq(
-      test.scalaTest
+      test.scalaTest,
+      holdenkarau.sparktest
     ).map(d => d % "test")
 
   lazy val api: Seq[ModuleID] = testing

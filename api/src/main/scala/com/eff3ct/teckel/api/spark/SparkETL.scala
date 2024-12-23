@@ -38,7 +38,6 @@ trait SparkETL extends IOApp {
 
   /**
    * Builds a Spark session
-   * @param config ETL configuration
    * @return Spark session
    */
   private final def sparkBuilder(): SparkSession = {
@@ -56,7 +55,6 @@ trait SparkETL extends IOApp {
 
   /**
    * Run the ETL. This method should be implemented by the ETL.
-   * @param config ETL configuration
    * @param spark Spark session
    * @param logger logger
    */
@@ -67,7 +65,6 @@ trait SparkETL extends IOApp {
 
   /**
    * Run the ETL using IO
-   * @param config ETL configuration
    * @param spark Spark session
    * @param logger logger
    * @return IO

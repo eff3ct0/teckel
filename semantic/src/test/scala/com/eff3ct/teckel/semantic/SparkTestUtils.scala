@@ -24,16 +24,16 @@
 
 package com.eff3ct.teckel.semantic
 
-import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
+import com.holdenkarau.spark.testing.DataFrameSuiteBase
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 trait SparkTestUtils {
-  def sparkBuilder(): SparkSession = {
-    val sparkConf: SparkConf = new SparkConf()
-    val master: String       = sparkConf.get("spark.master", "local[*]")
-    val appName: String      = sparkConf.get("spark.app.name", "spark-etl")
-    SparkSession.builder().config(sparkConf).master(master).appName(appName).getOrCreate()
-  }
+  self: DataFrameSuiteBase =>
 
-  implicit val spark: SparkSession = sparkBuilder()
+  implicit lazy val sp: SparkSession = self.spark
+
+  implicit class DataFrameAssert(df: DataFrame) {
+    def :===:(expected: DataFrame): Unit =
+      assertDataFrameEquals(df, expected)
+  }
 }
