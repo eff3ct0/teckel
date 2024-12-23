@@ -24,6 +24,7 @@
 
 package com.eff3ct.teckel.serializer.jsonspec
 
+import cats.data.NonEmptyList
 import com.eff3ct.teckel.serializer.Serializer
 import com.eff3ct.teckel.serializer.model._
 import com.eff3ct.teckel.serializer.types.PrimitiveType.{BooleanType, CharType}
@@ -92,7 +93,7 @@ class JsonSerializerSpec extends AnyFlatSpecLike with Matchers {
 
     val etl: ETL =
       ETL(
-        List(
+        NonEmptyList.of(
           Input(
             "table1",
             "csv",
@@ -100,7 +101,7 @@ class JsonSerializerSpec extends AnyFlatSpecLike with Matchers {
             Map("header" -> BooleanType(true), "sep" -> CharType('|'))
           )
         ),
-        List(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
+        NonEmptyList.of(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
       )
   }
 

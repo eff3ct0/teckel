@@ -41,15 +41,16 @@ class DebugSource extends AnyFlatSpecLike with Matchers with SparkTestUtils {
       .format("csv")
       .option("header", "true")
       .option("sep", "|")
-      .load("data/csv/example.csv")
+      .load("src/test/resources/data/csv/example.csv")
   }
 
   object Sources {
 
     val input: Input =
-      Input("csv", Map("header" -> "true", "sep" -> "|"), "data/csv/example.csv")
+      Input("csv", Map("header" -> "true", "sep" -> "|"), "src/test/resources/data/csv/example.csv")
 
-    val output: Output = Output("table1", "parquet", "overwrite", Map(), "data/parquet/example")
+    val output: Output =
+      Output("table1", "parquet", "overwrite", Map(), "src/test/resources/data/parquet/example")
 
     val select: Select = Select("table1", NonEmptyList.of("Symbol", "Date"))
 
@@ -65,7 +66,7 @@ class DebugSource extends AnyFlatSpecLike with Matchers with SparkTestUtils {
       )
     )
 
-    val orderBy: OrderBy = OrderBy("table1", NonEmptyList.of("High"), "Asc")
+    val orderBy: OrderBy = OrderBy("table1", NonEmptyList.of("High"), Some("Asc"))
 
   }
   "DebugSource" should "debug an input source" in {

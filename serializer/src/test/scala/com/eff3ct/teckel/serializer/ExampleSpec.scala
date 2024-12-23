@@ -24,6 +24,7 @@
 
 package com.eff3ct.teckel.serializer
 
+import cats.data.NonEmptyList
 import com.eff3ct.teckel.serializer.model.{ETL, Input, Output}
 import com.eff3ct.teckel.serializer.types.PrimitiveType._
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -39,7 +40,7 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
     ) shouldBe
       Right(
         ETL(
-          List(
+          NonEmptyList.of(
             Input(
               "table1",
               "csv",
@@ -47,7 +48,7 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
               Map("header" -> BooleanType(true), "sep" -> CharType('|'))
             )
           ),
-          List(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
+          NonEmptyList.of(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
         )
       )
   }
@@ -58,7 +59,7 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
     ) shouldBe
       Right(
         ETL(
-          List(
+          NonEmptyList.of(
             Input(
               "table1",
               "csv",
@@ -66,7 +67,7 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
               Map("header" -> BooleanType(true), "sep" -> CharType('|'))
             )
           ),
-          List(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
+          NonEmptyList.of(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
         )
       )
   }
@@ -77,7 +78,7 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
     ) shouldBe
       Right(
         ETL(
-          List(
+          NonEmptyList.of(
             Input(
               "table1",
               "csv",
@@ -85,7 +86,7 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
               Map("header" -> BooleanType(true), "sep" -> CharType('|'))
             )
           ),
-          List(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
+          NonEmptyList.of(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
         )
       )
   }

@@ -54,6 +54,6 @@ object Source {
   case class GroupBy(assetRef: AssetRef, by: NonEmptyList[Column], aggregate: NonEmptyList[Column])
       extends Transformation
 
-  case class OrderBy(assetRef: AssetRef, by: NonEmptyList[Column], order: Order)
+  case class OrderBy(assetRef: AssetRef, by: NonEmptyList[Column], order: Option[Order])
       extends Transformation
 }

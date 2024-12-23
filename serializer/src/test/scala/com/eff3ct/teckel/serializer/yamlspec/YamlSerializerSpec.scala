@@ -24,7 +24,9 @@
 
 package com.eff3ct.teckel.serializer.yamlspec
 
+import cats.data.NonEmptyList
 import com.eff3ct.teckel.serializer.Serializer
+import com.eff3ct.teckel.serializer.model.ETL._
 import com.eff3ct.teckel.serializer.model._
 import com.eff3ct.teckel.serializer.types.PrimitiveType._
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -80,7 +82,7 @@ class YamlSerializerSpec extends AnyFlatSpecLike with Matchers {
 
     val etl: ETL =
       ETL(
-        List(
+        NonEmptyList.of(
           Input(
             "table1",
             "csv",
@@ -88,7 +90,7 @@ class YamlSerializerSpec extends AnyFlatSpecLike with Matchers {
             Map("header" -> BooleanType(true), "sep" -> CharType('|'))
           )
         ),
-        List(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
+        NonEmptyList.of(Output("table1", "parquet", "overwrite", "data/parquet/example", Map()))
       )
   }
 

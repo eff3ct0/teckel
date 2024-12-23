@@ -24,11 +24,12 @@
 
 package com.eff3ct.teckel.serializer
 
+import cats.data.NonEmptyList
+import com.eff3ct.teckel.serializer.types.PrimitiveType
+import com.eff3ct.teckel.serializer.types.implicits._
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import io.circe.{Decoder, HCursor}
-import com.eff3ct.teckel.serializer.types.PrimitiveType
-import com.eff3ct.teckel.serializer.types.implicits._
 
 object model {
 
@@ -50,7 +51,16 @@ object model {
   )
 
   @derive(encoder, decoder)
-  case class ETL(input: List[Input], output: List[Output])
+  case class ETL(
+      input: NonEmptyList[Input],
+      transformation: Option[NonEmptyList[Transformation]],
+      output: NonEmptyList[Output]
+  )
+
+  object ETL {
+    def apply(input: NonEmptyList[Input], output: NonEmptyList[Output]): ETL =
+      ETL(input, None, output)
+  }
 
   /** Decoders */
   implicit val decodeOutput: Decoder[Output] = (c: HCursor) => {
@@ -79,5 +89,29 @@ object model {
 
     } yield Input(name, format, path, options)
   }
+
+  @derive(encoder, decoder)
+  sealed trait Transformation
+  @derive(encoder, decoder)
+  sealed trait Operation
+
+  @derive(encoder, decoder)
+  case class SelectOp(from: String, columns: NonEmptyList[String]) extends Operation
+  @derive(encoder, decoder)
+  case class Select(name: String, select: SelectOp) extends Transformation
+  @derive(encoder, decoder)
+  case class WhereOp(from: String, filter: String) extends Operation
+  @derive(encoder, decoder)
+  case class Where(name: String, where: WhereOp) extends Transformation
+  @derive(encoder, decoder)
+  case class GroupByOp(from: String, by: NonEmptyList[String], agg: NonEmptyList[String])
+      extends Operation
+  @derive(encoder, decoder)
+  case class GroupBy(name: String, group: GroupByOp) extends Transformation
+  @derive(encoder, decoder)
+  case class OrderByOp(from: String, by: NonEmptyList[String], order: Option[String])
+      extends Operation
+  @derive(encoder, decoder)
+  case class OrderBy(name: String, order: OrderByOp) extends Transformation
 
 }

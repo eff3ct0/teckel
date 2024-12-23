@@ -25,8 +25,8 @@
 package com.eff3ct.teckel.transform
 
 import cats.Show
-import com.eff3ct.teckel.model.Source.{Input => I, Output => O}
-import com.eff3ct.teckel.model.{Asset, Context}
+import cats.data.NonEmptyList
+import com.eff3ct.teckel.model.{Asset, Context, Source}
 import com.eff3ct.teckel.serializer.model._
 import com.eff3ct.teckel.serializer.types.PrimitiveType
 import com.eff3ct.teckel.serializer.types.implicits._
@@ -37,22 +37,62 @@ object Rewrite {
     options.map { case (k, v) => k -> Show[PrimitiveType].show(v) }
 
   def rewrite(item: Input): Asset =
-    Asset(item.name, I(item.format, rewrite(item.options), item.path))
+    Asset(item.name, Source.Input(item.format, rewrite(item.options), item.path))
 
   def rewrite(item: Output): Asset =
     Asset(
       s"output_${item.name}",
-      O(item.name, item.format, item.mode, rewrite(item.options), item.path)
+      Source.Output(item.name, item.format, item.mode, rewrite(item.options), item.path)
     )
 
-  def rewrite(item: ETL): Context[Asset] =
-    (item.input.map { i =>
-      val asset: Asset = rewrite(i)
-      asset.assetRef -> asset
-    } :::
-      item.output.map { i =>
+  def rewriteOp(item: Select): Asset =
+    Asset(item.name, Source.Select(item.select.from, item.select.columns))
+
+  def rewriteOp(item: Where): Asset =
+    Asset(item.name, Source.Where(item.where.from, item.where.filter))
+
+  def rewriteOp(item: GroupBy): Asset =
+    Asset(item.name, Source.GroupBy(item.group.from, item.group.by, item.group.agg))
+
+  def rewriteOp(item: OrderBy): Asset =
+    Asset(item.name, Source.OrderBy(item.order.from, item.order.by, item.order.order))
+
+  def rewrite(item: Transformation): Asset =
+    item match {
+      case s: Select  => rewriteOp(s)
+      case s: Where   => rewriteOp(s)
+      case s: GroupBy => rewriteOp(s)
+      case s: OrderBy => rewriteOp(s)
+    }
+
+  def icontext(item: NonEmptyList[Input]): Context[Asset] =
+    item
+      .map { i =>
         val asset: Asset = rewrite(i)
         asset.assetRef -> asset
-      }).toMap
+      }
+      .toList
+      .toMap
+
+  def ocontext(item: NonEmptyList[Output]): Context[Asset] =
+    item
+      .map { o =>
+        val asset: Asset = rewrite(o)
+        asset.assetRef -> asset
+      }
+      .toList
+      .toMap
+
+  def tcontext(item: Option[NonEmptyList[Transformation]]): Context[Asset] =
+    (for {
+      transformation <- item
+      context = transformation.map { t =>
+        val asset: Asset = rewrite(t)
+        asset.assetRef -> asset
+      }
+    } yield context.toList.toMap).getOrElse(Map())
+
+  def rewrite(item: ETL): Context[Asset] =
+    (icontext(item.input) ++ ocontext(item.output) ++ tcontext(item.transformation))
 
 }
