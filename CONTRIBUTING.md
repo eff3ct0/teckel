@@ -17,8 +17,8 @@ Fork the repository on GitHub by clicking the "Fork" button at the top right of 
 Clone your fork to your local machine:
 
 ```sh
-git clone https://github.com/your-username/teckle.git
-cd teckle
+git clone https://github.com/your-username/teckel.git
+cd teckel
 ```
 
 ### 3. Create a Branch
@@ -63,4 +63,4 @@ If you find a bug or have a feature request, please create an issue on GitHub. P
 
 ## Thank You!
 
-Thank you for contributing to Teckle! Your help is greatly appreciated.
+Thank you for contributing to Teckel! Your help is greatly appreciated.

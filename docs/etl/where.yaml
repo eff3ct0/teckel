@@ -1,0 +1,19 @@
+input:
+  - name: table1
+    format: csv
+    path: 'data/csv/example.csv'
+    options:
+      header: true
+      sep: '|'
+
+transformation:
+  - name: whereTable1
+    where:
+      from: table1
+      filter: 'col1 > 10'
+
+output:
+  - name: whereTable1
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/example'

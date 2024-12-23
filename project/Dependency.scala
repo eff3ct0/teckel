@@ -9,7 +9,9 @@ object Dependency {
 
   lazy val model: Seq[ModuleID] =
     Seq(
-      estatico.newtype
+      estatico.newtype,
+      cats.core,
+      cats.laws
     )
 
   lazy val semantic: Seq[ModuleID] =
@@ -35,9 +37,16 @@ object Dependency {
 
   lazy val testing: Seq[ModuleID] =
     Seq(
-      test.scalaTest
+      test.scalaTest,
+      holdenkarau.sparktest
     ).map(d => d % "test")
 
   lazy val api: Seq[ModuleID] = testing
+
+  implicit class ProjectOps(val prj: Project) extends AnyVal {
+    def withKindProjector: Project = prj.settings(
+      addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full)
+    )
+  }
 
 }

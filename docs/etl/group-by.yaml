@@ -1,0 +1,24 @@
+input:
+  - name: table1
+    format: csv
+    path: 'data/csv/example.csv'
+    options:
+      header: true
+      sep: '|'
+
+transformation:
+  - name: groupByTable1
+    group:
+      from: table1
+      by:
+        - col1
+        - col2
+      agg:
+        - sum(col1)
+        - max(col2)
+        -
+output:
+  - name: groupByTable1
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/example'

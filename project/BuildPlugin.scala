@@ -12,8 +12,10 @@ object BuildPlugin extends AutoPlugin {
 
   lazy val localJvmSettings: Seq[String] =
     Seq(
-      "-Xms512M",
-      "-Xmx2048M",
+      "-Xms8G",
+      "-Xmx8G",
+      "-XX:MaxPermSize=4048M",
+      "-XX:+CMSClassUnloadingEnabled",
       "-Duser.timezone=GMT",
       "-XX:+PrintCommandLineFlags",
       "-XX:+CMSClassUnloadingEnabled"
@@ -31,6 +33,7 @@ object BuildPlugin extends AutoPlugin {
     run / javaOptions ++= localJvmSettings,
     run / fork    := true,
     Test / fork   := true,
+    parallelExecution in Test := false,
     headerLicense := Some(headerIOLicense),
     scalacOptions ++= Vector(
 //      "-release:11",

@@ -53,5 +53,8 @@ object Library {
   object test {
     lazy val scalaTest: ModuleID = "org.scalatest" %% "scalatest" % Version.ScalaTest
   }
+  object holdenkarau {
+    lazy val sparktest: ModuleID = "com.holdenkarau" %% "spark-testing-base" % Version.HoldenVersion
+  }
 
 }

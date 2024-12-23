@@ -1,0 +1,41 @@
+input:
+  - name: table1
+    format: csv
+    path: 'data/csv/example.csv'
+    options:
+      header: true
+      sep: '|'
+
+transformation:
+  - name: selectTable1
+    select:
+      from: table1
+      columns:
+        - col1
+        - col2
+  - name: whereTable1
+    where:
+      from: selectTable1
+      filter: 'col1 > 10'
+  - name: groupByTable1
+    group:
+      from: whereTable1
+      by:
+        - col1
+        - col2
+      agg:
+        - sum(col1)
+        - max(col2)
+  - name: orderByTable1
+    order:
+      from: groupByTable1
+      by:
+        - col1
+        - col2
+      order: Desc
+
+output:
+  - name: orderByTable1
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/example'

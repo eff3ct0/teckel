@@ -4,7 +4,7 @@ Teckel is a framework designed to simplify the creation of Apache Spark ETL (Ext
 Load) processes using YAML configuration files. This tool aims to standardize and streamline ETL workflow creation by
 enabling the definition of data transformations in a declarative, user-friendly format without writing extensive code.
 
-![Logo](./docs/images/teckle-banner.png)
+![Logo](./docs/images/teckel-banner.png)
 
 This concept is further developed on my
 blog: [Big Data with Zero Code](https://blog.rafaelfernandez.dev/posts/big-data-with-zero-code/)
@@ -15,42 +15,6 @@ blog: [Big Data with Zero Code](https://blog.rafaelfernandez.dev/posts/big-data-
 - **Support for Multiple Data Sources:** Easily integrate inputs in CSV, JSON, and Parquet formats.
 - **Flexible Transformations:** Perform joins, aggregations, and selections with clear syntax.
 - **Spark Compatibility:** Leverage the power of Apache Spark for large-scale data processing.
-
-## Formal Language Definition
-
-Teckel uses a specific set of language constructs to define data flows. Below is the formal syntax for this DSL:
-
-```txt
-Asset          := `Asset` <AssetRef> <Source>
-
-Source         := <Input> | <Output> | <Transformation>
-Input          := `Input` <Format> <Options> <SourceRef>
-Output         := `Output` <AssetRef> <Format> <Options> <SourceRef>
-
-// TODO: It need double-check and define correctly
-Transformation ::= JoinOperation | GroupOperation | WindowOperation
-
-// Join
-JoinOperation  ::= `Join` <JoinType> <JoinRelation>
-JoinType       ::= `Inner` | `Left` | `Right` | `Cross` | ...
-JoinRelation   ::= `JoinRelation` <Source> <Source> [ <RelationField> ] 
-RelationField  ::= `RelationField` <Column> <Column>
-
-// Group
-GroupOperation ::= `Group` <Source> <By> <Agg>
-By             ::= `By` [Column]
-Agg            ::= `Agg` [Column]
-
-Select         ::= `Select` [Column]
-Where          ::= `Where` [Column]
-
-// Type Alias
-AssetRef       := String
-Format         := String
-SourceRef      := String
-Options        := `Map` String String
-Context<T>     := `Map` <AssetRef> <T>
-```
 
 ## Getting Started
 
@@ -80,8 +44,17 @@ Once you have installed Teckel, you can use it to run ETL processes.
 
 Here's an example of a fully defined ETL configuration using a YAML file:
 
+### SQL ETL
 - Simple Example: [here](./docs/etl/simple.yaml)
+- Complex Example: [here](./docs/etl/complex.yaml)
 - Other Example: [here](./docs/etl/example.yaml)
+
+### SQL Transformations
+- `Select` Example: [here](./docs/etl/select.yaml)
+- `Where` Example: [here](./docs/etl/where.yaml)
+- `Group By` Example: [here](./docs/etl/group-by.yaml)
+- `Order By` Example: [here](./docs/etl/order-by.yaml)
+
 
 ## Development and Contribution
 
