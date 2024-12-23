@@ -23,7 +23,7 @@ lazy val root =
 lazy val model =
   (project in file("./model"))
     .settings(
-      name := "teckel-model",
+      name           := "teckel-model",
       libraryDependencies ++= Dependency.model
     )
 
@@ -31,9 +31,19 @@ lazy val semantic =
   (project in file("./semantic"))
     .dependsOn(model)
     .settings(
-      name := "teckel-semantic",
+      name           := "teckel-semantic",
       libraryDependencies ++= Dependency.semantic
-    ).withKindProjector
+    )
+    .withKindProjector
+
+lazy val core =
+  project
+    .aggregate(model, semantic)
+    .dependsOn(model, semantic)
+    .settings(
+      name           := "teckel-core",
+      publish / skip := false
+    )
 
 /** Serializer */
 lazy val serializer =
@@ -47,7 +57,7 @@ lazy val serializer =
 
 lazy val api =
   (project in file("./api"))
-    .dependsOn(serializer, semantic)
+    .dependsOn(serializer, core)
     .settings(
       name           := "teckel-api",
       publish / skip := false,
