@@ -24,6 +24,7 @@ lazy val model =
   (project in file("./model"))
     .settings(
       name := "teckel-model",
+      publish / skip := false,
       libraryDependencies ++= Dependency.model
     )
 
@@ -32,6 +33,7 @@ lazy val semantic =
     .dependsOn(model)
     .settings(
       name := "teckel-semantic",
+      publish / skip := false,
       libraryDependencies ++= Dependency.semantic
     ).withKindProjector
 
