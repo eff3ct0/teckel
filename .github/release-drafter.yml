@@ -4,6 +4,7 @@ categories:
   - title: '🔥 Breaking Changes'
     labels:
       - 'breaking'
+      - 'break'
   - title: '🚀 Features'
     labels:
       - 'feature'
