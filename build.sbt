@@ -57,6 +57,14 @@ lazy val api =
       libraryDependencies ++= Dependency.api
     )
 
+lazy val cli =
+  (project in file("./cli"))
+    .dependsOn(api)
+    .settings(
+      name           := "teckel-cli",
+      publish / skip := false,
+    )
+
 lazy val example =
   (project in file("./example"))
     .dependsOn(api)
