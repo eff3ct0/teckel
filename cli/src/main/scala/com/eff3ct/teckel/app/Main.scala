@@ -22,39 +22,33 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel.api
+package com.eff3ct.teckel.app
 
-import cats.effect.IO
-import cats.effect.unsafe.implicits.global
-import com.eff3ct.teckel.api.file._
+import cats.effect.{Async, ExitCode, IO}
+import com.eff3ct.teckel.api.core.Run
+import com.eff3ct.teckel.api.spark.SparkETL
+import com.eff3ct.teckel.io.Console
+import com.eff3ct.teckel.semantic.core.EvalContext
 import com.eff3ct.teckel.semantic.execution._
-import org.apache.spark.SparkConf
+import fs2.io.file.Files
 import org.apache.spark.sql.SparkSession
-import org.scalatest.flatspec.AnyFlatSpecLike
-import org.scalatest.matchers.should.Matchers
+import org.slf4j
 
-class ExampleSpec extends AnyFlatSpecLike with Matchers {
+object Main extends SparkETL {
 
-  def sparkBuilder(): SparkSession = {
-    val sparkConf: SparkConf = new SparkConf()
-    val master: String       = sparkConf.get("spark.master", "local[*]")
-    val appName: String      = sparkConf.get("spark.app.name", "spark-etl")
-    SparkSession.builder().config(sparkConf).master(master).appName(appName).getOrCreate()
-  }
+  override def runIO(
+      args: List[String]
+  )(implicit spark: SparkSession, logger: slf4j.Logger): IO[ExitCode] =
+    execute[IO, Unit](args).compile.drain.as(ExitCode.Success)
 
-  implicit val spark: SparkSession = sparkBuilder()
+  def execute[F[_]: Files: Async: Run, O: EvalContext](args: List[String]): fs2.Stream[F, O] =
+    for {
+      commands <- Console.command[F](args)
+      result   <- Console.eval[F, O](commands)
+    } yield result
 
-  "ExampleSpec" should "work correctly in a ETL F using IO" in {
-    noException should be thrownBy etl[IO, Unit]("src/test/resources/etl/simple.yaml")
-      .unsafeRunSync()
-  }
-
-  it should "work correctly in a ETL IO" in {
-    noException should be thrownBy etlIO[Unit]("src/test/resources/etl/simple.yaml").unsafeRunSync()
-  }
-
-  it should "work correctly in an unsafe ETL" in {
-    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/simple.yaml")
-  }
-
+  /**
+   * Name of the ETL
+   */
+  override val etlName: String = "spark-etl-cli"
 }

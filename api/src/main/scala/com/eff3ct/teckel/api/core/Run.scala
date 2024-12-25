@@ -22,23 +22,35 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel.api.example
+package com.eff3ct.teckel.api.core
 
 import cats.effect.IO
-import com.eff3ct.teckel.api.etl.etlF
-import com.eff3ct.teckel.api.spark.SparkETL
-import com.eff3ct.teckel.semantic.evaluation._
-import com.eff3ct.teckel.semantic.execution._
-import org.apache.spark.sql.SparkSession
-import org.slf4j.Logger
+import cats.effect.unsafe.implicits.global
+import cats.implicits._
+import cats.{Id, MonadThrow}
+import com.eff3ct.teckel.semantic.core.EvalContext
+import com.eff3ct.teckel.serializer._
+import com.eff3ct.teckel.serializer.model.etl._
+import com.eff3ct.teckel.transform.Rewrite
 
-object EffectExample extends SparkETL {
+trait Run[F[_]] {
+  def run[O: EvalContext](data: String): F[O]
+}
 
-  /**
-   * Name of the ETL
-   */
-  override val etlName: String = "Effect Example"
+object Run {
 
-  override def runIO(implicit spark: SparkSession, logger: Logger): IO[Unit] =
-    etlF[IO, Unit]("example/src/main/resources/etl/simple.yaml")
+  def apply[F[_]: Run]: Run[F] = implicitly[Run[F]]
+
+  implicit def runF[F[_]: MonadThrow]: Run[F] = new Run[F] {
+    override def run[O: EvalContext](data: String): F[O] =
+      for {
+        etl <- MonadThrow[F].fromEither(Serializer[ETL].decode(data))
+        context = Rewrite.rewrite(etl)
+      } yield EvalContext[O].eval(context)
+  }
+
+  implicit val runId: Run[Id] = new Run[Id] {
+    override def run[O: EvalContext](data: String): Id[O] =
+      Run[IO].run(data).unsafeRunSync()
+  }
 }

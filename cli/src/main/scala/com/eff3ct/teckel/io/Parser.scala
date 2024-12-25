@@ -22,22 +22,20 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel.api.example
+package com.eff3ct.teckel.io
 
-import com.eff3ct.teckel.api.etl.unsafeETL
-import com.eff3ct.teckel.api.spark.SparkETL
-import com.eff3ct.teckel.semantic.evaluation._
-import com.eff3ct.teckel.semantic.execution._
-import org.apache.spark.sql.SparkSession
-import org.slf4j.Logger
+import cats.effect.Async
+import com.eff3ct.teckel.api.core.Run
+import com.eff3ct.teckel.semantic.core.EvalContext
+import fs2.io.file.{Files, Path}
+import fs2.io.stdinUtf8
 
-object UnsafeExample extends SparkETL {
+object Parser {
 
-  /**
-   * Name of the ETL
-   */
-  override val etlName: String = "Unsafe Example"
+  def parseFile[F[_]: Files: Run, O: EvalContext](file: String): fs2.Stream[F, O] =
+    Files[F].readUtf8(Path(file)).evalMap(Run[F].run[O])
 
-  override def unsafeRun(implicit spark: SparkSession, logger: Logger): Unit =
-    unsafeETL[Unit]("example/src/main/resources/etl/simple.yaml")
+  def parseStdin[F[_]: Async: Run, O: EvalContext]: fs2.Stream[F, O] =
+    stdinUtf8(1024).evalMap(Run[F].run[O])
+
 }
