@@ -22,23 +22,24 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel.api.example
+package com.eff3ct.teckel.api.core
 
-import cats.effect.IO
-import com.eff3ct.teckel.api.etl.etl
-import com.eff3ct.teckel.api.spark.SparkETL
-import com.eff3ct.teckel.semantic.evaluation._
-import com.eff3ct.teckel.semantic.execution._
-import org.apache.spark.sql.SparkSession
-import org.slf4j.Logger
+import cats.Id
+import cats.effect.unsafe.implicits.global
+import cats.effect.{Concurrent, IO}
+import com.eff3ct.teckel.semantic.core.EvalContext
+import fs2.io.file.{Files, Path}
 
-object Example extends SparkETL {
+object ETL {
 
-  /**
-   * Name of the ETL
-   */
-  override val etlName: String = "Example"
+  def apply[F[_]: Run]: Run[F] = Run[F]
 
-  override def runIO(implicit spark: SparkSession, logger: Logger): IO[Unit] =
-    etl[Unit]("example/src/main/resources/etl/simple.yaml")
+  def unsafe[O: EvalContext](data: String): O = Run[Id].run(data)
+
+  def fromFile[F[_]: Files: Concurrent: Run, O: EvalContext](path: String): F[O] =
+    Files[F].readUtf8(Path(path)).evalMap(Run[F].run[O]).compile.lastOrError
+
+  def usafeFromFile[O: EvalContext](path: String): O =
+    fromFile[IO, O](path).unsafeRunSync()
+
 }

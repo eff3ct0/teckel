@@ -22,39 +22,25 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel.api
+package com.eff3ct.teckel.api.example.file
 
-import cats.effect.IO
-import cats.effect.unsafe.implicits.global
-import com.eff3ct.teckel.api.file._
+import cats.effect.{ExitCode, IO}
+import com.eff3ct.teckel.api.spark.SparkETL
 import com.eff3ct.teckel.semantic.execution._
-import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
-import org.scalatest.flatspec.AnyFlatSpecLike
-import org.scalatest.matchers.should.Matchers
+import org.slf4j.Logger
 
-class ExampleSpec extends AnyFlatSpecLike with Matchers {
+object Example extends SparkETL {
 
-  def sparkBuilder(): SparkSession = {
-    val sparkConf: SparkConf = new SparkConf()
-    val master: String       = sparkConf.get("spark.master", "local[*]")
-    val appName: String      = sparkConf.get("spark.app.name", "spark-etl")
-    SparkSession.builder().config(sparkConf).master(master).appName(appName).getOrCreate()
-  }
+  /**
+   * Name of the ETL
+   */
+  override val etlName: String = "Example"
 
-  implicit val spark: SparkSession = sparkBuilder()
-
-  "ExampleSpec" should "work correctly in a ETL F using IO" in {
-    noException should be thrownBy etl[IO, Unit]("src/test/resources/etl/simple.yaml")
-      .unsafeRunSync()
-  }
-
-  it should "work correctly in a ETL IO" in {
-    noException should be thrownBy etlIO[Unit]("src/test/resources/etl/simple.yaml").unsafeRunSync()
-  }
-
-  it should "work correctly in an unsafe ETL" in {
-    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/simple.yaml")
-  }
-
+  override def runIO(
+      args: List[String]
+  )(implicit spark: SparkSession, logger: Logger): IO[ExitCode] =
+    com.eff3ct.teckel.api.file
+      .etlIO[Unit]("example/src/main/resources/etl/simple.yaml")
+      .as(ExitCode.Success)
 }

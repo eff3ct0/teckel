@@ -48,19 +48,13 @@ trait SparkETL extends IOApp {
   }
 
   /**
-   * Logger instance for the ETL
-   * @return logger instance
-   */
-  private final def logger: Logger = LoggerFactory.getLogger(s"[ETL][$etlName]")
-
-  /**
    * Run the ETL. This method should be implemented by the ETL.
    * @param spark Spark session
    * @param logger logger
    */
-  def unsafeRun(implicit spark: SparkSession, logger: Logger): Unit = {
+  def unsafeRun(args: List[String])(implicit spark: SparkSession, logger: Logger): Unit = {
     import cats.effect.unsafe.implicits.global
-    runIO(spark, logger).unsafeRunSync()
+    runIO(args)(spark, logger).unsafeRunSync()
   }
 
   /**
@@ -69,8 +63,8 @@ trait SparkETL extends IOApp {
    * @param logger logger
    * @return IO
    */
-  def runIO(implicit spark: SparkSession, logger: Logger): IO[Unit] =
-    IO(unsafeRun(spark, logger))
+  def runIO(args: List[String])(implicit spark: SparkSession, logger: Logger): IO[ExitCode] =
+    IO(unsafeRun(args)(spark, logger)).map(_ => ExitCode.Success)
 
   /**
    * Main method to run the ETL
@@ -78,6 +72,8 @@ trait SparkETL extends IOApp {
    */
   final override def run(args: List[String]): IO[ExitCode] = {
     @transient lazy val spark: SparkSession = sparkBuilder()
-    runIO(spark, logger).as(ExitCode.Success)
+    @transient lazy val logger: Logger      = LoggerFactory.getLogger(s"[ETL][$etlName]")
+    runIO(args)(spark, logger)
   }
+
 }

@@ -22,18 +22,20 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel.api
+package com.eff3ct.teckel.api.example.data
 
-import cats.Id
-import cats.effect.IO
-import com.eff3ct.teckel.semantic.core.EvalContext
-import fs2.Compiler
+import com.eff3ct.teckel.api.spark.SparkETL
+import com.eff3ct.teckel.semantic.execution._
+import org.apache.spark.sql.SparkSession
+import org.slf4j.Logger
 
-package object etl {
+object UnsafeExample extends SparkETL {
 
-  type Compile[F[_]] = Compiler[F, F]
+  /**
+   * Name of the ETL
+   */
+  override val etlName: String = "Unsafe Example"
 
-  def etlF[F[_]: Run, O: EvalContext](path: String): F[O] = Run[F].run(path)
-  def etl[O: EvalContext](path: String): IO[O]            = Run[IO].run(path)
-  def unsafeETL[O: EvalContext](path: String): O          = Run[Id].run(path)
+  override def unsafeRun(args: List[String])(implicit spark: SparkSession, logger: Logger): Unit =
+    com.eff3ct.teckel.api.unsafeETL[Unit](yaml)
 }
