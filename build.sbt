@@ -12,6 +12,7 @@ lazy val root =
       semantic,
       serializer,
       api,
+      cli,
       example
     )
 
