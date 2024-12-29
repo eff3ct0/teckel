@@ -12,8 +12,7 @@ lazy val root =
       semantic,
       serializer,
       api,
-      cli,
-      example
+      cli
     )
 
 /**
@@ -27,7 +26,7 @@ lazy val model =
       name := "teckel-model",
       libraryDependencies ++= Dependency.model,
       publish / skip := false
-    )
+    ).withNoAssembly
 
 lazy val semantic =
   (project in file("./semantic"))
@@ -36,7 +35,7 @@ lazy val semantic =
       name := "teckel-semantic",
       libraryDependencies ++= Dependency.semantic,
       publish / skip := false
-    )
+    ).withNoAssembly
     .withKindProjector
 
 /** Serializer */
@@ -47,7 +46,7 @@ lazy val serializer =
       name           := "teckel-serializer",
       publish / skip := false,
       libraryDependencies ++= Dependency.serializer
-    )
+    ).withNoAssembly
 
 lazy val api =
   (project in file("./api"))
@@ -56,7 +55,7 @@ lazy val api =
       name           := "teckel-api",
       publish / skip := false,
       libraryDependencies ++= Dependency.api
-    )
+    ).withNoAssembly
 
 lazy val cli =
   (project in file("./cli"))
@@ -64,11 +63,13 @@ lazy val cli =
     .settings(
       name           := "teckel-cli",
       publish / skip := false,
-    )
+      libraryDependencies ++= Dependency.sparkD
+    ).withAssembly("teckel-etl")
 
 lazy val example =
   (project in file("./example"))
     .dependsOn(api)
     .settings(
-      name := "teckel-example"
+      name := "teckel-example",
+      libraryDependencies ++= Dependency.sparkD
     )
