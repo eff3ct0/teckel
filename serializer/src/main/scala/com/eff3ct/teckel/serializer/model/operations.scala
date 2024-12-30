@@ -26,8 +26,7 @@ package com.eff3ct.teckel.serializer.model
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import derevo.circe.magnolia.{decoder, encoder}
-import derevo.derive
+import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder}
 
@@ -51,14 +50,10 @@ object operations {
       Decoder[OrderByOp].widen
     ).reduceLeft(_ or _)
 
-  @derive(encoder, decoder)
   case class SelectOp(from: String, columns: NonEmptyList[String]) extends Operation
-  @derive(encoder, decoder)
-  case class WhereOp(from: String, filter: String) extends Operation
-  @derive(encoder, decoder)
+  case class WhereOp(from: String, filter: String)                 extends Operation
   case class GroupByOp(from: String, by: NonEmptyList[String], agg: NonEmptyList[String])
       extends Operation
-  @derive(encoder, decoder)
   case class OrderByOp(from: String, by: NonEmptyList[String], order: Option[String])
       extends Operation
 

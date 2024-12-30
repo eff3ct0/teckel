@@ -27,8 +27,6 @@ object Dependency {
       circe.parser,
       circe.generic,
       circe.yaml,
-      tofu.core,
-      tofu.circe,
       catsEffect.core,
       catsEffect.std,
       fs2.io,

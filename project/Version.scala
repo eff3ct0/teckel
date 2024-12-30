@@ -11,7 +11,8 @@ object Version {
   lazy val ScalaTest: String  = "3.2.9"
   lazy val Postgres: String   = "42.7.4"
 
-  lazy val Circe            = "0.13.0"
+  lazy val CirceYaml        = "1.15.0"
+  lazy val Circe            = "0.14.4"
   lazy val Tofu             = "0.13.0"
   lazy val Estatico: String = "0.4.4"
   lazy val Fs2: String      = "3.9.3"
