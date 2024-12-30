@@ -9,7 +9,6 @@ object Dependency {
 
   lazy val model: Seq[ModuleID] =
     Seq(
-      estatico.newtype,
       cats.core,
       cats.laws
     )
