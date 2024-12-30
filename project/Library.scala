@@ -19,35 +19,14 @@ object Library {
   }
 
   object circe {
-    lazy val parser    = "io.circe" %% "circe-parser"    % Version.Circe
-    lazy val yaml    = "io.circe" %% "circe-yaml"    % Version.Circe
+    lazy val parser  = "io.circe" %% "circe-parser"  % Version.Circe
     lazy val generic = "io.circe" %% "circe-generic" % Version.Circe
+    lazy val yaml    = "io.circe" %% "circe-yaml"    % Version.CirceYaml
   }
 
   object fs2 {
     lazy val core: ModuleID = "co.fs2" %% "fs2-core" % Version.Fs2
     lazy val io: ModuleID   = "co.fs2" %% "fs2-io"   % Version.Fs2
-  }
-
-  object tofu {
-    lazy val core  = "tf.tofu" %% "derevo-core"           % Version.Tofu
-    lazy val circe = "tf.tofu" %% "derevo-circe-magnolia" % Version.Tofu
-  }
-
-  object estatico {
-    lazy val newtype: ModuleID = "io.estatico" %% "newtype" % Version.Estatico
-  }
-
-  object pureconfig {
-    lazy val pureconfig: ModuleID = "com.github.pureconfig" %% "pureconfig" % Version.Pureconfig
-  }
-
-  object database {
-    lazy val postgresql: ModuleID = "org.postgresql" % "postgresql" % Version.Postgres
-  }
-
-  object hashicorp {
-    lazy val vault: ModuleID = "io.github.jopenlibs" % "vault-java-driver" % Version.Vault
   }
 
   object test {
