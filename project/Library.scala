@@ -29,22 +29,6 @@ object Library {
     lazy val io: ModuleID   = "co.fs2" %% "fs2-io"   % Version.Fs2
   }
 
-  object estatico {
-    lazy val newtype: ModuleID = "io.estatico" %% "newtype" % Version.Estatico
-  }
-
-  object pureconfig {
-    lazy val pureconfig: ModuleID = "com.github.pureconfig" %% "pureconfig" % Version.Pureconfig
-  }
-
-  object database {
-    lazy val postgresql: ModuleID = "org.postgresql" % "postgresql" % Version.Postgres
-  }
-
-  object hashicorp {
-    lazy val vault: ModuleID = "io.github.jopenlibs" % "vault-java-driver" % Version.Vault
-  }
-
   object test {
     lazy val scalaTest: ModuleID = "org.scalatest" %% "scalatest" % Version.ScalaTest
   }

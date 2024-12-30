@@ -3,8 +3,6 @@ import sbt._
 
 object Dependency {
 
-  lazy val provided: String = "provided"
-
   /** Modules */
 
   lazy val model: Seq[ModuleID] =
