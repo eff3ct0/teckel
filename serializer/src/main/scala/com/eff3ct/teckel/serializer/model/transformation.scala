@@ -26,8 +26,7 @@ package com.eff3ct.teckel.serializer.model
 
 import cats.implicits._
 import com.eff3ct.teckel.serializer.model.operations._
-import derevo.circe.magnolia.{decoder, encoder}
-import derevo.derive
+import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder}
 
@@ -50,12 +49,9 @@ object transformation {
       Decoder[OrderBy].widen
     ).reduceLeft(_ or _)
 
-  @derive(encoder, decoder)
-  case class Select(name: String, select: SelectOp) extends Transformation
-  @derive(encoder, decoder)
-  case class Where(name: String, where: WhereOp) extends Transformation
-  @derive(encoder, decoder)
+  case class Select(name: String, select: SelectOp)  extends Transformation
+  case class Where(name: String, where: WhereOp)     extends Transformation
   case class GroupBy(name: String, group: GroupByOp) extends Transformation
-  @derive(encoder, decoder)
   case class OrderBy(name: String, order: OrderByOp) extends Transformation
+
 }

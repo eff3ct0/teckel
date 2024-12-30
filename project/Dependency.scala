@@ -3,13 +3,10 @@ import sbt._
 
 object Dependency {
 
-  lazy val provided: String = "provided"
-
   /** Modules */
 
   lazy val model: Seq[ModuleID] =
     Seq(
-      estatico.newtype,
       cats.core,
       cats.laws
     )
@@ -27,8 +24,6 @@ object Dependency {
       circe.parser,
       circe.generic,
       circe.yaml,
-      tofu.core,
-      tofu.circe,
       catsEffect.core,
       catsEffect.std,
       fs2.io,

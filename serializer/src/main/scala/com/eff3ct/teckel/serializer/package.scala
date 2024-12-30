@@ -25,8 +25,10 @@
 package com.eff3ct.teckel
 
 import io.circe._
+import io.circe.generic.AutoDerivation
 
-package object serializer {
+package object serializer extends AutoDerivation {
 
   implicit def default[T: Encoder: Decoder]: Serializer[T] = alternative.yaml
+
 }

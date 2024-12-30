@@ -28,12 +28,9 @@ import cats.data.NonEmptyList
 import com.eff3ct.teckel.serializer.model.input._
 import com.eff3ct.teckel.serializer.model.output._
 import com.eff3ct.teckel.serializer.model.transformation._
-import derevo.circe.magnolia.{decoder, encoder}
-import derevo.derive
-
+import io.circe.generic.auto._
 object etl {
 
-  @derive(encoder, decoder)
   case class ETL(
       input: NonEmptyList[Input],
       transformation: Option[NonEmptyList[Transformation]],

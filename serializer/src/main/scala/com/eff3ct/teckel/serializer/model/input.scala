@@ -26,13 +26,11 @@ package com.eff3ct.teckel.serializer.model
 
 import com.eff3ct.teckel.serializer.types.PrimitiveType
 import com.eff3ct.teckel.serializer.types.implicits._
-import derevo.circe.magnolia.encoder
-import derevo.derive
-import io.circe.{Decoder, HCursor}
+import io.circe.generic.semiauto._
+import io.circe.{Decoder, Encoder, HCursor}
 
 object input {
 
-  @derive(encoder)
   case class Input(
       name: String,
       format: String,
@@ -53,4 +51,5 @@ object input {
     } yield Input(name, format, path, options)
   }
 
+  implicit val encodeInput: Encoder[Input] = deriveEncoder[Input]
 }
