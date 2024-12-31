@@ -51,7 +51,9 @@ sbt cli/assembly
 
 The resulting JAR, `teckel-etl_2.13.jar`, will be located in the `cli/target/scala-2.13/` directory.
 
-> [!IMPORTANT] **Teckel CLI as dependency / Teckel ETL as framework.**
+> [!IMPORTANT]
+>
+> **Teckel CLI as dependency / Teckel ETL as framework.**
 >
 > The Teckel CLI is a standalone application that can be used as a dependency in your project. Notice that the uber jar
 > name is `teckel-etl` and not `teckel-cli` or `teckel-cli-assembly`. This is because
