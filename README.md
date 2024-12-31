@@ -25,31 +25,31 @@ blog: [Big Data with Zero Code](https://blog.rafaelfernandez.dev/posts/big-data-
 - **Apache Spark**: Ensure you have Apache Spark installed and properly configured.
 - **YAML files**: Create configuration files specifying your data sources and transformations.
 
-#### Docker or Kubernetes
+#### Deployment on Docker or Kubernetes
 
-You can also deploy an Apache Spark cluster using the docker image [
-`eff3ct/spark:latest`](https://hub.docker.com/r/eff3ct/spark) which we provide in our
-repository [eff3ct0/spark-docker](https://github.com/eff3ct0/spark-docker)
+In case of you don't have Apache Spark installed previously, you can deploy an Apache Spark cluster using the following
+docker image [
+`eff3ct/spark:latest`](https://hub.docker.com/r/eff3ct/spark) available in
+the [eff3ct0/spark-docker](https://github.com/eff3ct0/spark-docker) Github repository.
 
 ### Installation
 
-To use Teckel, you can clone the repository and integrate it into your Spark setup:
+Clone the Teckel repository and integrate it with your existing Spark setup:
 
 ```bash
 git clone https://github.com/rafafrdz/teckel.git
 cd teckel
 ```
 
-#### Teckel ETL Uber JAR
+#### Building the Teckel ETL Uber JAR
 
-This project contains the CLI module for the Teckel ETL framework. To build the CLI into uber jar, you can use the
-following command:
+Build the Teckel ETL CLI into an Uber JAR using the following command:
 
 ```bash
 sbt cli/assembly
 ```
 
-This will create a JAR file named `teckel-etl_2.13.jar` in the `cli/target/scala-2.13` directory.
+The resulting JAR, `teckel-etl_2.13.jar`, will be located in the `cli/target/scala-2.13/` directory.
 
 > [!IMPORTANT] **Teckel CLI as dependency / Teckel ETL as framework.**
 >
@@ -59,9 +59,7 @@ This will create a JAR file named `teckel-etl_2.13.jar` in the `cli/target/scala
 
 ### Usage in Apache Spark
 
-Once you have created the `teckel-etl.jar`, you can use it to run ETL processes in Apache Spark. To run the ETL, you
-need to provide the
-following arguments:
+Once the `teckel-etl_2.13.jar`is ready, use it to execute ETL processes on Apache Spark with the following arguments:
 
 - `-f` or `--file`: The path to the ETL file.
 - `-c` or `--console`: Run the ETL in the console.
@@ -101,7 +99,7 @@ To run the ETL from a **file**, you can use the following command:
 
 ### As Dependency
 
-Teckel can be integrated with Apache Spark easily. To do this, you need to add either the Teckel CLI or Teckel Api as a
+Teckel can be integrated with Apache Spark easily just adding either the Teckel CLI or Teckel Api as a
 dependency in your project.
 
 #### SBT
@@ -116,28 +114,33 @@ libraryDependencies += "com.eff3ct" %% "teckel-api" % "<version>"
 
 ### As Framework
 
-#### Local
-
-Teckel can also be used as a framework in your Apache Spark project by keeping the Teckel ETL uber jar in your Apache
+Teckel can also be used as a framework in your Apache Spark project by including the Teckel ETL Uber JAR in your Apache
 Spark ecosystem.
+
+Build the Teckel ETL CLI into an Uber JAR using the following command:
+
+```bash
+sbt cli/assembly
+```
+
+#### Local Spark Environment Setup
+
+Copy the Teckel ETL Uber JAR to the `/opt/spark/jars/` directory in your Apache Spark ecosystem:
 
 ```bash
 cp cli/target/scala-2.13/teckel-etl_2.13.jar /opt/spark/jars/
 ```
 
-This will copy the Teckel ETL uber jar to the `/opt/spark/jars/` directory in your Apache Spark ecosystem.
+#### Docker Usage
 
-#### Docker
-
-You can also use Teckel as a framework in your Apache Spark project by keeping the Teckel ETL uber jar in your Docker
-image.
+Mount the Teckel ETL Uber JAR in your Docker container:
 
 ```bash
 docker run -v ./cli/target/scala-2.13/teckel-etl_2.13.jar:/app/teckel-etl_2.13.jar -it eff3ct/spark:latest /bin/bash
 
 ```
 
-## ETL Yaml Example Specification
+## ETL Yaml Example
 
 Here's an example of a fully defined ETL configuration using a YAML file:
 
