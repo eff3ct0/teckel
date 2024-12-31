@@ -3,9 +3,9 @@ import sbt._
 object Library {
 
   object spark {
-    lazy val core: ModuleID        = "org.apache.spark" %% "spark-core"         % Version.Spark
-    lazy val sql: ModuleID         = "org.apache.spark" %% "spark-sql"          % Version.Spark
-    lazy val hadoopCloud: ModuleID = "org.apache.spark" %% "spark-hadoop-cloud" % Version.Spark
+    lazy val core: ModuleID        = "org.apache.spark" %% "spark-core"         % Version.Spark % Provided
+    lazy val sql: ModuleID         = "org.apache.spark" %% "spark-sql"          % Version.Spark % Provided
+    lazy val hadoopCloud: ModuleID = "org.apache.spark" %% "spark-hadoop-cloud" % Version.Spark % Provided
   }
 
   object cats {
