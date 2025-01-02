@@ -28,11 +28,15 @@ import cats.effect.IO
 import com.eff3ct.teckel.api.core.Run
 import com.eff3ct.teckel.api.{data => d}
 import com.eff3ct.teckel.semantic.core.EvalContext
+import com.eff3ct.teckel.serializer.model.etl.ETL
 
 package object api {
 
   def etl[F[_]: Run, O: EvalContext](data: String): F[O] = d.etl[F, O](data)
+  def etl[F[_]: Run, O: EvalContext](data: ETL): F[O]    = d.etl[F, O](data)
   def etlIO[O: EvalContext](data: String): IO[O]         = d.etlIO[O](data)
+  def etlIO[O: EvalContext](data: ETL): IO[O]            = d.etlIO[O](data)
   def unsafeETL[O: EvalContext](data: String): O         = d.unsafeETL[O](data)
+  def unsafeETL[O: EvalContext](data: ETL): O            = d.unsafeETL[O](data)
 
 }

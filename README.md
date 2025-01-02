@@ -30,7 +30,7 @@ blog: [Big Data with Zero Code](https://blog.rafaelfernandez.dev/posts/big-data-
 In case of you don't have Apache Spark installed previously, you can deploy an Apache Spark cluster using the following
 docker image [
 `eff3ct/spark:latest`](https://hub.docker.com/r/eff3ct/spark) available in
-the [eff3ct0/spark-docker](https://github.com/eff3ct0/spark-docker) Github repository.
+the [eff3ct0/spark-docker](https://github.com/eff3ct0/spark-docker) GitHub repository.
 
 ### Installation
 
@@ -113,6 +113,70 @@ libraryDependencies += "com.eff3ct" %% "teckel-cli" % "<version>"
 // or
 libraryDependencies += "com.eff3ct" %% "teckel-api" % "<version>"
 ```
+
+#### Example: Running ETL in a Standalone Application
+
+```scala
+import cats.effect.{ExitCode, IO, IOApp}
+import com.eff3ct.teckel.api._
+import com.eff3ct.teckel.semantic.execution._
+import org.apache.spark.sql.SparkSession
+
+object Example extends IOApp {
+
+  /**
+   * Name of the ETL
+   */
+
+  implicit val spark: SparkSession = ???
+
+  val data: String =
+    """input:
+      |  - name: table1
+      |    format: csv
+      |    path: 'data/csv/example.csv'
+      |    options:
+      |      header: true
+      |      sep: '|'
+      |
+      |
+      |output:
+      |  - name: table1
+      |    format: parquet
+      |    mode: overwrite
+      |    path: 'data/parquet/example'"""".stripMargin
+
+
+  override def run(args: List[String]): IO[ExitCode] =
+    etl[IO, Unit](data).as(ExitCode.Success)
+}
+```
+
+You can use either the `etl`,  `etlIO` or `unsafeETL` methods to run the ETL from the api package.
+
+```scala
+def etl[F[_] : Run, O: EvalContext](data: String): F[O]
+def etl[F[_] : Run, O: EvalContext](data: ETL): F[O]
+
+def etlIO[O: EvalContext](data: String): IO[O]
+def etlIO[O: EvalContext](data: ETL): IO[O]
+
+def unsafeETL[O: EvalContext](data: String): O
+def unsafeETL[O: EvalContext](data: ETL): O
+```
+
+### The set of Evaluation Contexts
+
+The Teckel API offers the `EvalContext[T]`, a versatile construct designed to evaluate ETL contexts and provide results
+of type `T`. This enables flexible evaluation strategies for ETL processes, with two primary derivations:
+
+- `EvalContext[Unit]`: This context executes the ETL process, performing all specified operations, and ultimately
+  produces the spected output files. It is ideal for scenarios where the primary objective is the completion of data
+  transformations and load operations.
+- `EvalContext[Context[DataFrame]]`: This context evaluates the ETL instructions with a focus on debugging and analysis.
+  Instead of executing transformations outright, it returns a `Context[DataFrame]`, which maps ETL component names to
+  their corresponding DataFrames. This allows developers to inspect intermediate DataFrames, facilitating a deeper
+  understanding of the data flow and transformation logic within the ETL process.
 
 ### As Framework
 

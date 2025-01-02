@@ -28,13 +28,16 @@ import cats.Id
 import cats.effect.unsafe.implicits.global
 import cats.effect.{Concurrent, IO}
 import com.eff3ct.teckel.semantic.core.EvalContext
+import com.eff3ct.teckel.serializer.model.etl.{ETL => ETLD}
 import fs2.io.file.{Files, Path}
 
-object ETL {
+private[api] object ETL {
 
   def apply[F[_]: Run]: Run[F] = Run[F]
 
   def unsafe[O: EvalContext](data: String): O = Run[Id].run(data)
+
+  def unsafe[O: EvalContext](data: ETLD): O = Run[Id].run(data)
 
   def fromFile[F[_]: Files: Concurrent: Run, O: EvalContext](path: String): F[O] =
     Files[F].readUtf8(Path(path)).evalMap(Run[F].run[O]).compile.lastOrError

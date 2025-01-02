@@ -29,7 +29,8 @@ import com.eff3ct.teckel.serializer.model.input._
 import com.eff3ct.teckel.serializer.model.output._
 import com.eff3ct.teckel.serializer.model.transformation._
 import io.circe.generic.auto._
-object etl {
+
+private[teckel] object etl {
 
   case class ETL(
       input: NonEmptyList[Input],
