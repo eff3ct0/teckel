@@ -27,7 +27,7 @@ package com.eff3ct.teckel.api.core
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import cats.implicits._
-import cats.{Id, MonadThrow}
+import cats.{Id, Monad, MonadThrow}
 import com.eff3ct.teckel.semantic.core.EvalContext
 import com.eff3ct.teckel.serializer._
 import com.eff3ct.teckel.serializer.model.etl._
@@ -35,6 +35,7 @@ import com.eff3ct.teckel.transform.Rewrite
 
 trait Run[F[_]] {
   def run[O: EvalContext](data: String): F[O]
+  def run[O: EvalContext](data: ETL): F[O]
 }
 
 object Run {
@@ -47,10 +48,19 @@ object Run {
         etl <- MonadThrow[F].fromEither(Serializer[ETL].decode(data))
         context = Rewrite.rewrite(etl)
       } yield EvalContext[O].eval(context)
+
+    override def run[O: EvalContext](data: ETL): F[O] =
+      for {
+        etl <- Monad[F].pure(data)
+        context = Rewrite.rewrite(etl)
+      } yield EvalContext[O].eval(context)
   }
 
   implicit val runId: Run[Id] = new Run[Id] {
     override def run[O: EvalContext](data: String): Id[O] =
+      Run[IO].run(data).unsafeRunSync()
+
+    override def run[O: EvalContext](data: ETL): Id[O] =
       Run[IO].run(data).unsafeRunSync()
   }
 }
