@@ -68,6 +68,12 @@ Once the `teckel-etl_2.13.jar`is ready, use it to execute ETL processes on Apach
 
 #### Example: Running ETL in Apache Spark using STDIN
 
+<details><summary>Demo - Teckel and Apache Spark by STDIN</summary>
+
+[![Teckel and Apache Spark by Yaml File](https://res.cloudinary.com/marcomontalbano/image/upload/v1735905159/video_to_markdown/images/youtube--eJwJIbNAtto-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.youtube.com/watch?v=oxNjnxIdbig "Teckel and Apache Spark by STDIN")
+
+</details>
+
 To run the ETL in the **console**, you can use the following command:
 
 ```bash
@@ -90,6 +96,12 @@ EOF
 ```
 
 #### Example: Running ETL in Apache Spark using a file
+
+<details><summary>Demo - Teckel and Apache Spark by Yaml File</summary>
+
+[![Teckel and Apache Spark by Yaml File](https://res.cloudinary.com/marcomontalbano/image/upload/v1735905159/video_to_markdown/images/youtube--eJwJIbNAtto-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.youtube.com/watch?v=eJwJIbNAtto "Teckel and Apache Spark by Yaml File")
+
+</details>
 
 To run the ETL from a **file**, you can use the following command:
 
