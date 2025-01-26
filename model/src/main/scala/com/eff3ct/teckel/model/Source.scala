@@ -59,5 +59,5 @@ object Source {
 
   case class Join(assetRef: AssetRef, others: NonEmptyList[Relation]) extends Transformation
 
-  case class Relation(name: AssetRef, relationType: RelationType, on: List[Condition])
+  case class Relation(name: AssetRef, joinType: RelationType, on: List[Condition])
 }
