@@ -27,7 +27,6 @@ package com.eff3ct.teckel.semantic
 import com.eff3ct.teckel.model.Source._
 import com.eff3ct.teckel.model._
 import com.eff3ct.teckel.semantic.core._
-import com.eff3ct.teckel.semantic.sources.Debug._
 import com.eff3ct.teckel.semantic.sources._
 import org.apache.spark.sql._
 
@@ -38,14 +37,14 @@ object evaluation {
       override def eval(context: Context[Asset], asset: Asset): DataFrame = {
         lazy val df: DataFrame = eval(context, context(asset.assetRef))
         asset.source match {
-          case s: Input  => Semantic.any(s)
-          case s: Output => Debug[Output].eval(df, s)
+          case s: Input  => Debug.input(s)
+          case _: Output => Debug.output(df)
           case s: Transformation =>
             val diffContext: Context[Asset] =
               context.filterNot { case (_, other) => other == asset }
             val others: Context[DataFrame] =
               diffContext.map { case (ref, other) => ref -> eval(diffContext, other) }
-            DebugMany[Transformation].eval(s, df, others)
+            Debug.transformation(s, df, others)
         }
       }
     }

@@ -26,9 +26,7 @@ package com.eff3ct.teckel.semantic
 
 import cats.data.NonEmptyList
 import com.eff3ct.teckel.model.Source._
-import com.eff3ct.teckel.semantic.core.Semantic
 import com.eff3ct.teckel.semantic.sources.Debug
-import com.eff3ct.teckel.semantic.sources.Debug._
 import com.holdenkarau.spark.testing._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
@@ -75,25 +73,25 @@ class DebugSource
 
   }
   "DebugSource" should "debug an input source" in {
-    Semantic.any[Input, DataFrame](Sources.input) :===: Resources.input
+    Debug.input(Sources.input) :===: Resources.input
   }
 
   it should "debug an output source" in {
-    Debug[Output].eval(Resources.input, Sources.output) :===: Resources.input
+    Debug.output(Resources.input) :===: Resources.input
   }
 
   it should "debug a select transformation" in {
-    Debug[Select].eval(Resources.input, Sources.select) :===:
+    Debug.select(Resources.input, Sources.select) :===:
       Resources.input.select("Symbol", "Date")
   }
 
   it should "debug a where transformation" in {
-    Debug[Where].eval(Resources.input, Sources.where) :===:
+    Debug.where(Resources.input, Sources.where) :===:
       Resources.input.where("Date > '2024-12-12'")
   }
 
   it should "debug a groupBy transformation" in {
-    Debug[GroupBy].eval(Resources.input, Sources.groupBy) :===:
+    Debug.groupBy(Resources.input, Sources.groupBy) :===:
       Resources.input
         .groupBy("Symbol")
         .agg(
@@ -104,7 +102,7 @@ class DebugSource
   }
 
   it should "debug an orderBy transformation" in {
-    Debug[OrderBy].eval(Resources.input, Sources.orderBy) :===:
+    Debug.orderBy(Resources.input, Sources.orderBy) :===:
       Resources.input.orderBy("High")
   }
 
