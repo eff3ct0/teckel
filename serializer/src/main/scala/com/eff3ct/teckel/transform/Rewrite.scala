@@ -29,6 +29,7 @@ import cats.data.NonEmptyList
 import com.eff3ct.teckel.model.{Asset, Context, Source}
 import com.eff3ct.teckel.serializer.model.etl._
 import com.eff3ct.teckel.serializer.model.input._
+import com.eff3ct.teckel.serializer.model.operations.Relation
 import com.eff3ct.teckel.serializer.model.output._
 import com.eff3ct.teckel.serializer.model.transformation._
 import com.eff3ct.teckel.serializer.types.PrimitiveType
@@ -60,12 +61,19 @@ object Rewrite {
   def rewriteOp(item: OrderBy): Asset =
     Asset(item.name, Source.OrderBy(item.order.from, item.order.by, item.order.order))
 
+  def rewriteOp(item: Join): Asset =
+    Asset(item.name, Source.Join(item.join.left, item.join.right.map(rewriteOp)))
+
+  def rewriteOp(item: Relation): Source.Relation =
+    Source.Relation(item.name, item.relationType, item.on)
+
   def rewrite(item: Transformation): Asset =
     item match {
       case s: Select  => rewriteOp(s)
       case s: Where   => rewriteOp(s)
       case s: GroupBy => rewriteOp(s)
       case s: OrderBy => rewriteOp(s)
+      case s: Join    => rewriteOp(s)
     }
 
   def icontext(item: NonEmptyList[Input]): Context[Asset] =

@@ -33,7 +33,8 @@ package object model {
   type Options    = Map[String, String]
   type Context[T] = Map[AssetRef, T]
 
-  type Column    = String
-  type Condition = String
-  type Order     = String
+  type Column       = String
+  type Condition    = String
+  type Order        = String
+  type RelationType = String
 }

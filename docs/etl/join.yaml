@@ -1,0 +1,62 @@
+input:
+  - name: table1
+    format: csv
+    path: 'data/csv/example.csv'
+    options:
+      header: true
+      sep: '|'
+
+  - name: table2
+    format: csv
+    path: 'data/csv/example2.csv'
+    options:
+      header: true
+      sep: '|'
+
+  - name: table3
+    format: csv
+    path: 'data/csv/example3.csv'
+    options:
+      header: true
+      sep: '|'
+
+  - name: table4
+    format: csv
+    path: 'data/csv/example4.csv'
+    options:
+      header: true
+      sep: '|'
+
+transformation:
+
+  - name: joinTable1
+    join:
+      left: table1
+      right:
+        - name: table2
+          type: inner
+          on:
+            - col11==col21
+            - col12>=col22
+
+        - name: table3
+          type: left
+          on:
+            - col11==col31
+            - col13==col32
+
+  - name: joinTable2
+    join:
+      left: table4
+      right:
+        - name: joinTable1
+          type: left
+          on:
+            - col41==col11
+            - col42!=col14
+
+output:
+  - name: joinTable2
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/example'
