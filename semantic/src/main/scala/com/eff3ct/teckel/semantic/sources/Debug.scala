@@ -31,30 +31,28 @@ import com.eff3ct.teckel.semantic.core.Semantic
 import org.apache.spark.sql.functions.expr
 import org.apache.spark.sql.{DataFrame, RelationalGroupedDataset, SparkSession}
 
-trait Debug[S] extends Semantic[S, DataFrame, DataFrame] {
-  def debug(df: DataFrame, source: S): DataFrame = eval(df, source)
-}
-
 object Debug {
+
   def apply[S: Debug]: Debug[S] = implicitly[Debug[S]]
 
   implicit def input[S <: Input](implicit S: SparkSession): SemanticA[S, DataFrame] =
-    Semantic.pure((source: S) =>
+    Semantic.zero((source: S) =>
       S.read.format(source.format).options(source.options).load(source.sourceRef)
     )
 
-  implicit val output: Debug[Output] =
+  implicit def output[S <: Output]: Debug[S] =
     (df, _) => df
 
   /** Transformation */
-  implicit val transformation: Debug[Transformation] =
-    (df, source) =>
-      source match {
-        case s: Select  => Debug[Select].debug(df, s)
-        case s: Where   => Debug[Where].debug(df, s)
-        case s: GroupBy => Debug[GroupBy].debug(df, s)
-        case s: OrderBy => Debug[OrderBy].debug(df, s)
-      }
+  implicit val transformation: DebugMany[Transformation] = { (source, df, others) =>
+    source match {
+      case s: Select  => Debug[Select].eval(df, s)
+      case s: Where   => Debug[Where].eval(df, s)
+      case s: GroupBy => Debug[GroupBy].eval(df, s)
+      case s: OrderBy => Debug[OrderBy].eval(df, s)
+      case s: Join    => DebugMany[Join].eval(s, df, others)
+    }
+  }
 
   /** Select */
   implicit val select: Debug[Select] =
@@ -78,4 +76,16 @@ object Debug {
   // TODO: implement the asc/desc order
   implicit val orderByS: Debug[OrderBy] =
     (df, source) => df.orderBy(source.by.toList.map(df(_)): _*)
+
+  /** Join */
+  implicit val joinS: DebugMany[Join] =
+    (source, df, context) => {
+      val relations: NonEmptyList[(Relation, DataFrame)] =
+        source.others.map(other => other -> context(other.name))
+
+      relations.foldLeft(df) { case (left, (relation, right)) =>
+        val condition = relation.on.map(cond => expr(cond)).reduce(_ && _)
+        left.join(right, condition, relation.joinType)
+      }
+    }
 }

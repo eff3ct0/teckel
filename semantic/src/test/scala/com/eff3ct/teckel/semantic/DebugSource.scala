@@ -79,21 +79,21 @@ class DebugSource
   }
 
   it should "debug an output source" in {
-    Debug[Output].debug(Resources.input, Sources.output) :===: Resources.input
+    Debug[Output].eval(Resources.input, Sources.output) :===: Resources.input
   }
 
   it should "debug a select transformation" in {
-    Debug[Select].debug(Resources.input, Sources.select) :===:
+    Debug[Select].eval(Resources.input, Sources.select) :===:
       Resources.input.select("Symbol", "Date")
   }
 
   it should "debug a where transformation" in {
-    Debug[Where].debug(Resources.input, Sources.where) :===:
+    Debug[Where].eval(Resources.input, Sources.where) :===:
       Resources.input.where("Date > '2024-12-12'")
   }
 
   it should "debug a groupBy transformation" in {
-    Debug[GroupBy].debug(Resources.input, Sources.groupBy) :===:
+    Debug[GroupBy].eval(Resources.input, Sources.groupBy) :===:
       Resources.input
         .groupBy("Symbol")
         .agg(
@@ -104,7 +104,7 @@ class DebugSource
   }
 
   it should "debug an orderBy transformation" in {
-    Debug[OrderBy].debug(Resources.input, Sources.orderBy) :===:
+    Debug[OrderBy].eval(Resources.input, Sources.orderBy) :===:
       Resources.input.orderBy("High")
   }
 

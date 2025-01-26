@@ -22,22 +22,16 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel.semantic.sources
+package com.eff3ct.teckel.semantic.core
 
-import com.eff3ct.teckel.model.Source.Output
+import com.eff3ct.teckel.model.Context
 
-object Exec {
-  def apply[S: Exec]: Exec[S] = implicitly[Exec[S]]
+trait SemanticMany[S, I, +O] {
+  def eval(source: S, input: I, others: Context[I]): O
+}
 
-  implicit val execOutput: Exec[Output] =
-    (df, source) =>
-      source match {
-        case Output(_, format, mode, options, ref) =>
-          df.write
-            .format(format)
-            .mode(mode)
-            .options(options)
-            .save(ref)
-      }
+object SemanticMany {
+
+  def apply[S, I, O](implicit S: SemanticMany[S, I, O]): SemanticMany[S, I, O] = S
 
 }
