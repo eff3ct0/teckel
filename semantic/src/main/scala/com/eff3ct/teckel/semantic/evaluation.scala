@@ -35,16 +35,16 @@ object evaluation {
   implicit def debug(implicit S: SparkSession): EvalAsset[DataFrame] =
     new EvalAsset[DataFrame] {
       override def eval(context: Context[Asset], asset: Asset): DataFrame = {
-        lazy val df: DataFrame = eval(context, context(asset.assetRef))
         asset.source match {
-          case s: Input  => Debug.input(s)
-          case _: Output => Debug.output(df)
+          case s: Input          => Debug.input(s).as(asset.assetRef)
+          case s: Output         => Debug.output(eval(context, context(s.assetRef))).as(asset.assetRef)
           case s: Transformation =>
-            val diffContext: Context[Asset] =
+            // TODO. Use a Effect Mutable State to keep track of the already evaluated assets
+            lazy val diffContext: Context[Asset] =
               context.filterNot { case (_, other) => other == asset }
-            val others: Context[DataFrame] =
+            lazy val others: Context[DataFrame] =
               diffContext.map { case (ref, other) => ref -> eval(diffContext, other) }
-            Debug.transformation(s, df, others)
+            Debug.transformation(s, eval(context, context(s.assetRef)), others).as(asset.assetRef)
         }
       }
     }

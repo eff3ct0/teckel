@@ -24,11 +24,8 @@
 
 package com.eff3ct.teckel.semantic
 
-import cats.data.NonEmptyList
-import com.eff3ct.teckel.model.Source._
 import com.eff3ct.teckel.semantic.sources.Debug
 import com.holdenkarau.spark.testing._
-import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -37,41 +34,9 @@ class DebugSource
     extends AnyFlatSpecLike
     with Matchers
     with DataFrameSuiteBase
-    with SparkTestUtils {
+    with SparkTestUtils
+    with TestResources {
 
-  object Resources {
-    val input: DataFrame = spark.read
-      .format("csv")
-      .option("header", "true")
-      .option("sep", "|")
-      .load("src/test/resources/data/csv/example.csv")
-  }
-
-  object Sources {
-
-    val input: Input =
-      Input("csv", Map("header" -> "true", "sep" -> "|"), "src/test/resources/data/csv/example.csv")
-
-    val output: Output =
-      Output("table1", "parquet", "overwrite", Map(), "src/test/resources/data/parquet/example")
-
-    val select: Select = Select("table1", NonEmptyList.of("Symbol", "Date"))
-
-    val where: Where = Where("table1", "Date > '2024-12-12'")
-
-    val groupBy: GroupBy = GroupBy(
-      "table1",
-      NonEmptyList.of("Symbol"),
-      NonEmptyList.of(
-        "sum(`Adj Close`) as TotalClose",
-        "max(High) as Highest",
-        "min(Low) as Lowest"
-      )
-    )
-
-    val orderBy: OrderBy = OrderBy("table1", NonEmptyList.of("High"), Some("Asc"))
-
-  }
   "DebugSource" should "debug an input source" in {
     Debug.input(Sources.input) :===: Resources.input
   }
@@ -104,6 +69,18 @@ class DebugSource
   it should "debug an orderBy transformation" in {
     Debug.orderBy(Resources.input, Sources.orderBy) :===:
       Resources.input.orderBy("High")
+  }
+
+  it should "debug a join transformation using column expressions" in {
+    Debug.join(Sources.join, Resources.input, Map("table2" -> Resources.input2)) :===:
+      Resources.input
+        .join(Resources.input2, Resources.input("id") === Resources.input2("id"), "inner")
+  }
+
+  it should "debug a join transformation using a condition column expression" in {
+    Debug.join(Sources.join, Resources.input, Map("table2" -> Resources.input2)) :===:
+      Resources.input
+        .join(Resources.input2, expr("table1.id == table2.id"), "inner")
   }
 
 }
