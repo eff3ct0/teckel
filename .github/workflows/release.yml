@@ -24,7 +24,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: eff3ct0/supabase-auth-scala
+          slug: eff3ct0/teckel
           files: target/scala-*/scoverage-report/scoverage.xml
           fail_ci_if_error: true
 

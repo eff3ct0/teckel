@@ -13,12 +13,12 @@ object SonatypePublish {
     ThisBuild / sonatypeCredentialHost := sonatypeCentralHost,
     ThisBuild / organization           := "com.eff3ct",
     ThisBuild / organizationName       := "eff3ct",
-    ThisBuild / homepage               := Some(url("https://github.com/rafafrdz/teckel")),
+    ThisBuild / homepage               := Some(url("https://github.com/eff3ct0/teckel")),
     ThisBuild / licenses               := Seq("MIT" -> url("https://opensource.org/licenses/MIT")),
     ThisBuild / scmInfo := Some(
       ScmInfo(
-        browseUrl = url("https://github.com/rafafrdz/teckel"),
-        connection = "scm:git:git@github.com:rafafrdz/teckel.git"
+        browseUrl = url("https://github.com/eff3ct0/teckel"),
+        connection = "scm:git:git@github.com:eff3ct0/teckel.git"
       )
     ),
     ThisBuild / developers := List(
@@ -30,7 +30,7 @@ object SonatypePublish {
       )
     ),
     ThisBuild / sonatypeProjectHosting := Some(
-      GitHubHosting("rafafrdz", "teckel", "hi@rafaelfernandez.dev")
+      GitHubHosting("eff3ct0", "teckel", "hi@rafaelfernandez.dev")
     )
   )
 
