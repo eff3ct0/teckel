@@ -28,7 +28,6 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import com.eff3ct.teckel.api.file._
 import com.eff3ct.teckel.semantic.execution._
-import com.eff3ct.teckel.semantic.{SparkTestUtils, TestResources}
 import com.holdenkarau.spark.testing.DataFrameSuiteBase
 import org.apache.spark.sql.functions._
 import org.scalatest.flatspec.AnyFlatSpecLike
