@@ -18,4 +18,4 @@ output:
   - name: selectTable1
     format: parquet
     mode: overwrite
-    path: 'src/test/resources/data/parquet/select_example'
+    path: 'src/test/resources/data/parquet/example/select'

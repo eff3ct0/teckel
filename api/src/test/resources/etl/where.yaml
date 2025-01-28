@@ -10,10 +10,10 @@ transformation:
   - name: whereTable1
     where:
       from: table1
-      filter: 'id > 10'
+      filter: Date > '2024-12-12'
 
 output:
   - name: whereTable1
     format: parquet
     mode: overwrite
-    path: 'src/test/resources/data/parquet/where_example'
+    path: 'src/test/resources/data/parquet/example/where'

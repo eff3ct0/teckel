@@ -11,11 +11,13 @@ transformation:
     group:
       from: table1
       by:
-        - symbol
+        - Symbol
       agg:
-        - sum(`adj close`)
+        - sum(`adj close`) as TotalClose
+        - max(high) as Highest
+        - min(low) as Lowest
 output:
   - name: groupByTable1
     format: parquet
     mode: overwrite
-    path: 'src/test/resources/data/parquet/group_by_example'
+    path: 'src/test/resources/data/parquet/example/group-by'
