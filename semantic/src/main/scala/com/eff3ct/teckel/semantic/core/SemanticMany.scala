@@ -22,22 +22,16 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel
-import scala.collection.mutable.{Map => MMap}
+package com.eff3ct.teckel.semantic.core
 
-package object model {
+import com.eff3ct.teckel.model.Context
 
-  type AssetRef   = String
-  type SourceRef  = String
-  type Format     = String
-  type Mode       = String
-  type Options    = Map[String, String]
-  type Context[T] = Map[AssetRef, T]
-  // TODO. Use a Effect Mutable State to keep track of the already evaluated assets
-  type Mutex[T] = MMap[AssetRef, T]
+trait SemanticMany[S, I, +O] {
+  def eval(source: S, input: I, others: Context[I]): O
+}
 
-  type Column       = String
-  type Condition    = String
-  type Order        = String
-  type RelationType = String
+object SemanticMany {
+
+  def apply[S, I, O](implicit S: SemanticMany[S, I, O]): SemanticMany[S, I, O] = S
+
 }

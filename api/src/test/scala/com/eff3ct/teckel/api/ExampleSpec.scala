@@ -28,33 +28,69 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import com.eff3ct.teckel.api.file._
 import com.eff3ct.teckel.semantic.execution._
-import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
+import com.holdenkarau.spark.testing.DataFrameSuiteBase
+import org.apache.spark.sql.functions._
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
-class ExampleSpec extends AnyFlatSpecLike with Matchers {
-
-  def sparkBuilder(): SparkSession = {
-    val sparkConf: SparkConf = new SparkConf()
-    val master: String       = sparkConf.get("spark.master", "local[*]")
-    val appName: String      = sparkConf.get("spark.app.name", "spark-etl")
-    SparkSession.builder().config(sparkConf).master(master).appName(appName).getOrCreate()
-  }
-
-  implicit val spark: SparkSession = sparkBuilder()
+class ExampleSpec
+    extends AnyFlatSpecLike
+    with Matchers
+    with DataFrameSuiteBase
+    with SparkTestUtils
+    with TestResources {
 
   "ExampleSpec" should "work correctly in a ETL F using IO" in {
     noException should be thrownBy etl[IO, Unit]("src/test/resources/etl/simple.yaml")
       .unsafeRunSync()
+    spark.read.parquet("src/test/resources/data/parquet/example/simple") :===: Resources.input
   }
 
   it should "work correctly in a ETL IO" in {
     noException should be thrownBy etlIO[Unit]("src/test/resources/etl/simple.yaml").unsafeRunSync()
+    spark.read.parquet("src/test/resources/data/parquet/example/simple") :===: Resources.input
   }
 
   it should "work correctly in an unsafe ETL" in {
     noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/simple.yaml")
+    spark.read.parquet("src/test/resources/data/parquet/example/simple") :===: Resources.input
   }
 
+  it should "work correctly a select pipeline" in {
+    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/select.yaml")
+    spark.read
+      .parquet("src/test/resources/data/parquet/example/select") :===:
+      Resources.input.select("id", "date")
+  }
+
+  it should "work correctly a where pipeline" in {
+    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/where.yaml")
+    spark.read
+      .parquet("src/test/resources/data/parquet/example/where") :===:
+      Resources.input.where("Date > '2024-12-12'")
+  }
+
+  it should "work correctly a groupBy pipeline" in {
+    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/group-by.yaml")
+    spark.read
+      .parquet("src/test/resources/data/parquet/example/group-by") :===:
+      Resources.input
+        .groupBy("Symbol")
+        .agg(
+          sum("Adj Close") as "TotalClose",
+          max("High") as "Highest",
+          min("Low") as "Lowest"
+        )
+  }
+
+  it should "work correctly a orderBy pipeline" in {
+    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/order-by.yaml")
+    spark.read
+      .parquet("src/test/resources/data/parquet/example/order-by") :===:
+      Resources.input.orderBy("Id", "Date")
+
+  }
+//  it should "work correctly a join pipeline" in {
+  //    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/join.yaml")
+  //  }
 }

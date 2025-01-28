@@ -39,6 +39,7 @@ object transformation {
       case w: Where   => w.asJson
       case g: GroupBy => g.asJson
       case o: OrderBy => o.asJson
+      case j: Join    => j.asJson
     }
 
   implicit val decodeEvent: Decoder[Transformation] =
@@ -46,12 +47,14 @@ object transformation {
       Decoder[Select].widen,
       Decoder[Where].widen,
       Decoder[GroupBy].widen,
-      Decoder[OrderBy].widen
+      Decoder[OrderBy].widen,
+      Decoder[Join].widen
     ).reduceLeft(_ or _)
 
   case class Select(name: String, select: SelectOp)  extends Transformation
   case class Where(name: String, where: WhereOp)     extends Transformation
   case class GroupBy(name: String, group: GroupByOp) extends Transformation
   case class OrderBy(name: String, order: OrderByOp) extends Transformation
+  case class Join(name: String, join: JoinOp)        extends Transformation
 
 }

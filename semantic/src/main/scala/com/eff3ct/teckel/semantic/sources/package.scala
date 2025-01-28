@@ -24,11 +24,15 @@
 
 package com.eff3ct.teckel.semantic
 
+import com.eff3ct.teckel.semantic.core.{Semantic, SemanticMany}
 import org.apache.spark.sql.DataFrame
 
 package object sources {
 
-  def debug[S: Debug]: (DataFrame, S) => DataFrame = Debug[S].debug
+  type Debug[S]     = Semantic[S, DataFrame, DataFrame]
+  type DebugMany[S] = SemanticMany[S, DataFrame, DataFrame]
+  type Exec[S]      = Semantic[S, DataFrame, Unit]
 
-  def exec[S: Exec]: (DataFrame, S) => Unit = Exec[S].eval
+  def DebugMany[S: DebugMany]: DebugMany[S] = implicitly[DebugMany[S]]
+
 }

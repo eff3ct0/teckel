@@ -6,9 +6,14 @@ input:
       header: true
       sep: '|'
 
+transformation:
+  - name: whereTable1
+    where:
+      from: table1
+      filter: Date > '2024-12-12'
 
 output:
-  - name: table1
+  - name: whereTable1
     format: parquet
     mode: overwrite
-    path: 'src/test/resources/data/parquet/example/simple'
+    path: 'src/test/resources/data/parquet/example/where'

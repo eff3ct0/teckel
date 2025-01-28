@@ -25,57 +25,58 @@
 package com.eff3ct.teckel.semantic.sources
 
 import cats.data.NonEmptyList
+import com.eff3ct.teckel.model.Context
 import com.eff3ct.teckel.model.Source._
-import com.eff3ct.teckel.semantic.SemanticA
-import com.eff3ct.teckel.semantic.core.Semantic
 import org.apache.spark.sql.functions.expr
 import org.apache.spark.sql.{DataFrame, RelationalGroupedDataset, SparkSession}
 
-trait Debug[S] extends Semantic[S, DataFrame, DataFrame] {
-  def debug(df: DataFrame, source: S): DataFrame = eval(df, source)
-}
-
 object Debug {
-  def apply[S: Debug]: Debug[S] = implicitly[Debug[S]]
 
-  implicit def input[S <: Input](implicit S: SparkSession): SemanticA[S, DataFrame] =
-    Semantic.pure((source: S) =>
-      S.read.format(source.format).options(source.options).load(source.sourceRef)
-    )
+  def input[S <: Input](source: S)(implicit S: SparkSession): DataFrame =
+    S.read.format(source.format).options(source.options).load(source.sourceRef)
 
-  implicit val output: Debug[Output] =
-    (df, _) => df
+  def output[S <: Output]: DataFrame => DataFrame = identity[DataFrame]
 
   /** Transformation */
-  implicit val transformation: Debug[Transformation] =
-    (df, source) =>
-      source match {
-        case s: Select  => Debug[Select].debug(df, s)
-        case s: Where   => Debug[Where].debug(df, s)
-        case s: GroupBy => Debug[GroupBy].debug(df, s)
-        case s: OrderBy => Debug[OrderBy].debug(df, s)
-      }
+  def transformation(source: Transformation, df: DataFrame, others: => Context[DataFrame]): DataFrame =
+    source match {
+      case s: Select  => select(df, s)
+      case s: Where   => where(df, s)
+      case s: GroupBy => groupBy(df, s)
+      case s: OrderBy => orderBy(df, s)
+      case s: Join    => join(s, df, others)
+    }
 
   /** Select */
-  implicit val select: Debug[Select] =
-    (df, source) => df.select(source.columns.toList.map(df(_)): _*)
+  def select[S <: Select](df: DataFrame, source: S): DataFrame =
+    df.select(source.columns.toList.map(df(_)): _*)
 
   /** Where */
-  implicit val whereS: Debug[Where] =
-    (df, source) => df.where(source.condition)
+  def where[S <: Where](df: DataFrame, source: S): DataFrame =
+    df.where(source.condition)
 
   /** GroupBy */
-  implicit val groupByS: Debug[GroupBy] =
-    (df, source) => {
-      val relDF: RelationalGroupedDataset = df.groupBy(source.by.toList.map(df(_)): _*)
-      source.aggregate match {
-        case NonEmptyList(a, Nil)  => relDF.agg(expr(a))
-        case NonEmptyList(a, tail) => relDF.agg(expr(a), tail.map(expr): _*)
-      }
+  def groupBy[S <: GroupBy](df: DataFrame, source: S): DataFrame = {
+    val relDF: RelationalGroupedDataset = df.groupBy(source.by.toList.map(df(_)): _*)
+    source.aggregate match {
+      case NonEmptyList(a, Nil)  => relDF.agg(expr(a))
+      case NonEmptyList(a, tail) => relDF.agg(expr(a), tail.map(expr): _*)
     }
+  }
 
   /** OrderBy */
   // TODO: implement the asc/desc order
-  implicit val orderByS: Debug[OrderBy] =
-    (df, source) => df.orderBy(source.by.toList.map(df(_)): _*)
+  def orderBy[S <: OrderBy](df: DataFrame, source: S): DataFrame =
+    df.orderBy(source.by.toList.map(df(_)): _*)
+
+  /** Join */
+  def join[S <: Join](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {
+    val relations: NonEmptyList[(Relation, DataFrame)] =
+      source.others.map(other => other -> context(other.name))
+
+    relations.foldLeft(df) { case (left, (relation, right)) =>
+      val condition = relation.on.map(cond => expr(cond)).reduce(_ && _)
+      left.join(right, condition, relation.joinType)
+    }
+  }
 }

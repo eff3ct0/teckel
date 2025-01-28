@@ -28,7 +28,7 @@ import cats.data.NonEmptyList
 import cats.implicits._
 import io.circe.generic.auto._
 import io.circe.syntax._
-import io.circe.{Decoder, Encoder}
+import io.circe.{Decoder, Encoder, Json}
 
 object operations {
 
@@ -40,6 +40,7 @@ object operations {
       case w: WhereOp   => w.asJson
       case g: GroupByOp => g.asJson
       case o: OrderByOp => o.asJson
+      case j: JoinOp    => j.asJson
     }
 
   implicit val decodeEvent: Decoder[Operation] =
@@ -47,7 +48,8 @@ object operations {
       Decoder[SelectOp].widen,
       Decoder[WhereOp].widen,
       Decoder[GroupByOp].widen,
-      Decoder[OrderByOp].widen
+      Decoder[OrderByOp].widen,
+      Decoder[JoinOp].widen
     ).reduceLeft(_ or _)
 
   case class SelectOp(from: String, columns: NonEmptyList[String]) extends Operation
@@ -56,5 +58,27 @@ object operations {
       extends Operation
   case class OrderByOp(from: String, by: NonEmptyList[String], order: Option[String])
       extends Operation
+
+  case class JoinOp(left: String, right: NonEmptyList[Relation]) extends Operation
+
+  case class Relation(name: String, relationType: String, on: List[String])
+
+  implicit val encodeRelationType: Encoder[Relation] =
+    Encoder.instance { r =>
+      Json.obj(
+        "name"    -> r.name.asJson,
+        "type"    -> r.relationType.asJson,
+        "on"      -> r.on.asJson
+      )
+    }
+
+  implicit val decodeRelationType: Decoder[Relation] =
+    Decoder.instance { c =>
+      for {
+        name    <- c.downField("name").as[String]
+        relationType <- c.downField("type").as[String]
+        on      <- c.downField("on").as[List[String]]
+      } yield Relation(name, relationType, on)
+    }
 
 }

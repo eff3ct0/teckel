@@ -1,0 +1,23 @@
+input:
+  - name: table1
+    format: csv
+    path: 'src/test/resources/data/csv/example.csv'
+    options:
+      header: true
+      sep: '|'
+
+transformation:
+  - name: groupByTable1
+    group:
+      from: table1
+      by:
+        - Symbol
+      agg:
+        - sum(`adj close`) as TotalClose
+        - max(high) as Highest
+        - min(low) as Lowest
+output:
+  - name: groupByTable1
+    format: parquet
+    mode: overwrite
+    path: 'src/test/resources/data/parquet/example/group-by'

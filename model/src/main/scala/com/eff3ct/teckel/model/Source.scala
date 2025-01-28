@@ -56,4 +56,8 @@ object Source {
 
   case class OrderBy(assetRef: AssetRef, by: NonEmptyList[Column], order: Option[Order])
       extends Transformation
+
+  case class Join(assetRef: AssetRef, others: NonEmptyList[Relation]) extends Transformation
+
+  case class Relation(name: AssetRef, joinType: RelationType, on: List[Condition])
 }

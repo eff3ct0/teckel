@@ -27,24 +27,74 @@ package com.eff3ct.teckel.semantic
 import com.eff3ct.teckel.model.Source._
 import com.eff3ct.teckel.model._
 import com.eff3ct.teckel.semantic.core._
-import com.eff3ct.teckel.semantic.sources.Debug
-import com.eff3ct.teckel.semantic.sources.Debug._
+import com.eff3ct.teckel.semantic.sources._
 import org.apache.spark.sql._
+
+import scala.collection.mutable.{Map => MMap}
 
 object evaluation {
 
+  private def register(
+      context: Mutex[DataFrame],
+      a: Asset,
+      df: DataFrame
+  ): DataFrame = {
+    context.put(a.assetRef, df)
+    df
+  }
+
   implicit def debug(implicit S: SparkSession): EvalAsset[DataFrame] =
     new EvalAsset[DataFrame] {
+      val global: Mutex[DataFrame] = MMap()
       override def eval(context: Context[Asset], asset: Asset): DataFrame = {
-        asset.source match {
-          case s: Input  => Semantic.any[Input, DataFrame](s)
-          case s: Output => Debug[Output].debug(eval(context, context(s.assetRef)), s)
-          case s: Transformation =>
-            Debug[Transformation].debug(eval(context, context(s.assetRef)), s)
-        }
+        val registerCallBack: DataFrame => DataFrame     = register(global, asset, _)
+        val getTableCallBack: Asset => Option[DataFrame] = a => global.get(a.assetRef)
+        resolveAndRegister(context, asset, eval, getTableCallBack, registerCallBack)
       }
     }
 
+  def resolve(
+      context: Context[Asset],
+      asset: Asset,
+      getOrEval: (Context[Asset], Asset) => DataFrame
+  )(implicit S: SparkSession): DataFrame =
+    asset.source match {
+      case s: Input => Debug.input(s).as(asset.assetRef)
+
+      case s: Output =>
+        val inner  = getOrEval(context, context(s.assetRef))
+        val result = Debug.output(inner).as(asset.assetRef)
+        result
+
+      case s: Transformation =>
+        lazy val diffContext: Context[Asset] =
+          context.filterNot { case (ref, _) => ref == asset.assetRef }
+
+        lazy val others: Context[DataFrame] =
+          diffContext.map { case (ref, other) =>
+            ref -> getOrEval(diffContext, other)
+          }
+
+        val inner  = getOrEval(context, context(s.assetRef))
+        val result = Debug.transformation(s, inner, others).as(s.assetRef)
+        result
+
+    }
+
+  def resolveAndRegister(
+      context: Context[Asset],
+      asset: Asset,
+      evalCallBack: (Context[Asset], Asset) => DataFrame,
+      getTableCallBack: Asset => Option[DataFrame],
+      registerCallBack: DataFrame => DataFrame
+  )(implicit S: SparkSession): DataFrame = {
+
+    val getOrEval: (Context[Asset], Asset) => DataFrame =
+      (context, asset) =>
+        registerCallBack(getTableCallBack(asset).getOrElse(evalCallBack(context, asset)))
+    val df = resolve(context, asset, getOrEval)
+    registerCallBack(df)
+  }
   implicit def debugContext[T: EvalAsset]: EvalContext[Context[T]] =
     (context: Context[Asset]) =>
       context.map { case (ref, asset) =>
