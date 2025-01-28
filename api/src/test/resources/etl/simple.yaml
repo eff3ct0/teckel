@@ -11,4 +11,4 @@ output:
   - name: table1
     format: parquet
     mode: overwrite
-    path: 'src/test/resources/data/parquet/example'
+    path: 'src/test/resources/data/parquet/simple_example'
