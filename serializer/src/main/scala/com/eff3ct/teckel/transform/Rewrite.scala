@@ -35,6 +35,9 @@ import com.eff3ct.teckel.serializer.model.transformation._
 import com.eff3ct.teckel.serializer.types.PrimitiveType
 import com.eff3ct.teckel.serializer.types.implicits._
 
+import scala.collection.mutable.{Map => MMap}
+import scala.collection.{immutable, mutable}
+
 object Rewrite {
 
   def rewrite(options: Map[String, PrimitiveType]): Map[String, String] =
@@ -84,6 +87,7 @@ object Rewrite {
       }
       .toList
       .toMap
+      .toMutable
 
   def ocontext(item: NonEmptyList[Output]): Context[Asset] =
     item
@@ -93,6 +97,7 @@ object Rewrite {
       }
       .toList
       .toMap
+      .toMutable
 
   def tcontext(item: Option[NonEmptyList[Transformation]]): Context[Asset] =
     (for {
@@ -101,9 +106,14 @@ object Rewrite {
         val asset: Asset = rewrite(t)
         asset.assetRef -> asset
       }
-    } yield context.toList.toMap).getOrElse(Map())
+    } yield context.toList.toMap.toMutable).getOrElse(MMap())
 
   def rewrite(item: ETL): Context[Asset] =
     icontext(item.input) ++ ocontext(item.output) ++ tcontext(item.transformation)
+
+  // TODO. Use a Effect Mutable State to keep track of the already evaluated assets
+  implicit class MapMutable[K, V](val map: immutable.Map[K, V]) {
+    def toMutable: mutable.Map[K, V] = MMap(map.toSeq: _*)
+  }
 
 }

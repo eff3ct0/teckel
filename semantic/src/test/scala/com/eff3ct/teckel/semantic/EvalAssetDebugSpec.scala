@@ -56,6 +56,15 @@ class EvalAssetDebugSpec
     val orderByAsset: Asset = Assets.orderByA
     val result: DataFrame   = EvalAsset[DataFrame].eval(Assets.context, orderByAsset)
     result :===: Resources.input.orderBy("High")
+  }
 
+  it should "debug a join asset" in {
+    val joinAsset: Asset  = Assets.joinA
+    val result: DataFrame = EvalAsset[DataFrame].eval(Assets.context, joinAsset)
+    result :===: Resources.input.join(
+      Resources.input2,
+      Resources.input("id") === Resources.input2("id"),
+      "inner"
+    )
   }
 }

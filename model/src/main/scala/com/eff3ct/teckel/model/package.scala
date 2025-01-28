@@ -23,15 +23,17 @@
  */
 
 package com.eff3ct.teckel
+import scala.collection.mutable.{Map => MMAP}
 
 package object model {
 
-  type AssetRef   = String
-  type SourceRef  = String
-  type Format     = String
-  type Mode       = String
-  type Options    = Map[String, String]
-  type Context[T] = Map[AssetRef, T]
+  type AssetRef  = String
+  type SourceRef = String
+  type Format    = String
+  type Mode      = String
+  type Options   = Map[String, String]
+  // TODO. Use a Effect Mutable State to keep track of the already evaluated assets
+  type Context[T] = MMAP[AssetRef, T]
 
   type Column       = String
   type Condition    = String

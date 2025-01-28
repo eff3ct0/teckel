@@ -24,6 +24,7 @@
 
 package com.eff3ct.teckel.semantic
 
+import com.eff3ct.teckel.model.Asset.UnResolvedAsset
 import com.eff3ct.teckel.model.Source._
 import com.eff3ct.teckel.model._
 import com.eff3ct.teckel.semantic.core._
@@ -32,19 +33,44 @@ import org.apache.spark.sql._
 
 object evaluation {
 
+  private def getTable(
+      context: Context[Asset],
+      assetRef: AssetRef,
+      orElse: => DataFrame
+  ): DataFrame =
+    context(assetRef) match {
+      case a: Asset.ResolvedAsset[DataFrame] => a.source
+      case _                                 => orElse
+    }
+
+  private def register(context: Context[Asset], a: UnResolvedAsset, df: DataFrame): DataFrame = {
+    context.put(a.assetRef, Asset.ResolvedAsset(a.assetRef, df))
+    df
+  }
+
   implicit def debug(implicit S: SparkSession): EvalAsset[DataFrame] =
     new EvalAsset[DataFrame] {
       override def eval(context: Context[Asset], asset: Asset): DataFrame = {
-        asset.source match {
-          case s: Input          => Debug.input(s).as(asset.assetRef)
-          case s: Output         => Debug.output(eval(context, context(s.assetRef))).as(asset.assetRef)
-          case s: Transformation =>
-            // TODO. Use a Effect Mutable State to keep track of the already evaluated assets
-            lazy val diffContext: Context[Asset] =
-              context.filterNot { case (_, other) => other == asset }
-            lazy val others: Context[DataFrame] =
-              diffContext.map { case (ref, other) => ref -> eval(diffContext, other) }
-            Debug.transformation(s, eval(context, context(s.assetRef)), others).as(asset.assetRef)
+        asset match {
+          case a: Asset.ResolvedAsset[DataFrame] => a.source
+          case a @ Asset.UnResolvedAsset(assetRef, source) =>
+            source match {
+              case s: Input => register(context, a, Debug.input(s).as(assetRef))
+              case s: Output =>
+                register(context, a, Debug.output(eval(context, context(s.assetRef))).as(assetRef))
+              case s: Transformation =>
+                lazy val diffContext: Context[Asset] =
+                  context.filterNot { case (_, other) => other == asset }
+                lazy val others: Context[DataFrame] =
+                  diffContext.map { case (ref, other) =>
+                    ref -> getTable(context, ref, eval(diffContext, other))
+                  }
+                register(
+                  context,
+                  a,
+                  Debug.transformation(s, eval(context, context(s.assetRef)), others).as(assetRef)
+                )
+            }
         }
       }
     }

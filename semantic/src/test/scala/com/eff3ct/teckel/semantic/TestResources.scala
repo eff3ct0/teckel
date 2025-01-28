@@ -6,6 +6,8 @@ import com.eff3ct.teckel.model.{Asset, Context}
 import com.holdenkarau.spark.testing.DataFrameSuiteBase
 import org.apache.spark.sql.DataFrame
 
+import scala.collection.mutable.{Map => MMap}
+
 trait TestResources {
   self: DataFrameSuiteBase with SparkTestUtils =>
 
@@ -31,7 +33,11 @@ trait TestResources {
       Input("csv", Map("header" -> "true", "sep" -> "|"), "src/test/resources/data/csv/example.csv")
 
     val input2: Input =
-      Input("csv", Map("header" -> "true", "sep" -> "|"), "src/test/resources/data/csv/example-2.csv")
+      Input(
+        "csv",
+        Map("header" -> "true", "sep" -> "|"),
+        "src/test/resources/data/csv/example-2.csv"
+      )
 
     val output: Output =
       Output("table1", "parquet", "overwrite", Map(), "src/test/resources/data/parquet/example")
@@ -64,13 +70,16 @@ trait TestResources {
 
   object Assets {
     val inputA: Asset   = Asset("table1", Sources.input)
+    val input2A: Asset  = Asset("table2", Sources.input2)
     val outputA: Asset  = Asset("table1", Sources.output)
     val selectA: Asset  = Asset("tableSelect", Sources.select)
     val whereA: Asset   = Asset("tableWhere", Sources.where)
     val groupByA: Asset = Asset("tableGroupBy", Sources.groupBy)
     val orderByA: Asset = Asset("tableOrderBy", Sources.orderBy)
-    val context: Context[Asset] = Map(
+    val joinA: Asset    = Asset("tableJoin", Sources.join)
+    val context: Context[Asset] = MMap(
       "table1"       -> inputA,
+      "table2"       -> input2A,
       "tableSelect"  -> selectA,
       "tableWhere"   -> whereA,
       "tableGroupBy" -> groupByA,

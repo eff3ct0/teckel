@@ -35,21 +35,20 @@ object execution {
 
   implicit def exec(implicit S: SparkSession): EvalAsset[Unit] =
     (context: Context[Asset], asset: Asset) => {
-      asset.source match {
-        case o: Output =>
-          val EA: EvalAsset[DataFrame] = debug
-          Exec[Output].eval(
-            EA.eval(context, asset),
-            o
-          ) // TODO: Check if the asset is already evaluated
+      asset match {
+        case Asset.UnResolvedAsset(_, o: Output) =>
+          val EA = debug(S)
+          Exec[Output].eval(EA.eval(context, asset), o)
+
         case _ => ()
+
       }
     }
 
   implicit def execContext(implicit E: EvalAsset[Unit]): EvalContext[Unit] =
     (context: Context[Asset]) =>
       context.foreach {
-        case (ref, asset @ Asset(_, _: Output)) =>
+        case (ref, asset @ Asset.UnResolvedAsset(_, source: Output)) =>
           ref -> EvalAsset[Unit].eval(context, asset)
         case _ => ()
       }

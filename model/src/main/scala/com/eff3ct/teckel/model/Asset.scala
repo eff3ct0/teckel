@@ -24,4 +24,15 @@
 
 package com.eff3ct.teckel.model
 
-case class Asset(assetRef: AssetRef, source: Source)
+sealed trait Asset {
+  def assetRef: AssetRef
+}
+object Asset {
+
+  def apply(assetRef: AssetRef, source: Source): Asset =
+    UnResolvedAsset(assetRef, source)
+
+  case class UnResolvedAsset(assetRef: AssetRef, source: Source) extends Asset
+
+  case class ResolvedAsset[T](assetRef: AssetRef, source: T) extends Asset
+}

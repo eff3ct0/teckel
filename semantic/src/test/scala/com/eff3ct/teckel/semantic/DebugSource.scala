@@ -29,6 +29,7 @@ import com.holdenkarau.spark.testing._
 import org.apache.spark.sql.functions._
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
+import scala.collection.mutable.{Map => MMap}
 
 class DebugSource
     extends AnyFlatSpecLike
@@ -72,13 +73,13 @@ class DebugSource
   }
 
   it should "debug a join transformation using column expressions" in {
-    Debug.join(Sources.join, Resources.input, Map("table2" -> Resources.input2)) :===:
+    Debug.join(Sources.join, Resources.input, MMap("table2" -> Resources.input2)) :===:
       Resources.input
         .join(Resources.input2, Resources.input("id") === Resources.input2("id"), "inner")
   }
 
   it should "debug a join transformation using a condition column expression" in {
-    Debug.join(Sources.join, Resources.input, Map("table2" -> Resources.input2)) :===:
+    Debug.join(Sources.join, Resources.input, MMap("table2" -> Resources.input2)) :===:
       Resources.input
         .join(Resources.input2, expr("table1.id == table2.id"), "inner")
   }
