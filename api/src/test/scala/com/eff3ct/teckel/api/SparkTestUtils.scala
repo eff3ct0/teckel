@@ -22,22 +22,18 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel
-import scala.collection.mutable.{Map => MMap}
+package com.eff3ct.teckel.api
 
-package object model {
+import com.holdenkarau.spark.testing.DataFrameSuiteBase
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
-  type AssetRef   = String
-  type SourceRef  = String
-  type Format     = String
-  type Mode       = String
-  type Options    = Map[String, String]
-  type Context[T] = Map[AssetRef, T]
-  // TODO. Use a Effect Mutable State to keep track of the already evaluated assets
-  type Mutex[T] = MMap[AssetRef, T]
+trait SparkTestUtils {
+  self: DataFrameSuiteBase =>
 
-  type Column       = String
-  type Condition    = String
-  type Order        = String
-  type RelationType = String
+  implicit lazy val sp: SparkSession = self.spark
+
+  implicit class DataFrameAssert(df: DataFrame) {
+    def :===:(expected: DataFrame): Unit =
+      assertDataFrameEquals(df, expected)
+  }
 }

@@ -24,10 +24,6 @@
 
 package com.eff3ct.teckel.semantic.core
 
-import com.eff3ct.teckel.model._
-
-trait EvalAsset[+T] extends Semantic[Asset, Context[Asset], T]
-
 object EvalAsset {
   def apply[T: EvalAsset]: EvalAsset[T] =
     implicitly[EvalAsset[T]]

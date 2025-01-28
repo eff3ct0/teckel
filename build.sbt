@@ -1,4 +1,4 @@
-import Dependency.ProjectOps
+import Extension.ProjectOps
 
 lazy val root =
   (project in file("."))
@@ -26,7 +26,8 @@ lazy val model =
       name := "teckel-model",
       libraryDependencies ++= Dependency.model,
       publish / skip := false
-    ).withNoAssembly
+    )
+    .withNoAssembly
 
 lazy val semantic =
   (project in file("./semantic"))
@@ -35,8 +36,10 @@ lazy val semantic =
       name := "teckel-semantic",
       libraryDependencies ++= Dependency.semantic,
       publish / skip := false
-    ).withNoAssembly
+    )
+    .withNoAssembly
     .withKindProjector
+    .withCoverage
 
 /** Serializer */
 lazy val serializer =
@@ -46,7 +49,9 @@ lazy val serializer =
       name           := "teckel-serializer",
       publish / skip := false,
       libraryDependencies ++= Dependency.serializer
-    ).withNoAssembly
+    )
+    .withNoAssembly
+    .withCoverage
 
 lazy val api =
   (project in file("./api"))
@@ -55,7 +60,9 @@ lazy val api =
       name           := "teckel-api",
       publish / skip := false,
       libraryDependencies ++= Dependency.api
-    ).withNoAssembly
+    )
+    .withNoAssembly
+    .withCoverage
 
 lazy val cli =
   (project in file("./cli"))
@@ -64,7 +71,8 @@ lazy val cli =
       name           := "teckel-cli",
       publish / skip := false,
       libraryDependencies ++= Dependency.sparkD
-    ).withAssembly("teckel-etl")
+    )
+    .withAssembly("teckel-etl")
 
 lazy val example =
   (project in file("./example"))

@@ -1,6 +1,5 @@
 import Library._
 import sbt._
-import sbtassembly.AssemblyPlugin
 
 object Dependency {
 
@@ -43,24 +42,5 @@ object Dependency {
     spark.core,
     spark.sql
   )
-
-  implicit class ProjectOps(val prj: Project) extends AnyVal {
-    def withKindProjector: Project = prj.settings(
-      addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full)
-    )
-
-    def withNoAssembly: Project = prj.disablePlugins(AssemblyPlugin)
-
-    def withAssembly: Project =
-      prj
-        .enablePlugins(AssemblyPlugin)
-        .settings(Assembly.projectSettings(None))
-
-    def withAssembly(name: String): Project =
-      prj
-        .enablePlugins(AssemblyPlugin)
-        .settings(Assembly.projectSettings(Some(name)))
-
-  }
 
 }

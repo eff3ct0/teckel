@@ -25,10 +25,6 @@
 package com.eff3ct.teckel.semantic.sources
 
 import com.eff3ct.teckel.model.Source.Output
-import com.eff3ct.teckel.semantic.core.Semantic
-import org.apache.spark.sql.DataFrame
-
-trait Exec[-S] extends Semantic[S, DataFrame, Unit]
 
 object Exec {
   def apply[S: Exec]: Exec[S] = implicitly[Exec[S]]

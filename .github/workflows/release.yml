@@ -16,6 +16,24 @@ jobs:
           java-version: 11
           cache: sbt
       - uses: sbt/setup-sbt@v1
+
+      - name: Build and Test with Coverage
+        run: sbt clean coverage test coverageReport coverageAggregate
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: eff3ct0/supabase-auth-scala
+          files: target/scala-*/scoverage-report/scoverage.xml
+          fail_ci_if_error: true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: target/test-reports
+
       - run: sbt ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}

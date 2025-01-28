@@ -24,7 +24,7 @@
 
 package com.eff3ct.teckel.semantic.core
 
-trait Semantic[-S, -I, +O] {
+trait Semantic[S, -I, +O] {
   def eval(input: I, source: S): O
 }
 
@@ -32,7 +32,11 @@ object Semantic {
 
   def apply[S, I, O](implicit S: Semantic[S, I, O]): Semantic[S, I, O] = S
 
-  def pure[S, I, O](f: S => O): Semantic[S, I, O] = (_: I, source: S) => f(source)
+  def zero[S, I, O](f: S => O): Semantic[S, I, O] = (_: I, source: S) => f(source)
+
+  def map[S, I, O](f: I => O): Semantic[S, I, O] = Semantic.pure((input: I, _) => f(input))
+
+  def pure[S, I, O](f: (I, S) => O): Semantic[S, I, O] = (input: I, source: S) => f(input, source)
 
   def any[S, O](f: S)(implicit S: Semantic[S, Any, O]): O = S.eval((), f)
 }
