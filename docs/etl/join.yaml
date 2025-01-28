@@ -36,14 +36,14 @@ transformation:
         - name: table2
           type: inner
           on:
-            - col11==col21
-            - col12>=col22
+            - table1.col11==table2.col21
+            - table1.col12>=table2.col22
 
         - name: table3
           type: left
           on:
-            - col11==col31
-            - col13==col32
+            - table1.col11==table3.col31
+            - table1.col13==table3.col32
 
   - name: joinTable2
     join:
@@ -52,8 +52,8 @@ transformation:
         - name: joinTable1
           type: left
           on:
-            - col41==col11
-            - col42!=col14
+            - table4.col41==table1.col11
+            - table4.col42!=table1.col14
 
 output:
   - name: joinTable2

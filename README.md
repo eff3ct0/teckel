@@ -36,6 +36,7 @@ Here's an example of a fully defined ETL configuration using a YAML file:
 - `Where` Example: [here](./docs/etl/where.yaml)
 - `Group By` Example: [here](./docs/etl/group-by.yaml)
 - `Order By` Example: [here](./docs/etl/order-by.yaml)
+- `Join` Example: [here](./docs/etl/join.yaml)
 
 ## Getting Started
 
