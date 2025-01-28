@@ -7,11 +7,8 @@ input:
       sep: '|'
 
   - name: table2
-    format: csv
-    path: 'data/csv/example2.csv'
-    options:
-      header: true
-      sep: '|'
+    format: parquet
+    path: 'data/parquet/example2'
 
   - name: table3
     format: csv
@@ -21,11 +18,8 @@ input:
       sep: '|'
 
   - name: table4
-    format: csv
-    path: 'data/csv/example4.csv'
-    options:
-      header: true
-      sep: '|'
+    format: parquet
+    path: 'data/parquet/example4'
 
 transformation:
 
