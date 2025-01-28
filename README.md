@@ -1,6 +1,8 @@
 # Teckel
 
-[![Release](https://github.com/rafafrdz/teckel/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/rafafrdz/teckel/actions/workflows/release.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Release](https://github.com/rafafrdz/teckel/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/rafafrdz/teckel/actions/workflows/release.yml)
+[![codecov](https://codecov.io/gh/eff3ct0/teckel/graph/badge.svg?token=24E1IZ0K2H)](https://codecov.io/gh/eff3ct0/teckel)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Teckel is a framework designed to simplify the creation of Apache Spark ETL (Extract, Transform,
 Load) processes using YAML configuration files. This tool aims to standardize and streamline ETL workflow creation by
