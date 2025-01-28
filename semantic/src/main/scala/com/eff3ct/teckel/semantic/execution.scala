@@ -36,7 +36,7 @@ object execution {
   implicit def exec(implicit S: SparkSession): EvalAsset[Unit] =
     (context: Context[Asset], asset: Asset) => {
       asset match {
-        case Asset.UnResolvedAsset(_, o: Output) =>
+        case Asset(_, o: Output) =>
           val EA = debug(S)
           Exec[Output].eval(EA.eval(context, asset), o)
 
@@ -48,7 +48,7 @@ object execution {
   implicit def execContext(implicit E: EvalAsset[Unit]): EvalContext[Unit] =
     (context: Context[Asset]) =>
       context.foreach {
-        case (ref, asset @ Asset.UnResolvedAsset(_, source: Output)) =>
+        case (ref, asset @ Asset(_, source: Output)) =>
           ref -> EvalAsset[Unit].eval(context, asset)
         case _ => ()
       }

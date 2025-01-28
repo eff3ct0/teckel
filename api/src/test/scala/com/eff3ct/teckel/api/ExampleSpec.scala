@@ -61,4 +61,18 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
     noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/select.yaml")
   }
 
+  it should "work correctly a where pipeline" in {
+    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/where.yaml")
+  }
+
+  it should "work correctly a groupBy pipeline" in {
+    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/group-by.yaml")
+  }
+
+  it should "work correctly a orderBy pipeline" in {
+    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/order-by.yaml")
+  }
+//  it should "work correctly a join pipeline" in {
+  //    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/join.yaml")
+  //  }
 }

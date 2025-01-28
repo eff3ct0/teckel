@@ -38,7 +38,7 @@ object Debug {
   def output[S <: Output]: DataFrame => DataFrame = identity[DataFrame]
 
   /** Transformation */
-  def transformation(source: Transformation, df: DataFrame, others: Context[DataFrame]): DataFrame =
+  def transformation(source: Transformation, df: DataFrame, others: => Context[DataFrame]): DataFrame =
     source match {
       case s: Select  => select(df, s)
       case s: Where   => where(df, s)
