@@ -1,0 +1,22 @@
+input:
+  - name: table1
+    format: csv
+    path: 'src/test/resources/data/csv/example.csv'
+    options:
+      header: true
+      sep: '|'
+
+transformation:
+  - name: orderByTable1
+    order:
+      from: table1
+      by:
+        - id
+        - date
+      order: Desc
+
+output:
+  - name: orderByTable1
+    format: parquet
+    mode: overwrite
+    path: 'src/test/resources/data/parquet/order_by_example'

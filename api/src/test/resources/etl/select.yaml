@@ -1,0 +1,21 @@
+input:
+  - name: table1
+    format: csv
+    path: 'src/test/resources/data/csv/example.csv'
+    options:
+      header: true
+      sep: '|'
+
+transformation:
+  - name: selectTable1
+    select:
+      from: table1
+      columns:
+        - id
+        - date
+
+output:
+  - name: selectTable1
+    format: parquet
+    mode: overwrite
+    path: 'src/test/resources/data/parquet/select_example'

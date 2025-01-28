@@ -57,4 +57,8 @@ class ExampleSpec extends AnyFlatSpecLike with Matchers {
     noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/simple.yaml")
   }
 
+  it should "work correctly a select pipeline" in {
+    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/select.yaml")
+  }
+
 }

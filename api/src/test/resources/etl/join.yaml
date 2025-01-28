@@ -1,0 +1,33 @@
+input:
+  - name: table1
+    format: csv
+    path: 'src/test/resources/data/csv/example.csv'
+    options:
+      header: true
+      sep: '|'
+
+  - name: table2
+    format: csv
+    path: 'src/test/resources/data/csv/example-2.csv'
+    options:
+      header: true
+      sep: '|'
+
+
+transformation:
+
+  - name: joinTable1
+    join:
+      left: table1
+      right:
+        - name: table2
+          type: inner
+          on:
+            - table1.id==table2.id
+            - table1.id>175
+
+output:
+  - name: joinTable2
+    format: parquet
+    mode: overwrite
+    path: 'src/test/resources/data/parquet/join_example'

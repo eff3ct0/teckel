@@ -24,7 +24,7 @@
 
 package com.eff3ct.teckel.semantic
 
-import com.eff3ct.teckel.model.Asset.UnResolvedAsset
+import com.eff3ct.teckel.model.Asset._
 import com.eff3ct.teckel.model.Source._
 import com.eff3ct.teckel.model._
 import com.eff3ct.teckel.semantic.core._
@@ -53,28 +53,51 @@ object evaluation {
       override def eval(context: Context[Asset], asset: Asset): DataFrame = {
         asset match {
           case a: Asset.ResolvedAsset[DataFrame] => a.source
-          case a @ Asset.UnResolvedAsset(assetRef, source) =>
-            source match {
-              case s: Input => register(context, a, Debug.input(s).as(assetRef))
-              case s: Output =>
-                register(context, a, Debug.output(eval(context, context(s.assetRef))).as(assetRef))
-              case s: Transformation =>
-                lazy val diffContext: Context[Asset] =
-                  context.filterNot { case (_, other) => other == asset }
-                lazy val others: Context[DataFrame] =
-                  diffContext.map { case (ref, other) =>
-                    ref -> getTable(context, ref, eval(diffContext, other))
-                  }
-                register(
-                  context,
-                  a,
-                  Debug.transformation(s, eval(context, context(s.assetRef)), others).as(assetRef)
-                )
-            }
+          case a: Asset.UnResolvedAsset          => resolveAndRegister(context, a, eval)
+
         }
       }
     }
 
+  def resolve(
+      context: Context[Asset],
+      asset: UnResolvedAsset,
+      evalCallBack: (Context[Asset], Asset) => DataFrame
+  )(implicit S: SparkSession): DataFrame =
+    asset.source match {
+      case s: Input => Debug.input(s).as(asset.assetRef)
+
+      case s: Output =>
+        lazy val callBackDf = evalCallBack(context, context(s.assetRef))
+        val inner           = getTable(context, s.assetRef, callBackDf)
+        val result          = Debug.output(inner).as(asset.assetRef)
+        result
+
+      case s: Transformation =>
+        lazy val diffContext: Context[Asset] =
+          context.filterNot { case (ref, _) => ref == asset.assetRef }
+
+        lazy val others: Context[DataFrame] =
+          diffContext.map { case (ref, other) =>
+            lazy val callBackDf = evalCallBack(diffContext, other)
+            ref -> getTable(context, ref, callBackDf)
+          }
+
+        lazy val callBackDf = evalCallBack(context, context(s.assetRef))
+        lazy val inner      = getTable(context, s.assetRef, callBackDf)
+        val result          = Debug.transformation(s, inner, others).as(s.assetRef)
+        result
+
+    }
+
+  def resolveAndRegister(
+      context: Context[Asset],
+      asset: UnResolvedAsset,
+      evalCallBack: (Context[Asset], Asset) => DataFrame
+  )(implicit S: SparkSession): DataFrame = {
+    val df = resolve(context, asset, evalCallBack)
+    register(context, asset, df)
+  }
   implicit def debugContext[T: EvalAsset]: EvalContext[Context[T]] =
     (context: Context[Asset]) =>
       context.map { case (ref, asset) =>
