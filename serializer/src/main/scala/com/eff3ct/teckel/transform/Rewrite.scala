@@ -73,6 +73,30 @@ object Rewrite {
   def rewriteOp(item: Relation): Source.Relation =
     Source.Relation(item.name, item.relationType, item.on)
 
+  def rewriteOp(item: AddColumns): Asset =
+    Asset(
+      item.name,
+      Source.AddColumns(
+        item.addColumns.from,
+        item.addColumns.columns.map(c => Source.ColumnDef(c.name, c.expression))
+      )
+    )
+
+  def rewriteOp(item: DropColumns): Asset =
+    Asset(item.name, Source.DropColumns(item.dropColumns.from, item.dropColumns.columns))
+
+  def rewriteOp(item: RenameColumns): Asset =
+    Asset(item.name, Source.RenameColumns(item.renameColumns.from, item.renameColumns.mappings))
+
+  def rewriteOp(item: CastColumns): Asset =
+    Asset(
+      item.name,
+      Source.CastColumns(
+        item.castColumns.from,
+        item.castColumns.columns.map(c => Source.CastColumn(c.name, c.targetType))
+      )
+    )
+
   def rewrite(item: Transformation): Asset =
     item match {
       case s: Select  => rewriteOp(s)
@@ -82,6 +106,10 @@ object Rewrite {
       case s: Join    => rewriteOp(s)
       case s: Distinct => rewriteOp(s)
       case s: Limit    => rewriteOp(s)
+      case s: AddColumns    => rewriteOp(s)
+      case s: DropColumns   => rewriteOp(s)
+      case s: RenameColumns => rewriteOp(s)
+      case s: CastColumns   => rewriteOp(s)
     }
 
   def icontext(item: NonEmptyList[Input]): Context[Asset] =

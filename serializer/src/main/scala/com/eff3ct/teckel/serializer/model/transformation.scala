@@ -42,6 +42,10 @@ object transformation {
       case j: Join    => j.asJson
       case d: Distinct => d.asJson
       case l: Limit    => l.asJson
+      case a: AddColumns    => a.asJson
+      case d: DropColumns   => d.asJson
+      case r: RenameColumns => r.asJson
+      case c: CastColumns   => c.asJson
     }
 
   implicit val decodeEvent: Decoder[Transformation] =
@@ -52,7 +56,11 @@ object transformation {
       Decoder[OrderBy].widen,
       Decoder[Join].widen,
       Decoder[Distinct].widen,
-      Decoder[Limit].widen
+      Decoder[Limit].widen,
+      Decoder[AddColumns].widen,
+      Decoder[DropColumns].widen,
+      Decoder[RenameColumns].widen,
+      Decoder[CastColumns].widen
     ).reduceLeft(_ or _)
 
   case class Select(name: String, select: SelectOp)  extends Transformation
@@ -62,5 +70,10 @@ object transformation {
   case class Join(name: String, join: JoinOp)        extends Transformation
   case class Distinct(name: String, distinct: DistinctOp) extends Transformation
   case class Limit(name: String, limit: LimitOp)          extends Transformation
+
+  case class AddColumns(name: String, addColumns: AddColumnsOp)       extends Transformation
+  case class DropColumns(name: String, dropColumns: DropColumnsOp)    extends Transformation
+  case class RenameColumns(name: String, renameColumns: RenameColumnsOp) extends Transformation
+  case class CastColumns(name: String, castColumns: CastColumnsOp)    extends Transformation
 
 }

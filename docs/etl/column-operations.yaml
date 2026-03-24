@@ -1,0 +1,40 @@
+input:
+  - name: table1
+    format: csv
+    path: 'data/csv/example.csv'
+    options:
+      header: true
+      sep: '|'
+
+transformation:
+  - name: withNewCols
+    addColumns:
+      from: table1
+      columns:
+        - name: full_name
+          expression: "concat(col1, ' ', col2)"
+        - name: processed_at
+          expression: "current_timestamp()"
+  - name: renamed
+    renameColumns:
+      from: withNewCols
+      mappings:
+        col1: first_column
+        col2: second_column
+  - name: casted
+    castColumns:
+      from: renamed
+      columns:
+        - name: first_column
+          targetType: string
+  - name: cleaned
+    dropColumns:
+      from: casted
+      columns:
+        - processed_at
+
+output:
+  - name: cleaned
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/example'

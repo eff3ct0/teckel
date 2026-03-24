@@ -43,6 +43,10 @@ object operations {
       case j: JoinOp    => j.asJson
       case d: DistinctOp => d.asJson
       case l: LimitOp    => l.asJson
+      case a: AddColumnsOp    => a.asJson
+      case d: DropColumnsOp   => d.asJson
+      case r: RenameColumnsOp => r.asJson
+      case c: CastColumnsOp   => c.asJson
     }
 
   implicit val decodeEvent: Decoder[Operation] =
@@ -53,7 +57,11 @@ object operations {
       Decoder[OrderByOp].widen,
       Decoder[JoinOp].widen,
       Decoder[DistinctOp].widen,
-      Decoder[LimitOp].widen
+      Decoder[LimitOp].widen,
+      Decoder[AddColumnsOp].widen,
+      Decoder[DropColumnsOp].widen,
+      Decoder[RenameColumnsOp].widen,
+      Decoder[CastColumnsOp].widen
     ).reduceLeft(_ or _)
 
   case class SelectOp(from: String, columns: NonEmptyList[String]) extends Operation
@@ -66,6 +74,14 @@ object operations {
   case class JoinOp(left: String, right: NonEmptyList[Relation]) extends Operation
   case class DistinctOp(from: String, columns: Option[NonEmptyList[String]]) extends Operation
   case class LimitOp(from: String, count: Int)                               extends Operation
+
+  case class ColumnDef(name: String, expression: String)
+  case class CastColumnDef(name: String, targetType: String)
+
+  case class AddColumnsOp(from: String, columns: NonEmptyList[ColumnDef])     extends Operation
+  case class DropColumnsOp(from: String, columns: NonEmptyList[String])       extends Operation
+  case class RenameColumnsOp(from: String, mappings: Map[String, String])     extends Operation
+  case class CastColumnsOp(from: String, columns: NonEmptyList[CastColumnDef]) extends Operation
 
   case class Relation(name: String, relationType: String, on: List[String])
 
