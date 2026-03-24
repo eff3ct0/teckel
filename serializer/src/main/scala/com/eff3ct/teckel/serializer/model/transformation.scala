@@ -47,6 +47,9 @@ object transformation {
       case r: RenameColumns => r.asJson
       case c: CastColumns   => c.asJson
       case s: SqlExpr       => s.asJson
+      case u: UnionT        => u.asJson
+      case i: IntersectT    => i.asJson
+      case e: ExceptT       => e.asJson
     }
 
   implicit val decodeEvent: Decoder[Transformation] =
@@ -63,6 +66,9 @@ object transformation {
       Decoder[RenameColumns].widen,
       Decoder[CastColumns].widen,
       Decoder[SqlExpr].widen
+      Decoder[UnionT].widen,
+      Decoder[IntersectT].widen,
+      Decoder[ExceptT].widen
     ).reduceLeft(_ or _)
 
   case class Select(name: String, select: SelectOp)  extends Transformation
@@ -78,5 +84,9 @@ object transformation {
   case class RenameColumns(name: String, renameColumns: RenameColumnsOp) extends Transformation
   case class CastColumns(name: String, castColumns: CastColumnsOp)    extends Transformation
   case class SqlExpr(name: String, sql: SqlOp)                        extends Transformation
+
+  case class UnionT(name: String, union: UnionOp)            extends Transformation
+  case class IntersectT(name: String, intersect: IntersectOp) extends Transformation
+  case class ExceptT(name: String, except: ExceptOp)          extends Transformation
 
 }

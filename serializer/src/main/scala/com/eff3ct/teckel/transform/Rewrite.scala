@@ -99,6 +99,30 @@ object Rewrite {
 
   def rewriteOp(item: SqlExpr): Asset =
     Asset(item.name, Source.Sql(item.sql.from, item.sql.query))
+  def rewriteOp(item: UnionT): Asset = {
+    val head = item.union.sources.head
+    val tail = item.union.sources.tail
+    Asset(
+      item.name,
+      Source.Union(head, NonEmptyList.fromListUnsafe(tail), item.union.all.getOrElse(false))
+    )
+  }
+
+  def rewriteOp(item: IntersectT): Asset = {
+    val head = item.intersect.sources.head
+    val tail = item.intersect.sources.tail
+    Asset(
+      item.name,
+      Source
+        .Intersect(head, NonEmptyList.fromListUnsafe(tail), item.intersect.all.getOrElse(false))
+    )
+  }
+
+  def rewriteOp(item: ExceptT): Asset =
+    Asset(
+      item.name,
+      Source.Except(item.except.left, item.except.right, item.except.all.getOrElse(false))
+    )
 
   def rewrite(item: Transformation): Asset =
     item match {
@@ -114,6 +138,9 @@ object Rewrite {
       case s: RenameColumns => rewriteOp(s)
       case s: CastColumns   => rewriteOp(s)
       case s: SqlExpr       => rewriteOp(s)
+      case s: UnionT        => rewriteOp(s)
+      case s: IntersectT    => rewriteOp(s)
+      case s: ExceptT       => rewriteOp(s)
     }
 
   def icontext(item: NonEmptyList[Input]): Context[Asset] =
