@@ -97,6 +97,9 @@ object Rewrite {
       )
     )
 
+  def rewriteOp(item: SqlExpr): Asset =
+    Asset(item.name, Source.Sql(item.sql.from, item.sql.query))
+
   def rewrite(item: Transformation): Asset =
     item match {
       case s: Select  => rewriteOp(s)
@@ -110,6 +113,7 @@ object Rewrite {
       case s: DropColumns   => rewriteOp(s)
       case s: RenameColumns => rewriteOp(s)
       case s: CastColumns   => rewriteOp(s)
+      case s: SqlExpr       => rewriteOp(s)
     }
 
   def icontext(item: NonEmptyList[Input]): Context[Asset] =

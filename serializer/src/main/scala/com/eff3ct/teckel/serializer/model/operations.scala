@@ -47,6 +47,7 @@ object operations {
       case d: DropColumnsOp   => d.asJson
       case r: RenameColumnsOp => r.asJson
       case c: CastColumnsOp   => c.asJson
+      case s: SqlOp            => s.asJson
     }
 
   implicit val decodeEvent: Decoder[Operation] =
@@ -61,7 +62,8 @@ object operations {
       Decoder[AddColumnsOp].widen,
       Decoder[DropColumnsOp].widen,
       Decoder[RenameColumnsOp].widen,
-      Decoder[CastColumnsOp].widen
+      Decoder[CastColumnsOp].widen,
+      Decoder[SqlOp].widen
     ).reduceLeft(_ or _)
 
   case class SelectOp(from: String, columns: NonEmptyList[String]) extends Operation
@@ -82,6 +84,7 @@ object operations {
   case class DropColumnsOp(from: String, columns: NonEmptyList[String])       extends Operation
   case class RenameColumnsOp(from: String, mappings: Map[String, String])     extends Operation
   case class CastColumnsOp(from: String, columns: NonEmptyList[CastColumnDef]) extends Operation
+  case class SqlOp(from: String, query: String)                                extends Operation
 
   case class Relation(name: String, relationType: String, on: List[String])
 

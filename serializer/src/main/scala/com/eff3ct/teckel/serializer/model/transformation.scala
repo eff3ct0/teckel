@@ -46,6 +46,7 @@ object transformation {
       case d: DropColumns   => d.asJson
       case r: RenameColumns => r.asJson
       case c: CastColumns   => c.asJson
+      case s: SqlExpr       => s.asJson
     }
 
   implicit val decodeEvent: Decoder[Transformation] =
@@ -60,7 +61,8 @@ object transformation {
       Decoder[AddColumns].widen,
       Decoder[DropColumns].widen,
       Decoder[RenameColumns].widen,
-      Decoder[CastColumns].widen
+      Decoder[CastColumns].widen,
+      Decoder[SqlExpr].widen
     ).reduceLeft(_ or _)
 
   case class Select(name: String, select: SelectOp)  extends Transformation
@@ -75,5 +77,6 @@ object transformation {
   case class DropColumns(name: String, dropColumns: DropColumnsOp)    extends Transformation
   case class RenameColumns(name: String, renameColumns: RenameColumnsOp) extends Transformation
   case class CastColumns(name: String, castColumns: CastColumnsOp)    extends Transformation
+  case class SqlExpr(name: String, sql: SqlOp)                        extends Transformation
 
 }
