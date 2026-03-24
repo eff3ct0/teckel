@@ -1,0 +1,7 @@
+input:
+  - name: source
+    path: 'data/local/input'
+
+output:
+  - name: source
+    path: 'data/local/output'

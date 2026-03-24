@@ -1,0 +1,10 @@
+input:
+  - name: source
+    format: parquet
+    path: '${INPUT_PATH}'
+
+output:
+  - name: source
+    format: parquet
+    mode: overwrite
+    path: '${OUTPUT_PATH}'
