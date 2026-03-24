@@ -22,31 +22,30 @@
  * SOFTWARE.
  */
 
-package com.eff3ct.teckel.io
+package com.eff3ct.teckel.serializer
 
-import cats.effect.Async
-import com.eff3ct.teckel.api.core.Run
-import com.eff3ct.teckel.semantic.core.EvalContext
-import com.eff3ct.teckel.serializer.VariableResolver
-import fs2.io.file.{Files, Path}
-import fs2.io.stdinUtf8
+object VariableResolver {
 
-object Parser {
+  private val variablePattern = """\$\{([^}:]+)(?::([^}]*))?\}""".r
 
-  def parseFile[F[_]: Files: Run, O: EvalContext](
-      file: String,
-      variables: Map[String, String]
-  ): fs2.Stream[F, O] =
-    Files[F]
-      .readUtf8(Path(file))
-      .map(content => VariableResolver.resolve(content, variables))
-      .evalMap(Run[F].run[O])
+  def resolve(content: String, variables: Map[String, String]): String =
+    variablePattern.replaceAllIn(
+      content,
+      { m =>
+        val varName = m.group(1)
+        val default = Option(m.group(2))
+        val value = variables
+          .get(varName)
+          .orElse(Option(System.getenv(varName)))
+          .orElse(default)
+          .getOrElse(
+            throw new IllegalArgumentException(
+              s"Variable '$$${varName}' is not defined and has no default value"
+            )
+          )
+        java.util.regex.Matcher.quoteReplacement(value)
+      }
+    )
 
-  def parseStdin[F[_]: Async: Run, O: EvalContext](
-      variables: Map[String, String]
-  ): fs2.Stream[F, O] =
-    stdinUtf8(1024)
-      .map(content => VariableResolver.resolve(content, variables))
-      .evalMap(Run[F].run[O])
-
+  def resolve(content: String): String = resolve(content, Map.empty)
 }

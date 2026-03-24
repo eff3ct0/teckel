@@ -32,20 +32,38 @@ import fs2.io.file.Files
 object Console {
 
   sealed trait Commands
-  case object STDIN             extends Commands
-  case class FILE(file: String) extends Commands
+  case class STDIN(variables: Map[String, String])                extends Commands
+  case class FILE(file: String, variables: Map[String, String])   extends Commands
 
-  def parseCommand(args: List[String]): Commands =
-    args match {
-      case "-c" :: Nil         => STDIN
-      case "-f" :: file :: Nil => FILE(file)
-      case _                   => throw new IllegalArgumentException("Invalid arguments")
+  def parseCommand(args: List[String]): Commands = {
+    val variables = args
+      .filter(_.startsWith("-D"))
+      .map(_.stripPrefix("-D"))
+      .map { kv =>
+        val parts = kv.split("=", 2)
+        if (parts.length == 2) parts(0) -> parts(1)
+        else
+          throw new IllegalArgumentException(
+            s"Invalid variable definition: -D$kv (expected -Dkey=value)"
+          )
+      }
+      .toMap
+
+    val filteredArgs = args.filterNot(_.startsWith("-D"))
+    filteredArgs match {
+      case "-c" :: Nil         => STDIN(variables)
+      case "-f" :: file :: Nil => FILE(file, variables)
+      case _ =>
+        throw new IllegalArgumentException(
+          s"Invalid arguments: ${args.mkString(" ")}. Usage: -f <file> [-D key=value ...] or -c [-D key=value ...]"
+        )
     }
+  }
 
   def eval[F[_]: Files: Async: Run, O: EvalContext](commands: Commands): fs2.Stream[F, O] =
     commands match {
-      case STDIN      => Parser.parseStdin[F, O]
-      case FILE(file) => Parser.parseFile[F, O](file)
+      case STDIN(variables)      => Parser.parseStdin[F, O](variables)
+      case FILE(file, variables) => Parser.parseFile[F, O](file, variables)
     }
 
   def command[F[_]: Sync](args: List[String]): fs2.Stream[F, Commands] =
