@@ -90,7 +90,7 @@ class ExampleSpec
       Resources.input.orderBy("Id", "Date")
 
   }
-//  it should "work correctly a join pipeline" in {
-  //    noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/join.yaml")
-  //  }
+  it should "work correctly a join pipeline" in {
+    pending
+  }
 }
