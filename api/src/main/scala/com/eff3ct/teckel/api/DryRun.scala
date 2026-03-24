@@ -26,7 +26,7 @@ package com.eff3ct.teckel.api
 
 import com.eff3ct.teckel.model.{Asset, AssetRef, Context}
 import com.eff3ct.teckel.model.Source._
-import com.eff3ct.teckel.serializer.Serializer
+import com.eff3ct.teckel.serializer.{Serializer, Validator}
 import com.eff3ct.teckel.serializer.model.etl._
 import com.eff3ct.teckel.transform.Rewrite
 
@@ -36,8 +36,13 @@ object DryRun {
 
   def explain(yamlContent: String): Either[Throwable, String] =
     Serializer[ETL].decode(yamlContent).map { etl =>
-      val context = Rewrite.rewrite(etl)
-      formatPlan(context)
+      val context          = Rewrite.rewrite(etl)
+      val validationResult = Validator.validate(context)
+      val validationReport = Validator.formatErrors(validationResult) match {
+        case Some(errors) => s"\n--- Validation Errors ---\n$errors\n"
+        case None         => "\n--- Validation: OK ---\n"
+      }
+      formatPlan(context) + validationReport
     }
 
   private def formatPlan(context: Context[Asset]): String = {
