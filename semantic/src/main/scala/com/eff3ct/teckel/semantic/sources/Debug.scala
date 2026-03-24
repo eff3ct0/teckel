@@ -38,7 +38,9 @@ object Debug {
   def output[S <: Output]: DataFrame => DataFrame = identity[DataFrame]
 
   /** Transformation */
-  def transformation(source: Transformation, df: DataFrame, others: => Context[DataFrame]): DataFrame =
+  def transformation(source: Transformation, df: DataFrame, others: => Context[DataFrame])(implicit
+      S: SparkSession
+  ): DataFrame =
     source match {
       case s: Select  => select(df, s)
       case s: Where   => where(df, s)
@@ -51,6 +53,7 @@ object Debug {
       case s: DropColumns   => dropColumns(df, s)
       case s: RenameColumns => renameColumns(df, s)
       case s: CastColumns   => castColumns(df, s)
+      case s: Sql           => sql(s, df, others)
     }
 
   /** Select */
@@ -112,6 +115,15 @@ object Debug {
     source.columns.foldLeft(df) { (acc, castCol) =>
       acc.withColumn(castCol.name, col(castCol.name).cast(castCol.targetType))
     }
+
+  /** Sql */
+  def sql[S <: Sql](source: S, df: DataFrame, others: => Context[DataFrame])(implicit
+      S: SparkSession
+  ): DataFrame = {
+    others.foreach { case (name, otherDf) => otherDf.createOrReplaceTempView(name) }
+    df.createOrReplaceTempView(source.assetRef)
+    S.sql(source.query)
+  }
 
   /** Join */
   def join[S <: Join](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {
