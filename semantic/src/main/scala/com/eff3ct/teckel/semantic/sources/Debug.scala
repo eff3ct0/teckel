@@ -27,7 +27,7 @@ package com.eff3ct.teckel.semantic.sources
 import cats.data.NonEmptyList
 import com.eff3ct.teckel.model.Context
 import com.eff3ct.teckel.model.Source._
-import org.apache.spark.sql.functions.expr
+import org.apache.spark.sql.functions.{expr, col}
 import org.apache.spark.sql.{DataFrame, RelationalGroupedDataset, SparkSession}
 
 object Debug {
@@ -47,6 +47,10 @@ object Debug {
       case s: Join    => join(s, df, others)
       case s: Distinct => distinct(df, s)
       case s: Limit    => limit(df, s)
+      case s: AddColumns    => addColumns(df, s)
+      case s: DropColumns   => dropColumns(df, s)
+      case s: RenameColumns => renameColumns(df, s)
+      case s: CastColumns   => castColumns(df, s)
     }
 
   /** Select */
@@ -86,6 +90,28 @@ object Debug {
   /** Limit */
   def limit[S <: Limit](df: DataFrame, source: S): DataFrame =
     df.limit(source.count)
+
+  /** AddColumns */
+  def addColumns[S <: AddColumns](df: DataFrame, source: S): DataFrame =
+    source.columns.foldLeft(df) { (acc, colDef) =>
+      acc.withColumn(colDef.name, expr(colDef.expression))
+    }
+
+  /** DropColumns */
+  def dropColumns[S <: DropColumns](df: DataFrame, source: S): DataFrame =
+    df.drop(source.columns.toList: _*)
+
+  /** RenameColumns */
+  def renameColumns[S <: RenameColumns](df: DataFrame, source: S): DataFrame =
+    source.mappings.foldLeft(df) { case (acc, (oldName, newName)) =>
+      acc.withColumnRenamed(oldName, newName)
+    }
+
+  /** CastColumns */
+  def castColumns[S <: CastColumns](df: DataFrame, source: S): DataFrame =
+    source.columns.foldLeft(df) { (acc, castCol) =>
+      acc.withColumn(castCol.name, col(castCol.name).cast(castCol.targetType))
+    }
 
   /** Join */
   def join[S <: Join](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {
