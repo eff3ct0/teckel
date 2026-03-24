@@ -52,6 +52,7 @@ object transformation {
       case e: ExceptT       => e.asJson
       case w: WindowT       => w.asJson
       case f: FlattenT      => f.asJson
+      case s: SplitT        => s.asJson
     }
 
   implicit val decodeEvent: Decoder[Transformation] =
@@ -72,7 +73,8 @@ object transformation {
       Decoder[IntersectT].widen,
       Decoder[ExceptT].widen
       Decoder[WindowT].widen,
-      Decoder[FlattenT].widen
+      Decoder[FlattenT].widen,
+      Decoder[SplitT].widen
     ).reduceLeft(_ or _)
 
   case class Select(name: String, select: SelectOp)  extends Transformation
@@ -96,5 +98,7 @@ object transformation {
   case class WindowT(name: String, window: WindowOp) extends Transformation
 
   case class FlattenT(name: String, flatten: FlattenOp) extends Transformation
+
+  case class SplitT(name: String, split: SplitOp) extends Transformation
 
 }
