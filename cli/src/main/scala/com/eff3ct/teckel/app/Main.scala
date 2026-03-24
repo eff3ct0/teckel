@@ -25,6 +25,7 @@
 package com.eff3ct.teckel.app
 
 import cats.effect.{Async, ExitCode, IO}
+import com.eff3ct.teckel.api.DryRun
 import com.eff3ct.teckel.api.core.Run
 import com.eff3ct.teckel.api.spark.SparkETL
 import com.eff3ct.teckel.io.Console
@@ -38,8 +39,23 @@ object Main extends SparkETL {
 
   override def runIO(
       args: List[String]
-  )(implicit spark: SparkSession, logger: slf4j.Logger): IO[ExitCode] =
-    execute[IO, Unit](args).compile.drain.as(ExitCode.Success)
+  )(implicit spark: SparkSession, logger: slf4j.Logger): IO[ExitCode] = {
+    val commands = Console.parseCommand(args)
+    commands match {
+      case Console.FILE(file, true) =>
+        // Dry run mode
+        IO {
+          val content = scala.io.Source.fromFile(file).mkString
+          DryRun.explain(content) match {
+            case Right(plan) => println(plan)
+            case Left(err)   => println(s"Error: ${err.getMessage}")
+          }
+          ExitCode.Success
+        }
+      case _ =>
+        execute[IO, Unit](args).compile.drain.as(ExitCode.Success)
+    }
+  }
 
   def execute[F[_]: Files: Async: Run, O: EvalContext](args: List[String]): fs2.Stream[F, O] =
     for {
