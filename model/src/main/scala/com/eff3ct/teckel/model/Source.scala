@@ -78,4 +78,10 @@ object Source {
   case class CastColumns(assetRef: AssetRef, columns: NonEmptyList[CastColumn]) extends Transformation
 
   case class Sql(assetRef: AssetRef, query: String) extends Transformation
+  case class Union(assetRef: AssetRef, others: NonEmptyList[AssetRef], all: Boolean) extends Transformation
+
+  case class Intersect(assetRef: AssetRef, others: NonEmptyList[AssetRef], all: Boolean)
+      extends Transformation
+
+  case class Except(assetRef: AssetRef, other: AssetRef, all: Boolean) extends Transformation
 }
