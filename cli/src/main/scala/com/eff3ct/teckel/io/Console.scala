@@ -32,10 +32,11 @@ import fs2.io.file.Files
 object Console {
 
   sealed trait Commands
-  case class STDIN(variables: Map[String, String])                extends Commands
-  case class FILE(file: String, variables: Map[String, String])   extends Commands
+  case class STDIN(variables: Map[String, String])                                    extends Commands
+  case class FILE(file: String, variables: Map[String, String], dryRun: Boolean = false) extends Commands
 
   def parseCommand(args: List[String]): Commands = {
+    val dryRun = args.contains("--dry-run")
     val variables = args
       .filter(_.startsWith("-D"))
       .map(_.stripPrefix("-D"))
@@ -49,21 +50,21 @@ object Console {
       }
       .toMap
 
-    val filteredArgs = args.filterNot(_.startsWith("-D"))
+    val filteredArgs = args.filterNot(a => a.startsWith("-D") || a == "--dry-run")
     filteredArgs match {
       case "-c" :: Nil         => STDIN(variables)
-      case "-f" :: file :: Nil => FILE(file, variables)
+      case "-f" :: file :: Nil => FILE(file, variables, dryRun)
       case _ =>
         throw new IllegalArgumentException(
-          s"Invalid arguments: ${args.mkString(" ")}. Usage: -f <file> [-D key=value ...] or -c [-D key=value ...]"
+          s"Invalid arguments: ${args.mkString(" ")}. Usage: -f <file> [--dry-run] [-D key=value ...] or -c [-D key=value ...]"
         )
     }
   }
 
   def eval[F[_]: Files: Async: Run, O: EvalContext](commands: Commands): fs2.Stream[F, O] =
     commands match {
-      case STDIN(variables)      => Parser.parseStdin[F, O](variables)
-      case FILE(file, variables) => Parser.parseFile[F, O](file, variables)
+      case STDIN(variables)         => Parser.parseStdin[F, O](variables)
+      case FILE(file, variables, _) => Parser.parseFile[F, O](file, variables)
     }
 
   def command[F[_]: Sync](args: List[String]): fs2.Stream[F, Commands] =
