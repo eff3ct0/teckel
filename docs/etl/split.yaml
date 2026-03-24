@@ -1,0 +1,22 @@
+input:
+  - name: apiResults
+    format: parquet
+    path: 'data/parquet/api_results'
+
+transformation:
+  - name: splitByStatus
+    split:
+      from: apiResults
+      condition: 'status_code = 200'
+      pass: successRecords
+      fail: failedRecords
+
+output:
+  - name: successRecords
+    format: delta
+    mode: append
+    path: 'data/delta/success'
+  - name: failedRecords
+    format: delta
+    mode: append
+    path: 'data/delta/dead_letter'
