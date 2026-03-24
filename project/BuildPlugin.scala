@@ -14,11 +14,12 @@ object BuildPlugin extends AutoPlugin {
     Seq(
       "-Xms8G",
       "-Xmx8G",
-      "-XX:MaxPermSize=4048M",
-      "-XX:+CMSClassUnloadingEnabled",
-      "-Duser.timezone=GMT",
-      "-XX:+PrintCommandLineFlags",
-      "-XX:+CMSClassUnloadingEnabled"
+      "-Duser.timezone=GMT"
+    )
+
+  lazy val moduleExports: Seq[String] =
+    Seq(
+      "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED"
     )
 
   override def projectSettings: Seq[Setting[_]] = Seq(
@@ -26,13 +27,10 @@ object BuildPlugin extends AutoPlugin {
     organization       := "com.eff3ct",
     scalaVersion       := Version.Scala,
     crossScalaVersions := Vector(scalaVersion.value),
-    javacOptions := Seq(
-      "-g:none",
-      "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED"
-    ),
-    run / javaOptions ++= localJvmSettings,
+    run / javaOptions ++= localJvmSettings ++ moduleExports,
     run / fork               := true,
     Test / fork              := true,
+    Test / javaOptions ++= moduleExports,
     Test / parallelExecution := false,
     headerLicense            := Some(Header.headerIOLicense),
     Compile / console / scalacOptions ~= (_.filterNot(
