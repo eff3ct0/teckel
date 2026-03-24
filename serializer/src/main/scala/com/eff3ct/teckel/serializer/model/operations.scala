@@ -41,6 +41,8 @@ object operations {
       case g: GroupByOp => g.asJson
       case o: OrderByOp => o.asJson
       case j: JoinOp    => j.asJson
+      case d: DistinctOp => d.asJson
+      case l: LimitOp    => l.asJson
     }
 
   implicit val decodeEvent: Decoder[Operation] =
@@ -49,7 +51,9 @@ object operations {
       Decoder[WhereOp].widen,
       Decoder[GroupByOp].widen,
       Decoder[OrderByOp].widen,
-      Decoder[JoinOp].widen
+      Decoder[JoinOp].widen,
+      Decoder[DistinctOp].widen,
+      Decoder[LimitOp].widen
     ).reduceLeft(_ or _)
 
   case class SelectOp(from: String, columns: NonEmptyList[String]) extends Operation
@@ -60,6 +64,8 @@ object operations {
       extends Operation
 
   case class JoinOp(left: String, right: NonEmptyList[Relation]) extends Operation
+  case class DistinctOp(from: String, columns: Option[NonEmptyList[String]]) extends Operation
+  case class LimitOp(from: String, count: Int)                               extends Operation
 
   case class Relation(name: String, relationType: String, on: List[String])
 
