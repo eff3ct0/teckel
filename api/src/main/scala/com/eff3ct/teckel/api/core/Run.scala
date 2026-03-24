@@ -42,17 +42,29 @@ object Run {
 
   def apply[F[_]: Run]: Run[F] = implicitly[Run[F]]
 
+  private def validateContext[F[_]: MonadThrow](context: com.eff3ct.teckel.model.Context[com.eff3ct.teckel.model.Asset]): F[Unit] =
+    Validator.validate(context).toEither.left.map(errors =>
+      new IllegalArgumentException(
+        Validator.formatErrors(Validator.validate(context)).getOrElse("Validation failed")
+      )
+    ) match {
+      case Right(_)  => MonadThrow[F].unit
+      case Left(err) => MonadThrow[F].raiseError[Unit](err)
+    }
+
   implicit def runF[F[_]: MonadThrow]: Run[F] = new Run[F] {
     override def run[O: EvalContext](data: String): F[O] =
       for {
         etl <- MonadThrow[F].fromEither(Serializer[ETL].decode(data))
         context = Rewrite.rewrite(etl)
+        _ <- validateContext[F](context)
       } yield EvalContext[O].eval(context)
 
     override def run[O: EvalContext](data: ETL): F[O] =
       for {
         etl <- Monad[F].pure(data)
         context = Rewrite.rewrite(etl)
+        _ <- validateContext[F](context)
       } yield EvalContext[O].eval(context)
   }
 
