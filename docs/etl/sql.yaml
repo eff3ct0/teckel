@@ -1,0 +1,29 @@
+input:
+  - name: customers
+    format: csv
+    path: 'data/csv/customers.csv'
+    options:
+      header: true
+      sep: '|'
+  - name: orders
+    format: csv
+    path: 'data/csv/orders.csv'
+    options:
+      header: true
+      sep: '|'
+
+transformation:
+  - name: customerOrders
+    sql:
+      from: customers
+      query: >
+        SELECT c.*, o.order_id, o.amount
+        FROM customers c
+        LEFT JOIN orders o ON c.id = o.customer_id
+        WHERE o.amount > 100
+
+output:
+  - name: customerOrders
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/customer_orders'

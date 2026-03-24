@@ -76,4 +76,6 @@ object Source {
   case class CastColumn(name: Column, targetType: String)
 
   case class CastColumns(assetRef: AssetRef, columns: NonEmptyList[CastColumn]) extends Transformation
+
+  case class Sql(assetRef: AssetRef, query: String) extends Transformation
 }
