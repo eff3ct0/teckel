@@ -27,20 +27,42 @@ package com.eff3ct.teckel.io
 import cats.effect.Async
 import com.eff3ct.teckel.api.core.Run
 import com.eff3ct.teckel.semantic.core.EvalContext
-import com.eff3ct.teckel.serializer.VariableResolver
+import com.eff3ct.teckel.serializer.{ConfigMerger, VariableResolver}
 import fs2.io.file.{Files, Path}
 import fs2.io.stdinUtf8
 
 object Parser {
 
+  private def envFilePath(file: String, env: String): String = {
+    val dotIdx = file.lastIndexOf('.')
+    if (dotIdx >= 0) file.substring(0, dotIdx) + "." + env + file.substring(dotIdx)
+    else file + "." + env
+  }
+
   def parseFile[F[_]: Files: Run, O: EvalContext](
       file: String,
-      variables: Map[String, String]
+      variables: Map[String, String],
+      env: Option[String] = None
   ): fs2.Stream[F, O] =
-    Files[F]
-      .readUtf8(Path(file))
-      .map(content => VariableResolver.resolve(content, variables))
-      .evalMap(Run[F].run[O])
+    env match {
+      case Some(envName) =>
+        val envFile = envFilePath(file, envName)
+        for {
+          baseContent    <- Files[F].readUtf8(Path(file))
+          overlayContent <- Files[F].readUtf8(Path(envFile))
+          merged = ConfigMerger.merge(baseContent, overlayContent) match {
+            case Right(content) => content
+            case Left(err)      => throw new RuntimeException(s"Failed to merge configs: ${err.message}")
+          }
+          resolved = VariableResolver.resolve(merged, variables)
+          result <- fs2.Stream.eval(Run[F].run[O](resolved))
+        } yield result
+      case None =>
+        Files[F]
+          .readUtf8(Path(file))
+          .map(content => VariableResolver.resolve(content, variables))
+          .evalMap(Run[F].run[O])
+    }
 
   def parseStdin[F[_]: Async: Run, O: EvalContext](
       variables: Map[String, String]
