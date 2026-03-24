@@ -51,6 +51,7 @@ object operations {
       case u: UnionOp         => u.asJson
       case i: IntersectOp     => i.asJson
       case e: ExceptOp        => e.asJson
+      case w: WindowOp        => w.asJson
     }
 
   implicit val decodeEvent: Decoder[Operation] =
@@ -70,6 +71,7 @@ object operations {
       Decoder[UnionOp].widen,
       Decoder[IntersectOp].widen,
       Decoder[ExceptOp].widen
+      Decoder[WindowOp].widen
     ).reduceLeft(_ or _)
 
   case class SelectOp(from: String, columns: NonEmptyList[String]) extends Operation
@@ -95,6 +97,15 @@ object operations {
   case class UnionOp(sources: NonEmptyList[String], all: Option[Boolean])     extends Operation
   case class IntersectOp(sources: NonEmptyList[String], all: Option[Boolean]) extends Operation
   case class ExceptOp(left: String, right: String, all: Option[Boolean])      extends Operation
+
+  case class WindowFuncDef(expression: String, alias: String)
+
+  case class WindowOp(
+      from: String,
+      partitionBy: NonEmptyList[String],
+      orderBy: Option[NonEmptyList[String]],
+      functions: NonEmptyList[WindowFuncDef]
+  ) extends Operation
 
   case class Relation(name: String, relationType: String, on: List[String])
 
