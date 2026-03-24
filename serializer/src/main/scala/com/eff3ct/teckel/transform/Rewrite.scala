@@ -178,11 +178,17 @@ object Rewrite {
   def tcontext(item: Option[NonEmptyList[Transformation]]): Context[Asset] =
     (for {
       transformation <- item
-      context = transformation.map { t =>
-        val asset: Asset = rewrite(t)
-        asset.assetRef -> asset
+      context = transformation.toList.flatMap {
+        case s: SplitT =>
+          val passAsset = Asset(s.split.pass, Source.Where(s.split.from, s.split.condition))
+          val failAsset =
+            Asset(s.split.fail, Source.Where(s.split.from, s"NOT (${s.split.condition})"))
+          List(passAsset.assetRef -> passAsset, failAsset.assetRef -> failAsset)
+        case t =>
+          val asset: Asset = rewrite(t)
+          List(asset.assetRef -> asset)
       }
-    } yield context.toList.toMap).getOrElse(Map())
+    } yield context.toMap).getOrElse(Map())
 
   def rewrite(item: ETL): Context[Asset] =
     icontext(item.input) ++ ocontext(item.output) ++ tcontext(item.transformation)
