@@ -27,6 +27,7 @@ package com.eff3ct.teckel.semantic.sources
 import cats.data.NonEmptyList
 import com.eff3ct.teckel.model.Context
 import com.eff3ct.teckel.model.Source._
+import org.apache.spark.sql.expressions.{Window => SparkWindow}
 import org.apache.spark.sql.functions.{expr, col}
 import org.apache.spark.sql.{DataFrame, RelationalGroupedDataset, SparkSession}
 
@@ -57,6 +58,7 @@ object Debug {
       case s: Union         => union(s, df, others)
       case s: Intersect     => intersect(s, df, others)
       case s: Except        => except(s, df, others)
+      case s: Window        => window(df, s)
     }
 
   /** Select */
@@ -146,6 +148,20 @@ object Debug {
   def except[S <: Except](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {
     val other = context(source.other)
     if (source.all) df.exceptAll(other) else df.except(other)
+  }
+
+  /** Window */
+  def window[S <: Window](df: DataFrame, source: S): DataFrame = {
+    val partitionCols = source.partitionBy.toList.map(col)
+    val windowSpec = source.orderBy match {
+      case Some(orderCols) =>
+        SparkWindow.partitionBy(partitionCols: _*).orderBy(orderCols.toList.map(col): _*)
+      case None =>
+        SparkWindow.partitionBy(partitionCols: _*)
+    }
+    source.functions.foldLeft(df) { (acc, func) =>
+      acc.withColumn(func.alias, expr(func.expression).over(windowSpec))
+    }
   }
 
   /** Join */

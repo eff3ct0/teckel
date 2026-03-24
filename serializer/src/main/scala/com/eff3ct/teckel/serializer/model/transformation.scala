@@ -50,6 +50,7 @@ object transformation {
       case u: UnionT        => u.asJson
       case i: IntersectT    => i.asJson
       case e: ExceptT       => e.asJson
+      case w: WindowT       => w.asJson
     }
 
   implicit val decodeEvent: Decoder[Transformation] =
@@ -69,6 +70,7 @@ object transformation {
       Decoder[UnionT].widen,
       Decoder[IntersectT].widen,
       Decoder[ExceptT].widen
+      Decoder[WindowT].widen
     ).reduceLeft(_ or _)
 
   case class Select(name: String, select: SelectOp)  extends Transformation
@@ -88,5 +90,7 @@ object transformation {
   case class UnionT(name: String, union: UnionOp)            extends Transformation
   case class IntersectT(name: String, intersect: IntersectOp) extends Transformation
   case class ExceptT(name: String, except: ExceptOp)          extends Transformation
+
+  case class WindowT(name: String, window: WindowOp) extends Transformation
 
 }

@@ -122,6 +122,15 @@ object Rewrite {
     Asset(
       item.name,
       Source.Except(item.except.left, item.except.right, item.except.all.getOrElse(false))
+  def rewriteOp(item: WindowT): Asset =
+    Asset(
+      item.name,
+      Source.Window(
+        item.window.from,
+        item.window.partitionBy,
+        item.window.orderBy,
+        item.window.functions.map(f => Source.WindowFunc(f.expression, f.alias))
+      )
     )
 
   def rewrite(item: Transformation): Asset =
@@ -141,6 +150,7 @@ object Rewrite {
       case s: UnionT        => rewriteOp(s)
       case s: IntersectT    => rewriteOp(s)
       case s: ExceptT       => rewriteOp(s)
+      case s: WindowT       => rewriteOp(s)
     }
 
   def icontext(item: NonEmptyList[Input]): Context[Asset] =
