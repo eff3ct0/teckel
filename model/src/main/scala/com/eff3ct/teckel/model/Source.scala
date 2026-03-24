@@ -84,4 +84,12 @@ object Source {
       extends Transformation
 
   case class Except(assetRef: AssetRef, other: AssetRef, all: Boolean) extends Transformation
+  case class WindowFunc(expression: String, alias: Column)
+
+  case class Window(
+      assetRef: AssetRef,
+      partitionBy: NonEmptyList[Column],
+      orderBy: Option[NonEmptyList[Column]],
+      functions: NonEmptyList[WindowFunc]
+  ) extends Transformation
 }

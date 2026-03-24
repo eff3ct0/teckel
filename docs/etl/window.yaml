@@ -1,0 +1,27 @@
+input:
+  - name: employees
+    format: csv
+    path: 'data/csv/employees.csv'
+    options:
+      header: true
+      sep: '|'
+
+transformation:
+  - name: ranked
+    window:
+      from: employees
+      partitionBy: [department]
+      orderBy: [salary]
+      functions:
+        - expression: "row_number()"
+          alias: row_num
+        - expression: "rank()"
+          alias: salary_rank
+        - expression: "sum(salary)"
+          alias: dept_total_salary
+
+output:
+  - name: ranked
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/ranked_employees'
