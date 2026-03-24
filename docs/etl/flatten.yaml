@@ -1,0 +1,17 @@
+input:
+  - name: nested
+    format: json
+    path: 'data/json/nested.json'
+
+transformation:
+  - name: flat
+    flatten:
+      from: nested
+      separator: '_'
+      explodeArrays: true
+
+output:
+  - name: flat
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/flat'
