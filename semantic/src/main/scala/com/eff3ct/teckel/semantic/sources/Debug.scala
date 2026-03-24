@@ -65,9 +65,14 @@ object Debug {
   }
 
   /** OrderBy */
-  // TODO: implement the asc/desc order
-  def orderBy[S <: OrderBy](df: DataFrame, source: S): DataFrame =
-    df.orderBy(source.by.toList.map(df(_)): _*)
+  def orderBy[S <: OrderBy](df: DataFrame, source: S): DataFrame = {
+    val columns = source.order match {
+      case Some(o) if o.toLowerCase == "desc" => source.by.toList.map(df(_).desc)
+      case Some(o) if o.toLowerCase == "asc"  => source.by.toList.map(df(_).asc)
+      case _                                  => source.by.toList.map(df(_).asc)
+    }
+    df.orderBy(columns: _*)
+  }
 
   /** Join */
   def join[S <: Join](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {
