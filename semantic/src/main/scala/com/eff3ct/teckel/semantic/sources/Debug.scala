@@ -28,8 +28,9 @@ import cats.data.NonEmptyList
 import com.eff3ct.teckel.model.Context
 import com.eff3ct.teckel.model.Source._
 import org.apache.spark.sql.expressions.{Window => SparkWindow}
-import org.apache.spark.sql.functions.{expr, col}
-import org.apache.spark.sql.{DataFrame, RelationalGroupedDataset, SparkSession}
+import org.apache.spark.sql.functions.{expr, col, explode_outer}
+import org.apache.spark.sql.types.{StructType, ArrayType}
+import org.apache.spark.sql.{Column, DataFrame, RelationalGroupedDataset, SparkSession}
 
 object Debug {
 
@@ -59,6 +60,7 @@ object Debug {
       case s: Intersect     => intersect(s, df, others)
       case s: Except        => except(s, df, others)
       case s: Window        => window(df, s)
+      case s: Flatten       => flatten(df, s)
     }
 
   /** Select */
@@ -162,6 +164,31 @@ object Debug {
     source.functions.foldLeft(df) { (acc, func) =>
       acc.withColumn(func.alias, expr(func.expression).over(windowSpec))
     }
+  }
+
+  /** Flatten */
+  def flatten[S <: Flatten](df: DataFrame, source: S): DataFrame = {
+    val sep = source.separator.getOrElse("_")
+    val explode = source.explodeArrays.getOrElse(true)
+
+    def flattenSchema(schema: StructType, prefix: String): Array[Column] =
+      schema.fields.flatMap { field =>
+        val colName = if (prefix.isEmpty) field.name else s"$prefix$sep${field.name}"
+        field.dataType match {
+          case st: StructType =>
+            flattenSchema(st, colName)
+          case _: ArrayType if explode =>
+            Array(explode_outer(col(
+              if (prefix.isEmpty) field.name else s"$prefix.${field.name}"
+            )).as(colName))
+          case _ =>
+            Array(col(
+              if (prefix.isEmpty) field.name else s"$prefix.${field.name}"
+            ).as(colName))
+        }
+      }
+
+    df.select(flattenSchema(df.schema, ""): _*)
   }
 
   /** Join */
