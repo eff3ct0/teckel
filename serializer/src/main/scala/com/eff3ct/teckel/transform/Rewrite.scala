@@ -64,6 +64,12 @@ object Rewrite {
   def rewriteOp(item: Join): Asset =
     Asset(item.name, Source.Join(item.join.left, item.join.right.map(rewriteOp)))
 
+  def rewriteOp(item: Distinct): Asset =
+    Asset(item.name, Source.Distinct(item.distinct.from, item.distinct.columns))
+
+  def rewriteOp(item: Limit): Asset =
+    Asset(item.name, Source.Limit(item.limit.from, item.limit.count))
+
   def rewriteOp(item: Relation): Source.Relation =
     Source.Relation(item.name, item.relationType, item.on)
 
@@ -74,6 +80,8 @@ object Rewrite {
       case s: GroupBy => rewriteOp(s)
       case s: OrderBy => rewriteOp(s)
       case s: Join    => rewriteOp(s)
+      case s: Distinct => rewriteOp(s)
+      case s: Limit    => rewriteOp(s)
     }
 
   def icontext(item: NonEmptyList[Input]): Context[Asset] =

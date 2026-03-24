@@ -59,5 +59,9 @@ object Source {
 
   case class Join(assetRef: AssetRef, others: NonEmptyList[Relation]) extends Transformation
 
+  case class Distinct(assetRef: AssetRef, columns: Option[NonEmptyList[Column]]) extends Transformation
+
+  case class Limit(assetRef: AssetRef, count: Int) extends Transformation
+
   case class Relation(name: AssetRef, joinType: RelationType, on: List[Condition])
 }

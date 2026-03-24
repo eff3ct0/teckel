@@ -45,6 +45,8 @@ object Debug {
       case s: GroupBy => groupBy(df, s)
       case s: OrderBy => orderBy(df, s)
       case s: Join    => join(s, df, others)
+      case s: Distinct => distinct(df, s)
+      case s: Limit    => limit(df, s)
     }
 
   /** Select */
@@ -68,6 +70,17 @@ object Debug {
   // TODO: implement the asc/desc order
   def orderBy[S <: OrderBy](df: DataFrame, source: S): DataFrame =
     df.orderBy(source.by.toList.map(df(_)): _*)
+
+  /** Distinct */
+  def distinct[S <: Distinct](df: DataFrame, source: S): DataFrame =
+    source.columns match {
+      case Some(cols) => df.select(cols.toList.map(df(_)): _*).distinct
+      case None       => df.distinct
+    }
+
+  /** Limit */
+  def limit[S <: Limit](df: DataFrame, source: S): DataFrame =
+    df.limit(source.count)
 
   /** Join */
   def join[S <: Join](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {
