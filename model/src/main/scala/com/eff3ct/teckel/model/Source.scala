@@ -64,4 +64,16 @@ object Source {
   case class Limit(assetRef: AssetRef, count: Int) extends Transformation
 
   case class Relation(name: AssetRef, joinType: RelationType, on: List[Condition])
+
+  case class ColumnDef(name: Column, expression: String)
+
+  case class AddColumns(assetRef: AssetRef, columns: NonEmptyList[ColumnDef]) extends Transformation
+
+  case class DropColumns(assetRef: AssetRef, columns: NonEmptyList[Column]) extends Transformation
+
+  case class RenameColumns(assetRef: AssetRef, mappings: Map[Column, Column]) extends Transformation
+
+  case class CastColumn(name: Column, targetType: String)
+
+  case class CastColumns(assetRef: AssetRef, columns: NonEmptyList[CastColumn]) extends Transformation
 }
