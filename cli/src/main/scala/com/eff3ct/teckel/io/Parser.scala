@@ -27,7 +27,7 @@ package com.eff3ct.teckel.io
 import cats.effect.Async
 import com.eff3ct.teckel.api.core.Run
 import com.eff3ct.teckel.semantic.core.EvalContext
-import com.eff3ct.teckel.serializer.{ConfigMerger, VariableResolver}
+import com.eff3ct.teckel.serializer.{ConfigMerger, SecretResolver, VariableResolver}
 import fs2.io.file.{Files, Path}
 import fs2.io.stdinUtf8
 
@@ -54,13 +54,14 @@ object Parser {
             case Right(content) => content
             case Left(err)      => throw new RuntimeException(s"Failed to merge configs: ${err.message}")
           }
-          resolved = VariableResolver.resolve(merged, variables)
+          resolved = SecretResolver.resolve(VariableResolver.resolve(merged, variables))
           result <- fs2.Stream.eval(Run[F].run[O](resolved))
         } yield result
       case None =>
         Files[F]
           .readUtf8(Path(file))
           .map(content => VariableResolver.resolve(content, variables))
+          .map(content => SecretResolver.resolve(content))
           .evalMap(Run[F].run[O])
     }
 
@@ -69,6 +70,7 @@ object Parser {
   ): fs2.Stream[F, O] =
     stdinUtf8(1024)
       .map(content => VariableResolver.resolve(content, variables))
+      .map(content => SecretResolver.resolve(content))
       .evalMap(Run[F].run[O])
 
 }
