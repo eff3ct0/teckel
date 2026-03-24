@@ -1,0 +1,25 @@
+input:
+  - name: table1
+    format: csv
+    path: 'data/csv/example1.csv'
+    options:
+      header: true
+      sep: '|'
+  - name: table2
+    format: csv
+    path: 'data/csv/example2.csv'
+    options:
+      header: true
+      sep: '|'
+
+transformation:
+  - name: combined
+    union:
+      sources: [table1, table2]
+      all: true
+
+output:
+  - name: combined
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/combined'

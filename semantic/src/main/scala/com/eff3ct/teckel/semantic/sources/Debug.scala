@@ -54,6 +54,9 @@ object Debug {
       case s: RenameColumns => renameColumns(df, s)
       case s: CastColumns   => castColumns(df, s)
       case s: Sql           => sql(s, df, others)
+      case s: Union         => union(s, df, others)
+      case s: Intersect     => intersect(s, df, others)
+      case s: Except        => except(s, df, others)
     }
 
   /** Select */
@@ -123,6 +126,26 @@ object Debug {
     others.foreach { case (name, otherDf) => otherDf.createOrReplaceTempView(name) }
     df.createOrReplaceTempView(source.assetRef)
     S.sql(source.query)
+  /** Union */
+  def union[S <: Union](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {
+    val otherDfs = source.others.map(ref => context(ref))
+    otherDfs.foldLeft(df) { (acc, other) =>
+      if (source.all) acc.unionAll(other) else acc.union(other)
+    }
+  }
+
+  /** Intersect */
+  def intersect[S <: Intersect](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {
+    val otherDfs = source.others.map(ref => context(ref))
+    otherDfs.foldLeft(df) { (acc, other) =>
+      if (source.all) acc.intersectAll(other) else acc.intersect(other)
+    }
+  }
+
+  /** Except */
+  def except[S <: Except](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {
+    val other = context(source.other)
+    if (source.all) df.exceptAll(other) else df.except(other)
   }
 
   /** Join */

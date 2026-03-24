@@ -48,6 +48,9 @@ object operations {
       case r: RenameColumnsOp => r.asJson
       case c: CastColumnsOp   => c.asJson
       case s: SqlOp            => s.asJson
+      case u: UnionOp         => u.asJson
+      case i: IntersectOp     => i.asJson
+      case e: ExceptOp        => e.asJson
     }
 
   implicit val decodeEvent: Decoder[Operation] =
@@ -64,6 +67,9 @@ object operations {
       Decoder[RenameColumnsOp].widen,
       Decoder[CastColumnsOp].widen,
       Decoder[SqlOp].widen
+      Decoder[UnionOp].widen,
+      Decoder[IntersectOp].widen,
+      Decoder[ExceptOp].widen
     ).reduceLeft(_ or _)
 
   case class SelectOp(from: String, columns: NonEmptyList[String]) extends Operation
@@ -85,6 +91,10 @@ object operations {
   case class RenameColumnsOp(from: String, mappings: Map[String, String])     extends Operation
   case class CastColumnsOp(from: String, columns: NonEmptyList[CastColumnDef]) extends Operation
   case class SqlOp(from: String, query: String)                                extends Operation
+
+  case class UnionOp(sources: NonEmptyList[String], all: Option[Boolean])     extends Operation
+  case class IntersectOp(sources: NonEmptyList[String], all: Option[Boolean]) extends Operation
+  case class ExceptOp(left: String, right: String, all: Option[Boolean])      extends Operation
 
   case class Relation(name: String, relationType: String, on: List[String])
 
