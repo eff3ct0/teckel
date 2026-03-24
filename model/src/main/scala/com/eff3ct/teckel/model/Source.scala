@@ -92,4 +92,7 @@ object Source {
       orderBy: Option[NonEmptyList[Column]],
       functions: NonEmptyList[WindowFunc]
   ) extends Transformation
+
+  case class Flatten(assetRef: AssetRef, separator: Option[String], explodeArrays: Option[Boolean])
+      extends Transformation
 }

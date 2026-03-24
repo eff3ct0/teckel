@@ -122,6 +122,9 @@ object Rewrite {
     Asset(
       item.name,
       Source.Except(item.except.left, item.except.right, item.except.all.getOrElse(false))
+  def rewriteOp(item: FlattenT): Asset =
+    Asset(item.name, Source.Flatten(item.flatten.from, item.flatten.separator, item.flatten.explodeArrays))
+
   def rewriteOp(item: WindowT): Asset =
     Asset(
       item.name,
@@ -151,6 +154,7 @@ object Rewrite {
       case s: IntersectT    => rewriteOp(s)
       case s: ExceptT       => rewriteOp(s)
       case s: WindowT       => rewriteOp(s)
+      case s: FlattenT      => rewriteOp(s)
     }
 
   def icontext(item: NonEmptyList[Input]): Context[Asset] =
