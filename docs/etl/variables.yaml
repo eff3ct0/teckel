@@ -1,0 +1,16 @@
+input:
+  - name: source
+    format: parquet
+    path: '${INPUT_PATH}/events'
+
+transformation:
+  - name: filtered
+    where:
+      from: source
+      filter: '${FILTER_CONDITION:1=1}'
+
+output:
+  - name: filtered
+    format: parquet
+    mode: overwrite
+    path: '${OUTPUT_PATH:data/parquet}/result'
