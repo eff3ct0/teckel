@@ -1,68 +1,48 @@
 # Plugins
 
-Las 30+ transformaciones de Teckel cubren la mayoría de los casos, pero siempre hay pipelines que necesitan algo específico: un modelo de ML, un conector propietario, una lógica de negocio que no encaja en SQL. Para eso existe el sistema de plugins.
+Extend Teckel with custom readers, transformers, and writers using the `PluginRegistry`.
 
-La idea es sencilla: defines una clase que implementa una de las tres interfaces de Teckel, la registras con un nombre, y la referencias desde el YAML como si fuera una transformación cualquiera. Teckel se encarga de instanciarla y pasarle el DataFrame en el momento correcto.
-
-## Las tres interfaces
-
-El sistema de plugins gira en torno a tres traits que corresponden a las tres fases de un pipeline: lectura, transformación y escritura.
+## Interfaces
 
 ### TeckelReader
-
-Para fuentes de datos personalizadas. Recibe un mapa de opciones de configuración y devuelve un DataFrame.
 
 ```scala mdoc:compile-only
 import com.eff3ct.teckel.semantic.plugin.TeckelReader
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-class MyCustomReader extends TeckelReader {
-  def read(options: Map[String, String])(implicit spark: SparkSession): DataFrame = {
-    val path     = options("path")
-    val encoding = options.getOrElse("encoding", "utf-8")
-    // Cualquier lógica de lectura con el SparkSession disponible
-    spark.read.option("encoding", encoding).format("text").load(path)
-  }
+class MyReader extends TeckelReader {
+  def read(options: Map[String, String])(implicit spark: SparkSession): DataFrame =
+    spark.read.format("custom").load(options("path"))
 }
 ```
 
 ### TeckelTransformer
 
-Para transformaciones personalizadas. Recibe el DataFrame entrante y el mapa de opciones, y devuelve el DataFrame transformado.
-
 ```scala mdoc:compile-only
 import com.eff3ct.teckel.semantic.plugin.TeckelTransformer
 import org.apache.spark.sql.DataFrame
 
-class ScalingTransformer extends TeckelTransformer {
+class MyTransformer extends TeckelTransformer {
   def transform(options: Map[String, String], df: DataFrame): DataFrame = {
-    val column = options("column")
     val factor = options.getOrElse("factor", "1.0").toDouble
-    df.withColumn(column, df(column) * factor)
+    df.withColumn("scaled", df("value") * factor)
   }
 }
 ```
 
 ### TeckelWriter
 
-Para destinos de escritura personalizados. Recibe el DataFrame final y las opciones, y gestiona la escritura.
-
 ```scala mdoc:compile-only
 import com.eff3ct.teckel.semantic.plugin.TeckelWriter
 import org.apache.spark.sql.DataFrame
 
-class CustomWriter extends TeckelWriter {
-  def write(options: Map[String, String], df: DataFrame): Unit = {
-    val path = options("path")
-    val mode = options.getOrElse("mode", "overwrite")
-    df.write.mode(mode).format("delta").save(path)
-  }
+class MyWriter extends TeckelWriter {
+  def write(options: Map[String, String], df: DataFrame): Unit =
+    df.write.mode(options.getOrElse("mode", "overwrite")).format("custom").save(options("path"))
 }
 ```
 
-## Registrar un plugin
-
-Los plugins se registran en `PluginRegistry` asociando un nombre corto a la clase. El registro se hace normalmente al arrancar la aplicación, antes de ejecutar cualquier pipeline.
+## Registering
 
 ```scala mdoc:compile-only
 import com.eff3ct.teckel.model.plugin.PluginRegistry
@@ -75,42 +55,27 @@ class ScaleTransformer extends TeckelTransformer {
   }
 }
 
-// Registra la clase (no una instancia — Teckel la instancia cuando la necesita)
+// Call at application startup
 PluginRegistry.register("transformer", "scale", classOf[ScaleTransformer])
 ```
 
-El primer argumento es el tipo (`"reader"`, `"transformer"`, o `"writer"`), el segundo es el nombre corto con el que lo referenciarás desde el YAML.
-
-## Usar el plugin en el pipeline
-
-Una vez registrado, el plugin se invoca con el tipo de transformación `custom`. El campo `component` puede ser el nombre corto del registry o el nombre completamente cualificado de la clase:
+## Using in YAML
 
 ```yaml
 transformation:
-  - name: scaled_values
+  - name: scaled
     custom:
-      from: source_table
-      component: "scale"        # nombre corto registrado
-      options:
-        factor: "2.5"
-        column: "price"
-```
-
-```yaml
-transformation:
-  - name: scaled_values
-    custom:
-      from: source_table
-      component: "com.example.ScaleTransformer"   # clase completa, sin registro previo
+      from: source
+      component: "scale"            # short registry name
       options:
         factor: "2.5"
 ```
 
-Ambas formas funcionan. La primera requiere registro previo y es más legible; la segunda es útil cuando tienes la clase en el classpath pero no quieres gestionar el registro explícitamente.
+The `component` field accepts:
+- A short name registered in `PluginRegistry` (e.g., `scale`)
+- A fully-qualified class name (e.g., `com.example.ScaleTransformer`)
 
-## Declarar componentes en el YAML
-
-También puedes declarar los componentes directamente en la configuración del pipeline usando la sección `config`. Esto hace que el pipeline sea más autocontenido — cualquiera que lo lea ve qué componentes externos necesita:
+## Declaring in Pipeline Config
 
 ```yaml
 config:
@@ -118,12 +83,9 @@ config:
     transformer:
       - name: scale
         class: com.example.ScaleTransformer
-    reader:
-      - name: custom_csv
-        class: com.example.CustomCsvReader
 
 input:
-  - name: raw
+  - name: source
     format: csv
     path: 'data/input.csv'
     options:
@@ -132,11 +94,10 @@ input:
 transformation:
   - name: result
     custom:
-      from: raw
+      from: source
       component: scale
       options:
         factor: "2.0"
-        column: "amount"
 
 output:
   - name: result
@@ -145,9 +106,7 @@ output:
     path: 'data/output'
 ```
 
-## Consultar los plugins registrados
-
-Puedes inspeccionar en cualquier momento qué plugins hay registrados para un tipo:
+## Inspecting the Registry
 
 ```scala mdoc:compile-only
 import com.eff3ct.teckel.model.plugin.PluginRegistry

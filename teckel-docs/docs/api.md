@@ -1,81 +1,57 @@
 # API Reference
 
-Cuando la CLI no es suficiente — porque necesitas integrar Teckel en una aplicación existente, controlar el ciclo de vida del SparkSession, o componer pipelines con otra lógica — usas el módulo `teckel-api` directamente desde Scala.
-
-El API está construido sobre Cats Effect y ofrece tres entry points con distintos niveles de abstracción. Elige el que mejor encaje con tu estilo de código.
-
 ## Entry Points
 
-### `etl[F, O]` — Fully polymorphic
+Three entry points are available, differing in effect abstraction and execution model.
 
-El entry point más genérico. Parametrizado sobre el efecto `F[_]` y el tipo de resultado `O`. Útil si ya tienes un stack de efectos definido y quieres integrar Teckel sin fijar `IO`.
+### `etl[F, O]`
+
+Generic, parameterized over effect type `F[_]` and result type `O`.
 
 ```scala
 import com.eff3ct.teckel.api._
 import cats.effect.IO
 
-val yaml: String =
-  """
-  |input:
-  |  - name: source
-  |    format: csv
-  |    path: 'data/input.csv'
-  |    options:
-  |      header: true
-  |output:
-  |  - name: source
-  |    format: parquet
-  |    mode: overwrite
-  |    path: 'data/output'
-  """.stripMargin
-
-// F = IO, O = Unit → ejecuta el pipeline y escribe el output
-// Requiere SparkSession implícito y EvalContext[Unit] en scope
+// F = IO, O = Unit → execute mode (writes output files)
+// Requires implicit SparkSession and EvalContext[Unit] in scope
 val program: IO[Unit] = etl[IO, Unit](yaml)
 ```
 
-### `etlIO[O]` — Fija F = IO
+### `etlIO[O]`
 
-El más habitual cuando trabajas con Cats Effect. Fija `F = IO` para no tener que especificarlo:
+Fixes `F = IO`.
 
 ```scala
 import com.eff3ct.teckel.api._
-import cats.effect.IO
-
-val yaml: String = "..." // contenido YAML
 
 val program: IO[Unit] = etlIO[Unit](yaml)
 ```
 
-### `unsafeETL[O]` — Síncrono y bloqueante
+### `unsafeETL[O]`
 
-Ejecuta el pipeline de forma síncrona. Sin efectos, sin IO. Conveniente para scripts, jobs batch simples, o tests donde no quieres gestionar runtime de Cats Effect:
+Synchronous, blocking. Convenient for scripts and tests.
 
 ```scala
 import com.eff3ct.teckel.api._
 
-val yaml: String = "..." // contenido YAML
-
-unsafeETL[Unit](yaml) // bloquea hasta completar
+unsafeETL[Unit](yaml)    // blocks until completion
 ```
 
-## Modos de evaluación
+## Evaluation Modes
 
-El tipo `O` que pasas a cualquiera de los entry points determina qué hace Teckel con el pipeline. Hay dos contextos de evaluación disponibles.
+The type parameter `O` determines what Teckel does with the pipeline.
 
 ### Execute (`O = Unit`)
 
-El modo por defecto. Ejecuta el DAG completo y escribe los outputs a sus destinos. Es el comportamiento que esperarías de un job ETL normal.
+Runs the full DAG and writes outputs.
 
 ```scala
-import com.eff3ct.teckel.api._
-
-unsafeETL[Unit](yaml)  // ejecuta y escribe
+unsafeETL[Unit](yaml)
 ```
 
 ### Debug (`O = Context[DataFrame]`)
 
-En lugar de escribir los outputs, devuelve todos los DataFrames intermedios como un `Map[String, DataFrame]`. Extremadamente útil para testing y depuración — puedes inspeccionar el estado del pipeline en cada paso sin tocar el almacenamiento.
+Returns all intermediate DataFrames without writing to storage. Useful for testing.
 
 ```scala
 import com.eff3ct.teckel.api._
@@ -84,67 +60,42 @@ import org.apache.spark.sql.DataFrame
 
 val assets: Context[DataFrame] = unsafeETL[Context[DataFrame]](yaml)
 
-// Todos los assets del pipeline están disponibles por nombre
-assets.foreach { case (name, df) =>
-  println(s"\n=== $name ===")
-  df.show(10)
-  df.printSchema()
-}
-
-// O accede a uno específico
-val activeUsers: DataFrame = assets("active_users")
+assets("active_users").show()
 ```
 
-Este modo es especialmente valioso en tests de integración: puedes verificar el resultado de transformaciones intermedias sin necesitar un sistema de ficheros real.
+## Inspect Without Spark
 
-## Inspección sin Spark
-
-Estas utilidades analizan el YAML y generan información sobre el pipeline sin necesitar un SparkSession — son puramente funcionales y muy rápidas.
+These utilities parse and analyze the pipeline without a `SparkSession`.
 
 ### Dry Run
-
-Genera el plan de ejecución en texto: qué pasos se van a ejecutar, en qué orden y con qué configuración. También valida las referencias entre assets.
 
 ```scala mdoc:compile-only
 import com.eff3ct.teckel.api.DryRun
 
-val yaml: String = "..." // contenido YAML
+val yaml: String = "..."    // YAML content
 
 DryRun.explain(yaml) match {
-  case Right(plan)  => println(plan)
-  case Left(error)  => println(s"Error: ${error.getMessage}")
+  case Right(plan)                  => println(plan)
+  case Left(err: Throwable)         => println(s"Error: ${err.getMessage}")
 }
 ```
 
-### DocGen
-
-Convierte el pipeline en documentación Markdown. Describe todas las fuentes, transformaciones y destinos con sus parámetros. Útil para mantener la documentación sincronizada con el pipeline real.
+### Doc Generation
 
 ```scala mdoc:compile-only
 import com.eff3ct.teckel.api.DocGen
 
-val yaml: String = "..." // contenido YAML
+val yaml: String = "..."    // YAML content
 
-DocGen.generate(yaml).foreach(println)
+DocGen.generate(yaml).foreach(s => println(s))
 ```
 
-### GraphViz
-
-Genera una representación gráfica del DAG. Soporta tres formatos: `mermaid` (el más habitual para GitHub/Notion), `dot` (para Graphviz) y `ascii` (para terminales).
+### DAG Visualization
 
 ```scala mdoc:compile-only
 import com.eff3ct.teckel.api.GraphViz
 
-val yaml: String = "..." // contenido YAML
+val yaml: String = "..."    // YAML content
 
-// Mermaid — se puede pegar directamente en GitHub o Notion
-val mermaid: Either[Throwable, String] = GraphViz.generate(yaml, "mermaid")
-
-// DOT — para renderizar con graphviz o dot
-val dot: Either[Throwable, String] = GraphViz.generate(yaml, "dot")
-
-// ASCII — para terminales y logs
-val ascii: Either[Throwable, String] = GraphViz.generate(yaml, "ascii")
-
-mermaid.foreach(println)
+GraphViz.generate(yaml, "mermaid").foreach(s => println(s))    // mermaid | dot | ascii
 ```
