@@ -69,10 +69,10 @@ object operations {
       Decoder[DropColumnsOp].widen,
       Decoder[RenameColumnsOp].widen,
       Decoder[CastColumnsOp].widen,
-      Decoder[SqlOp].widen
+      Decoder[SqlOp].widen,
       Decoder[UnionOp].widen,
       Decoder[IntersectOp].widen,
-      Decoder[ExceptOp].widen
+      Decoder[ExceptOp].widen,
       Decoder[WindowOp].widen,
       Decoder[FlattenOp].widen,
       Decoder[SplitOp].widen

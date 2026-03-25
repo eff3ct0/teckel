@@ -68,10 +68,10 @@ object transformation {
       Decoder[DropColumns].widen,
       Decoder[RenameColumns].widen,
       Decoder[CastColumns].widen,
-      Decoder[SqlExpr].widen
+      Decoder[SqlExpr].widen,
       Decoder[UnionT].widen,
       Decoder[IntersectT].widen,
-      Decoder[ExceptT].widen
+      Decoder[ExceptT].widen,
       Decoder[WindowT].widen,
       Decoder[FlattenT].widen,
       Decoder[SplitT].widen

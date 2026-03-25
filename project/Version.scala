@@ -7,7 +7,7 @@ object Version {
   lazy val Cats: String       = "2.13.0"
   lazy val CatsEffect: String = "3.5.7"
 
-  lazy val CirceYaml   = "1.16.0"
+  lazy val CirceYaml   = "1.15.0"
   lazy val Circe       = "0.14.10"
   lazy val Fs2: String = "3.11.0"
 

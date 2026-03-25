@@ -42,7 +42,7 @@ object Main extends SparkETL {
   )(implicit spark: SparkSession, logger: slf4j.Logger): IO[ExitCode] = {
     val commands = Console.parseCommand(args)
     commands match {
-      case Console.FILE(file, true) =>
+      case Console.FILE(file, _, true, _) =>
         // Dry run mode
         IO {
           val content = scala.io.Source.fromFile(file).mkString
