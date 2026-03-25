@@ -57,6 +57,8 @@ object transformation {
       case c: CoalesceT     => c.asJson
       case ro: RollupT      => ro.asJson
       case cu: CubeT        => cu.asJson
+      case p: PivotT        => p.asJson
+      case u: UnpivotT      => u.asJson
       case s: SplitT        => s.asJson
     }
 
@@ -84,6 +86,8 @@ object transformation {
       Decoder[CoalesceT].widen,
       Decoder[RollupT].widen,
       Decoder[CubeT].widen,
+      Decoder[PivotT].widen,
+      Decoder[UnpivotT].widen,
       Decoder[SplitT].widen
     ).reduceLeft(_ or _)
 
@@ -118,6 +122,10 @@ object transformation {
   case class RollupT(name: String, rollup: RollupOp) extends Transformation
 
   case class CubeT(name: String, cube: CubeOp) extends Transformation
+
+  case class PivotT(name: String, pivot: PivotOp) extends Transformation
+
+  case class UnpivotT(name: String, unpivot: UnpivotOp) extends Transformation
 
   case class SplitT(name: String, split: SplitOp) extends Transformation
 

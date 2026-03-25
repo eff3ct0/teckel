@@ -66,6 +66,8 @@ object Debug {
       case s: Coalesce      => coalesce(df, s)
       case s: Rollup        => rollup(df, s)
       case s: Cube          => cube(df, s)
+      case s: Pivot         => pivot(df, s)
+      case s: Unpivot       => unpivot(df, s)
     }
 
   /** Select */
@@ -244,6 +246,26 @@ object Debug {
       case NonEmptyList(a, Nil)  => relDF.agg(expr(a))
       case NonEmptyList(a, tail) => relDF.agg(expr(a), tail.map(expr): _*)
     }
+  }
+
+  /** Pivot */
+  def pivot[S <: Pivot](df: DataFrame, source: S): DataFrame = {
+    val grouped = df.groupBy(source.groupBy.toList.map(col): _*)
+    val pivoted = source.values match {
+      case Some(vals) => grouped.pivot(source.pivotColumn, vals)
+      case None       => grouped.pivot(source.pivotColumn)
+    }
+    source.aggregate match {
+      case NonEmptyList(a, Nil)  => pivoted.agg(expr(a))
+      case NonEmptyList(a, tail) => pivoted.agg(expr(a), tail.map(expr): _*)
+    }
+  }
+
+  /** Unpivot */
+  def unpivot[S <: Unpivot](df: DataFrame, source: S): DataFrame = {
+    val idCols    = source.ids.toList.map(col).toArray
+    val valueCols = source.values.toList.map(col).toArray
+    df.unpivot(idCols, valueCols, source.variableColumn, source.valueColumn)
   }
 
   /** Join */

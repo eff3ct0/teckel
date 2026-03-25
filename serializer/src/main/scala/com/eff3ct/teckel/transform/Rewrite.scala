@@ -160,6 +160,30 @@ object Rewrite {
   def rewriteOp(item: CubeT): Asset =
     Asset(item.name, Source.Cube(item.cube.from, item.cube.by, item.cube.agg))
 
+  def rewriteOp(item: PivotT): Asset =
+    Asset(
+      item.name,
+      Source.Pivot(
+        item.pivot.from,
+        item.pivot.groupBy,
+        item.pivot.pivotColumn,
+        item.pivot.values,
+        item.pivot.agg
+      )
+    )
+
+  def rewriteOp(item: UnpivotT): Asset =
+    Asset(
+      item.name,
+      Source.Unpivot(
+        item.unpivot.from,
+        item.unpivot.ids,
+        item.unpivot.values,
+        item.unpivot.variableColumn,
+        item.unpivot.valueColumn
+      )
+    )
+
   def rewriteOp(item: WindowT): Asset =
     Asset(
       item.name,
@@ -195,6 +219,8 @@ object Rewrite {
       case s: CoalesceT     => rewriteOp(s)
       case s: RollupT       => rewriteOp(s)
       case s: CubeT         => rewriteOp(s)
+      case s: PivotT        => rewriteOp(s)
+      case s: UnpivotT      => rewriteOp(s)
       case _: SplitT        => throw new IllegalStateException("SplitT is expanded in tcontext")
     }
 

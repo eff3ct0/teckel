@@ -1,0 +1,44 @@
+input:
+  - name: sales
+    format: csv
+    path: 'data/csv/sales.csv'
+    options:
+      header: true
+      inferSchema: true
+
+transformation:
+  - name: sales_pivot
+    pivot:
+      from: sales
+      groupBy:
+        - region
+      pivotColumn: product
+      values:
+        - A
+        - B
+        - C
+      agg:
+        - "sum(amount)"
+
+  - name: sales_unpivot
+    unpivot:
+      from: sales_pivot
+      ids:
+        - region
+      values:
+        - A
+        - B
+        - C
+      variableColumn: product
+      valueColumn: total_amount
+
+output:
+  - name: sales_pivot
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/sales_pivot'
+
+  - name: sales_unpivot
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/sales_unpivot'

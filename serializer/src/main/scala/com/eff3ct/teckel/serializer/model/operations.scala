@@ -58,6 +58,8 @@ object operations {
       case c: CoalesceOp      => c.asJson
       case ro: RollupOp       => ro.asJson
       case cu: CubeOp         => cu.asJson
+      case p: PivotOp         => p.asJson
+      case u: UnpivotOp       => u.asJson
       case s: SplitOp         => s.asJson
     }
 
@@ -85,6 +87,8 @@ object operations {
       Decoder[CoalesceOp].widen,
       Decoder[RollupOp].widen,
       Decoder[CubeOp].widen,
+      Decoder[PivotOp].widen,
+      Decoder[UnpivotOp].widen,
       Decoder[SplitOp].widen
     ).reduceLeft(_ or _)
 
@@ -141,6 +145,22 @@ object operations {
 
   case class CubeOp(from: String, by: NonEmptyList[String], agg: NonEmptyList[String])
       extends Operation
+
+  case class PivotOp(
+      from: String,
+      groupBy: NonEmptyList[String],
+      pivotColumn: String,
+      values: Option[List[String]],
+      agg: NonEmptyList[String]
+  ) extends Operation
+
+  case class UnpivotOp(
+      from: String,
+      ids: NonEmptyList[String],
+      values: NonEmptyList[String],
+      variableColumn: String,
+      valueColumn: String
+  ) extends Operation
 
   case class SplitOp(from: String, condition: String, pass: String, fail: String) extends Operation
 
