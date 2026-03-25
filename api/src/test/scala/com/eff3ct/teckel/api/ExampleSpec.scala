@@ -84,11 +84,11 @@ class ExampleSpec
   }
 
   it should "work correctly a orderBy pipeline" in {
+    import org.apache.spark.sql.functions.{col, desc}
     noException should be thrownBy unsafeETL[Unit]("src/test/resources/etl/order-by.yaml")
     spark.read
       .parquet("src/test/resources/data/parquet/example/order-by") :===:
-      Resources.input.orderBy("Id", "Date")
-
+      Resources.input.orderBy(desc("ID"), desc("Date"))
   }
   it should "work correctly a join pipeline" in {
     pending
