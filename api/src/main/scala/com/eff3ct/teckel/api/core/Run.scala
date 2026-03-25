@@ -42,12 +42,18 @@ object Run {
 
   def apply[F[_]: Run]: Run[F] = implicitly[Run[F]]
 
-  private def validateContext[F[_]: MonadThrow](context: com.eff3ct.teckel.model.Context[com.eff3ct.teckel.model.Asset]): F[Unit] =
-    Validator.validate(context).toEither.left.map(errors =>
-      new IllegalArgumentException(
-        Validator.formatErrors(Validator.validate(context)).getOrElse("Validation failed")
-      )
-    ) match {
+  private def validateContext[F[_]: MonadThrow](
+      context: com.eff3ct.teckel.model.Context[com.eff3ct.teckel.model.Asset]
+  ): F[Unit] =
+    Validator
+      .validate(context)
+      .toEither
+      .left
+      .map(errors =>
+        new IllegalArgumentException(
+          Validator.formatErrors(Validator.validate(context)).getOrElse("Validation failed")
+        )
+      ) match {
       case Right(_)  => MonadThrow[F].unit
       case Left(err) => MonadThrow[F].raiseError[Unit](err)
     }

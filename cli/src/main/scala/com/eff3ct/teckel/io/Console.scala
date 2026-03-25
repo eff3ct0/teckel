@@ -32,9 +32,13 @@ import fs2.io.file.Files
 object Console {
 
   sealed trait Commands
-  case class STDIN(variables: Map[String, String])                                    extends Commands
-  case class FILE(file: String, variables: Map[String, String], dryRun: Boolean = false, env: Option[String] = None)
-      extends Commands
+  case class STDIN(variables: Map[String, String]) extends Commands
+  case class FILE(
+      file: String,
+      variables: Map[String, String],
+      dryRun: Boolean = false,
+      env: Option[String] = None
+  ) extends Commands
 
   def parseCommand(args: List[String]): Commands = {
     val dryRun = args.contains("--dry-run")
