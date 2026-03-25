@@ -61,6 +61,9 @@ object Debug {
       case s: Except        => except(s, df, others)
       case s: Window        => window(df, s)
       case s: Flatten       => flatten(df, s)
+      case s: Sample        => sample(df, s)
+      case s: Repartition   => repartition(df, s)
+      case s: Coalesce      => coalesce(df, s)
     }
 
   /** Select */
@@ -192,6 +195,26 @@ object Debug {
 
     df.select(flattenSchema(df.schema, ""): _*)
   }
+
+  /** Sample */
+  def sample[S <: Sample](df: DataFrame, source: S): DataFrame = {
+    val replacement = source.withReplacement.getOrElse(false)
+    source.seed match {
+      case Some(s) => df.sample(replacement, source.fraction, s)
+      case None    => df.sample(replacement, source.fraction)
+    }
+  }
+
+  /** Repartition */
+  def repartition[S <: Repartition](df: DataFrame, source: S): DataFrame =
+    source.columns match {
+      case Some(cols) => df.repartition(source.numPartitions, cols.toList.map(col): _*)
+      case None       => df.repartition(source.numPartitions)
+    }
+
+  /** Coalesce */
+  def coalesce[S <: Coalesce](df: DataFrame, source: S): DataFrame =
+    df.coalesce(source.numPartitions)
 
   /** Join */
   def join[S <: Join](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {

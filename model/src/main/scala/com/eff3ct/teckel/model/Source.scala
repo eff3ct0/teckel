@@ -95,4 +95,18 @@ object Source {
 
   case class Flatten(assetRef: AssetRef, separator: Option[String], explodeArrays: Option[Boolean])
       extends Transformation
+
+  case class Sample(assetRef: AssetRef, fraction: Double, withReplacement: Option[Boolean], seed: Option[Long])
+      extends Transformation
+
+  case class Repartition(assetRef: AssetRef, numPartitions: Int, columns: Option[NonEmptyList[Column]])
+      extends Transformation
+
+  case class Coalesce(assetRef: AssetRef, numPartitions: Int) extends Transformation
+
+  case class Rollup(assetRef: AssetRef, by: NonEmptyList[Column], aggregate: NonEmptyList[Column])
+      extends Transformation
+
+  case class Cube(assetRef: AssetRef, by: NonEmptyList[Column], aggregate: NonEmptyList[Column])
+      extends Transformation
 }

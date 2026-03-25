@@ -53,6 +53,11 @@ object operations {
       case e: ExceptOp        => e.asJson
       case w: WindowOp        => w.asJson
       case f: FlattenOp       => f.asJson
+      case s: SampleOp        => s.asJson
+      case r: RepartitionOp   => r.asJson
+      case c: CoalesceOp      => c.asJson
+      case ro: RollupOp       => ro.asJson
+      case cu: CubeOp         => cu.asJson
       case s: SplitOp         => s.asJson
     }
 
@@ -75,6 +80,11 @@ object operations {
       Decoder[ExceptOp].widen,
       Decoder[WindowOp].widen,
       Decoder[FlattenOp].widen,
+      Decoder[SampleOp].widen,
+      Decoder[RepartitionOp].widen,
+      Decoder[CoalesceOp].widen,
+      Decoder[RollupOp].widen,
+      Decoder[CubeOp].widen,
       Decoder[SplitOp].widen
     ).reduceLeft(_ or _)
 
@@ -112,6 +122,20 @@ object operations {
   ) extends Operation
 
   case class FlattenOp(from: String, separator: Option[String], explodeArrays: Option[Boolean])
+      extends Operation
+
+  case class SampleOp(from: String, fraction: Double, withReplacement: Option[Boolean], seed: Option[Long])
+      extends Operation
+
+  case class RepartitionOp(from: String, numPartitions: Int, columns: Option[NonEmptyList[String]])
+      extends Operation
+
+  case class CoalesceOp(from: String, numPartitions: Int) extends Operation
+
+  case class RollupOp(from: String, by: NonEmptyList[String], agg: NonEmptyList[String])
+      extends Operation
+
+  case class CubeOp(from: String, by: NonEmptyList[String], agg: NonEmptyList[String])
       extends Operation
 
   case class SplitOp(from: String, condition: String, pass: String, fail: String) extends Operation

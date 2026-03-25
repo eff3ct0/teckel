@@ -127,6 +127,15 @@ object Rewrite {
   def rewriteOp(item: FlattenT): Asset =
     Asset(item.name, Source.Flatten(item.flatten.from, item.flatten.separator, item.flatten.explodeArrays))
 
+  def rewriteOp(item: SampleT): Asset =
+    Asset(item.name, Source.Sample(item.sample.from, item.sample.fraction, item.sample.withReplacement, item.sample.seed))
+
+  def rewriteOp(item: RepartitionT): Asset =
+    Asset(item.name, Source.Repartition(item.repartition.from, item.repartition.numPartitions, item.repartition.columns))
+
+  def rewriteOp(item: CoalesceT): Asset =
+    Asset(item.name, Source.Coalesce(item.coalesce.from, item.coalesce.numPartitions))
+
   def rewriteOp(item: WindowT): Asset =
     Asset(
       item.name,
@@ -157,6 +166,9 @@ object Rewrite {
       case s: ExceptT       => rewriteOp(s)
       case s: WindowT       => rewriteOp(s)
       case s: FlattenT      => rewriteOp(s)
+      case s: SampleT       => rewriteOp(s)
+      case s: RepartitionT  => rewriteOp(s)
+      case s: CoalesceT     => rewriteOp(s)
       case _: SplitT        => throw new IllegalStateException("SplitT is expanded in tcontext")
     }
 
