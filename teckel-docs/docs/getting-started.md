@@ -1,18 +1,34 @@
 # Getting Started
 
+The core idea is simple: you write a YAML file that describes what data you have, what you want to do with it, and where you want to leave it. Teckel does the rest — parses the configuration, builds the execution plan, and runs it on Spark.
+
+This guide takes you from installation to running your first real pipeline, step by step.
+
+## Prerequisites
+
+- **JDK 8 or 11** — Spark doesn't fully support Java 17 in all configurations
+- **Apache Spark 3.5.x** — required at runtime (declared as `provided`)
+- **sbt** — only if you're building from source or embedding Teckel as a library
+
 ## Installation
 
 ### As a library
 
-```scala
-// build.sbt
-libraryDependencies += "com.eff3ct" %% "teckel-api" % "@VERSION@"
+Add `teckel-api` to your `build.sbt`. This module includes the parser, the execution engine, and the public API:
 
-// Spark is `provided` — add it to your runtime classpath
+```scala
+libraryDependencies += "com.eff3ct" %% "teckel-api" % "@VERSION@"
+```
+
+Since Spark is declared as `provided`, you need to add it separately if your environment doesn't supply it:
+
+```scala
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "@SPARK_VERSION@"
 ```
 
 ### As a CLI tool
+
+If you prefer using Teckel as a standalone binary, clone the repository and build the uber JAR. This packages Spark inside the JAR so you don't need a separate Spark installation:
 
 ```bash
 git clone https://github.com/eff3ct/teckel.git
@@ -23,7 +39,11 @@ sbt cli/assembly
 
 ## Your First Pipeline
 
-Create `my-pipeline.yaml`:
+Let's build something concrete: read a CSV file of employees, filter the active ones, group them by department, and write the result as Parquet.
+
+### 1. Define the pipeline
+
+Create `my-pipeline.yaml`. Each transformation references its upstream asset by name, which is how Teckel builds the dependency graph: `employees` → `active_employees` → `department_summary` → `sorted_departments`.
 
 ```yaml
 input:
@@ -61,30 +81,37 @@ output:
     path: 'data/output/department_summary'
 ```
 
-Preview before running:
+### 2. Preview first (dry-run)
+
+Before running the job, it's good practice to review the execution plan. Dry-run parses the YAML, validates all cross-references between assets, and prints each step — without starting Spark:
 
 ```bash
 java -jar teckel-etl_2.13.jar -f my-pipeline.yaml --dry-run
 ```
 
-Run it:
+If there are broken references or configuration errors, they'll appear here before you try to execute anything.
+
+### 3. Run it
+
+Once the plan looks correct, execute the pipeline:
 
 ```bash
 java -jar teckel-etl_2.13.jar -f my-pipeline.yaml
 ```
 
-Or from Scala:
+Or from Scala code:
 
 ```scala
 import com.eff3ct.teckel.api._
 
 val yaml = scala.io.Source.fromFile("my-pipeline.yaml").mkString
+// Requires implicit SparkSession and EvalContext in scope
 unsafeETL[Unit](yaml)
 ```
 
 ## Pipeline Structure
 
-Every Teckel pipeline has three sections:
+Every Teckel pipeline YAML has three sections. Two are required:
 
 ```yaml
 input:           # Data sources (required)
@@ -99,9 +126,11 @@ output:          # Data sinks (required)
 
 ### Input
 
+Each input defines a data source. The `name` field is the reference that downstream transformations use to refer to this dataset:
+
 ```yaml
 input:
-  - name: my_source          # Asset reference used downstream
+  - name: my_source          # Unique asset reference in this pipeline
     format: csv              # csv, parquet, json, orc, avro, jdbc
     path: 'data/input.csv'
     options:
@@ -111,28 +140,31 @@ input:
 
 ### Output
 
+Each output writes an asset to its destination. The `name` must match an existing transformation or input:
+
 ```yaml
 output:
   - name: my_sink            # Must match a transformation or input name
     format: parquet
     mode: overwrite           # overwrite, append, ignore, error
     path: 'data/output'
+    options: {}               # Optional format-specific settings
 ```
 
 ### Transformation
 
-Each transformation references an upstream asset by name. Teckel resolves the dependency graph automatically:
+Transformations chain together by referencing upstream assets by name. The order in the YAML is for human readability only — Teckel resolves the dependency graph automatically:
 
 ```yaml
 transformation:
   - name: step1
     select:
-      from: my_source
+      from: my_source        # References an input or a previous transformation
       columns: [id, name]
 
   - name: step2
     where:
-      from: step1
+      from: step1            # References the transformation above
       filter: "id > 10"
 ```
 
@@ -141,4 +173,4 @@ transformation:
 - [Transformations](transformations.md) — full reference for all 30+ operations
 - [Plugins](plugins.md) — custom readers, transformers, and writers
 - [CLI](cli.md) — all command-line options
-- [API](api.md) — programmatic integration
+- [API](api.md) — programmatic integration with Scala and Cats Effect
