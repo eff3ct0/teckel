@@ -122,6 +122,8 @@ object Rewrite {
     Asset(
       item.name,
       Source.Except(item.except.left, item.except.right, item.except.all.getOrElse(false))
+    )
+
   def rewriteOp(item: FlattenT): Asset =
     Asset(item.name, Source.Flatten(item.flatten.from, item.flatten.separator, item.flatten.explodeArrays))
 
@@ -155,6 +157,7 @@ object Rewrite {
       case s: ExceptT       => rewriteOp(s)
       case s: WindowT       => rewriteOp(s)
       case s: FlattenT      => rewriteOp(s)
+      case _: SplitT        => throw new IllegalStateException("SplitT is expanded in tcontext")
     }
 
   def icontext(item: NonEmptyList[Input]): Context[Asset] =
