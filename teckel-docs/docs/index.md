@@ -1,3 +1,8 @@
+---
+slug: /
+sidebar_position: 1
+---
+
 # Teckel
 
 Writing ETL pipelines with Spark usually means a lot of boilerplate: read from here, transform there, write somewhere else — and in three months, even you won't remember what it does. Teckel takes the opposite approach: if the logic is declarative, it should be expressible as data.

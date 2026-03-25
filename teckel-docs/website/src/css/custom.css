@@ -1,0 +1,532 @@
+/**
+ * Custom CSS for Teckel.
+ * Palette: Tailwind zinc scale.
+ *
+ * zinc-950 #09090b  zinc-900 #18181b  zinc-800 #27272a  zinc-700 #3f3f46
+ * zinc-600 #52525b  zinc-500 #71717a  zinc-400 #a1a1aa  zinc-300 #d4d4d8
+ * zinc-200 #e4e4e7  zinc-100 #f4f4f5  zinc-50  #fafafa
+ */
+
+/* ─── Light mode ─────────────────────────────────────────────────────────── */
+
+:root {
+  /* Primary — zinc-950 */
+  --ifm-color-primary: #09090b;
+  --ifm-color-primary-dark: #09090b;
+  --ifm-color-primary-darker: #09090b;
+  --ifm-color-primary-darkest: #000000;
+  --ifm-color-primary-light: #52525b;
+  --ifm-color-primary-lighter: #71717a;
+  --ifm-color-primary-lightest: #a1a1aa;
+
+  /* Typography */
+  --ifm-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ifm-font-family-monospace: 'Geist Mono', 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+  --ifm-font-size-base: 15px;
+  --ifm-line-height-base: 1.65;
+  --ifm-code-font-size: 87.5%;
+
+  /* Layout */
+  --ifm-navbar-height: 56px;
+  --ifm-toc-border-color: #e4e4e7;
+  --ifm-hr-border-color: #e4e4e7;
+
+  /* Backgrounds */
+  --ifm-background-color: #ffffff;
+  --ifm-background-surface-color: #f4f4f5;
+  --ifm-navbar-background-color: rgba(255, 255, 255, 0.85);
+  --ifm-footer-background-color: #f4f4f5;
+  --ifm-sidebar-background-color: #f4f4f5;
+
+  /* Borders — zinc scale */
+  --ifm-color-emphasis-100: #f4f4f5;
+  --ifm-color-emphasis-200: #e4e4e7;
+  --ifm-color-emphasis-300: #d4d4d8;
+  --ifm-color-emphasis-400: #a1a1aa;
+  --ifm-color-emphasis-500: #71717a;
+  --ifm-color-emphasis-600: #52525b;
+  --ifm-color-emphasis-700: #3f3f46;
+  --ifm-color-emphasis-800: #27272a;
+  --ifm-color-emphasis-900: #09090b;
+  --ifm-navbar-shadow: none;
+
+  /* Cards and code */
+  --ifm-card-background-color: #ffffff;
+  --ifm-code-background: #f4f4f5;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.06);
+
+  /* Buttons */
+  --ifm-button-border-radius: 6px;
+  --ifm-button-padding-horizontal: 14px;
+  --ifm-button-padding-vertical: 7px;
+
+  /* Links */
+  --ifm-link-color: #09090b;
+  --ifm-link-hover-color: #52525b;
+
+  /* Text */
+  --ifm-font-color-base: #52525b;
+
+  /* Spacing */
+  --ifm-global-radius: 6px;
+
+  /* Menu */
+  --ifm-menu-color-active: #09090b;
+  --ifm-menu-color-background-active: #f4f4f5;
+  --ifm-menu-color-background-hover: #f4f4f5;
+
+  /* Admonitions */
+  --ifm-color-info-dark: #0369a1;
+  --ifm-color-info: #0284c7;
+  --ifm-color-success-dark: #15803d;
+  --ifm-color-warning-dark: #b45309;
+  --ifm-color-danger-dark: #b91c1c;
+}
+
+/* ─── Dark mode ──────────────────────────────────────────────────────────── */
+
+[data-theme='dark'] {
+  /* Primary — zinc-50/fafafa */
+  --ifm-color-primary: #fafafa;
+  --ifm-color-primary-dark: #a1a1aa;
+  --ifm-color-primary-darker: #71717a;
+  --ifm-color-primary-darkest: #52525b;
+  --ifm-color-primary-light: #fafafa;
+  --ifm-color-primary-lighter: #fafafa;
+  --ifm-color-primary-lightest: #ffffff;
+
+  /* Backgrounds — zinc-950 / zinc-900 */
+  --ifm-background-color: #09090b;
+  --ifm-background-surface-color: #18181b;
+  --ifm-navbar-background-color: rgba(9, 9, 11, 0.85);
+  --ifm-footer-background-color: #18181b;
+  --ifm-sidebar-background-color: #09090b;
+
+  /* Borders — zinc scale */
+  --ifm-color-emphasis-100: #18181b;
+  --ifm-color-emphasis-200: #27272a;
+  --ifm-color-emphasis-300: #3f3f46;
+  --ifm-color-emphasis-400: #52525b;
+  --ifm-color-emphasis-500: #71717a;
+  --ifm-color-emphasis-600: #a1a1aa;
+  --ifm-color-emphasis-700: #d4d4d8;
+  --ifm-color-emphasis-800: #e4e4e7;
+  --ifm-color-emphasis-900: #fafafa;
+  --ifm-toc-border-color: #27272a;
+  --ifm-hr-border-color: #27272a;
+  --ifm-navbar-shadow: none;
+
+  /* Cards and code */
+  --ifm-card-background-color: #18181b;
+  --ifm-code-background: #18181b;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.06);
+
+  /* Text */
+  --ifm-font-color-base: #a1a1aa;
+  --ifm-font-color-secondary: #71717a;
+
+  /* Links */
+  --ifm-link-color: #fafafa;
+  --ifm-link-hover-color: #a1a1aa;
+
+  /* Menu */
+  --ifm-menu-color: #a1a1aa;
+  --ifm-menu-color-active: #fafafa;
+  --ifm-menu-color-background-active: #27272a;
+  --ifm-menu-color-background-hover: #18181b;
+}
+
+/* ─── Navbar ──────────────────────────────────────────────────────────────── */
+
+.navbar {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  padding: 0 1rem;
+}
+
+.navbar__brand {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.navbar__logo {
+  height: 22px;
+}
+
+.navbar__link {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ifm-color-emphasis-600);
+  transition: color 0.15s ease;
+}
+
+.navbar__link:hover,
+.navbar__link--active {
+  color: var(--ifm-color-primary);
+  background: none;
+}
+
+[data-theme='dark'] .navbar__link {
+  color: var(--ifm-color-emphasis-600);
+}
+
+[data-theme='dark'] .navbar__link:hover,
+[data-theme='dark'] .navbar__link--active {
+  color: var(--ifm-color-primary);
+}
+
+/* ─── Sidebar ────────────────────────────────────────────────────────────── */
+
+.theme-doc-sidebar-container {
+  border-right: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.menu {
+  padding: 1rem 0.75rem;
+  font-size: 13.5px;
+}
+
+.menu__link {
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-weight: 450;
+  color: var(--ifm-color-emphasis-600);
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+
+.menu__link:hover {
+  color: var(--ifm-color-primary);
+  background-color: var(--ifm-menu-color-background-hover);
+}
+
+.menu__link--active {
+  color: var(--ifm-menu-color-active);
+  font-weight: 500;
+  background-color: var(--ifm-menu-color-background-active);
+}
+
+.menu__list-item-collapsible > .menu__link {
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ifm-color-emphasis-500);
+}
+
+.menu__list-item-collapsible > .menu__link:hover {
+  background: none;
+  color: var(--ifm-color-emphasis-700);
+}
+
+/* ─── Content ────────────────────────────────────────────────────────────── */
+
+.container {
+  max-width: 1200px;
+}
+
+article h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+article h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+article h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.markdown a {
+  color: var(--ifm-color-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--ifm-color-emphasis-300);
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.markdown a:hover {
+  text-decoration-color: var(--ifm-color-primary);
+}
+
+[data-theme='dark'] .markdown a {
+  color: var(--ifm-color-primary);
+  text-decoration-color: var(--ifm-color-emphasis-400);
+}
+
+[data-theme='dark'] .markdown a:hover {
+  text-decoration-color: var(--ifm-color-primary);
+}
+
+/* ─── Code blocks ────────────────────────────────────────────────────────── */
+
+/* GitHub-style token colors — light mode */
+.token.keyword                         { color: #cf222e; }
+.token.string, .token.char             { color: #0a3069; }
+.token.number                          { color: #0550ae; }
+.token.boolean                         { color: #0550ae; }
+.token.comment                         { color: #6e7781; font-style: italic; }
+.token.class-name, .token.namespace    { color: #953800; }
+.token.function                        { color: #8250df; }
+.token.operator                        { color: #cf222e; }
+.token.punctuation                     { color: #24292f; }
+.token.plain                           { color: #24292f; }
+
+/* VS Dark-style token colors — dark mode */
+[data-theme='dark'] .token.keyword                      { color: #569cd6; }
+[data-theme='dark'] .token.string,
+[data-theme='dark'] .token.char                         { color: #ce9178; }
+[data-theme='dark'] .token.number                       { color: #b5cea8; }
+[data-theme='dark'] .token.boolean                      { color: #569cd6; }
+[data-theme='dark'] .token.comment                      { color: #6a9955; font-style: italic; }
+[data-theme='dark'] .token.class-name,
+[data-theme='dark'] .token.namespace                    { color: #4ec9b0; }
+[data-theme='dark'] .token.function                     { color: #dcdcaa; }
+[data-theme='dark'] .token.operator                     { color: #d4d4d4; }
+[data-theme='dark'] .token.punctuation                  { color: #d4d4d4; }
+[data-theme='dark'] .token.plain                        { color: #d4d4d4; }
+
+.theme-code-block {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+/* Dark mode: code block background matches zinc-900 */
+[data-theme='dark'] .theme-code-block {
+  border-color: #27272a;
+  background-color: #18181b;
+}
+
+[data-theme='dark'] pre[class*="language-"],
+[data-theme='dark'] code[class*="language-"] {
+  background-color: #18181b;
+}
+
+/* Highlighted line */
+.theme-code-block-highlighted-line {
+  background-color: rgba(0, 0, 0, 0.06);
+  display: block;
+  margin: 0 -1rem;
+  padding: 0 1rem;
+}
+
+[data-theme='dark'] .theme-code-block-highlighted-line {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Inline code */
+code:not([class]) {
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  font-size: 87.5%;
+  color: #09090b;
+}
+
+[data-theme='dark'] code:not([class]) {
+  background: #18181b;
+  border-color: #27272a;
+  color: #a1a1aa;
+}
+
+/* ─── Tables ─────────────────────────────────────────────────────────────── */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+
+th {
+  background: var(--ifm-background-surface-color);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ifm-color-emphasis-500);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+td, th {
+  border: none;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  padding: 8px 12px;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* ─── Admonitions ────────────────────────────────────────────────────────── */
+
+.admonition {
+  border-radius: 6px;
+  border-left: 3px solid;
+  background: var(--ifm-background-surface-color);
+  box-shadow: none;
+}
+
+.admonition-heading h5 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+
+.footer {
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  padding: 2rem 0;
+}
+
+.footer__title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ifm-color-emphasis-500);
+}
+
+.footer__link-item {
+  font-size: 14px;
+  color: var(--ifm-color-emphasis-600);
+  transition: color 0.15s ease;
+}
+
+.footer__link-item:hover {
+  color: var(--ifm-color-primary);
+}
+
+.footer__copyright {
+  font-size: 13px;
+  color: var(--ifm-color-emphasis-500);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+
+.button--primary {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  font-weight: 500;
+  font-size: 14px;
+  transition: opacity 0.15s ease;
+}
+
+.button--primary:hover {
+  opacity: 0.85;
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+}
+
+/* ─── Pagination ─────────────────────────────────────────────────────────── */
+
+.pagination-nav__link {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 6px;
+  transition: border-color 0.15s ease;
+}
+
+.pagination-nav__link:hover {
+  border-color: var(--ifm-color-emphasis-400);
+}
+
+/* ─── TOC ────────────────────────────────────────────────────────────────── */
+
+.table-of-contents {
+  font-size: 13px;
+  border-left: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.table-of-contents__link {
+  color: var(--ifm-color-emphasis-500);
+  transition: color 0.12s ease;
+}
+
+.table-of-contents__link:hover,
+.table-of-contents__link--active {
+  color: var(--ifm-color-primary);
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ifm-color-emphasis-300);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ifm-color-emphasis-400);
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: #27272a;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* ─── Breadcrumbs ────────────────────────────────────────────────────────── */
+
+.breadcrumbs__item--active .breadcrumbs__link {
+  color: var(--ifm-color-primary);
+  background: none;
+  font-weight: 500;
+}
+
+.breadcrumbs__link {
+  font-size: 13px;
+  color: var(--ifm-color-emphasis-500);
+}
+
+/* ─── Search ─────────────────────────────────────────────────────────────── */
+
+.navbar__search-input {
+  background: var(--ifm-color-emphasis-100);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* ─── Diagrams — transparent background ─────────────────────────────────── */
+
+.theme-doc-markdown p > img {
+  border-radius: 6px;
+}
+
+[data-theme='dark'] .theme-doc-markdown p > img {
+  filter: invert(1);
+  border-radius: 6px;
+}
+
+/* ─── Smooth transitions ─────────────────────────────────────────────────── */
+
+html[data-theme='dark'],
+html:not([data-theme='dark']) {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}

@@ -84,7 +84,7 @@ lazy val docs =
       publish / skip := true,
       scalaVersion   := Version.Scala,
       mdocIn         := file("teckel-docs/docs"),
-      mdocOut        := file("docs/target/mdoc"),
+      mdocOut        := file("teckel-docs/website/docs"),
       libraryDependencies ++= Dependency.sparkD,
       mdocVariables := Map(
         "VERSION" -> version.value,

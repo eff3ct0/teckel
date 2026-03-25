@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" fill="none">
+  <!-- Input box -->
+  <rect x="20" y="76" width="140" height="48" rx="8" stroke="#e4e4e7" stroke-width="1.5" fill="transparent"/>
+  <text x="90" y="97" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="600" fill="#52525b" text-anchor="middle" letter-spacing="0.04em" text-transform="uppercase">INPUT</text>
+  <text x="90" y="114" font-family="'Geist Mono', ui-monospace, monospace" font-size="10" fill="#71717a" text-anchor="middle">csv / parquet / json</text>
+
+  <!-- Arrow 1 -->
+  <path d="M160 100 L220 100" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M215 95 L221 100 L215 105" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Transformation box -->
+  <rect x="220" y="60" width="200" height="80" rx="8" stroke="#e4e4e7" stroke-width="1.5" fill="transparent"/>
+  <text x="320" y="89" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="600" fill="#52525b" text-anchor="middle" letter-spacing="0.04em">TRANSFORMATION</text>
+  <text x="320" y="108" font-family="'Geist Mono', ui-monospace, monospace" font-size="10" fill="#71717a" text-anchor="middle">join · filter · group</text>
+  <text x="320" y="124" font-family="'Geist Mono', ui-monospace, monospace" font-size="10" fill="#71717a" text-anchor="middle">window · pivot · sql</text>
+
+  <!-- Arrow 2 -->
+  <path d="M420 100 L480 100" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M475 95 L481 100 L475 105" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Output box -->
+  <rect x="480" y="76" width="140" height="48" rx="8" stroke="#e4e4e7" stroke-width="1.5" fill="transparent"/>
+  <text x="550" y="97" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="600" fill="#52525b" text-anchor="middle" letter-spacing="0.04em">OUTPUT</text>
+  <text x="550" y="114" font-family="'Geist Mono', ui-monospace, monospace" font-size="10" fill="#71717a" text-anchor="middle">parquet / delta / jdbc</text>
+
+  <!-- YAML label -->
+  <text x="320" y="180" font-family="Inter, -apple-system, sans-serif" font-size="11" fill="#a1a1aa" text-anchor="middle">declarative YAML → Spark DAG</text>
+</svg>

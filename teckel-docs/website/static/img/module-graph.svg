@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 220" fill="none">
+  <!-- model -->
+  <rect x="220" y="10" width="100" height="38" rx="6" stroke="#e4e4e7" stroke-width="1.5" fill="transparent"/>
+  <text x="270" y="34" font-family="'Geist Mono', ui-monospace, monospace" font-size="12" fill="#52525b" text-anchor="middle">model</text>
+
+  <!-- model → serializer -->
+  <path d="M240 48 L200 82" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M196 78 L201 83 L207 79" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- model → semantic -->
+  <path d="M300 48 L340 82" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M336 78 L341 83 L347 79" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- serializer -->
+  <rect x="130" y="82" width="100" height="38" rx="6" stroke="#e4e4e7" stroke-width="1.5" fill="transparent"/>
+  <text x="180" y="106" font-family="'Geist Mono', ui-monospace, monospace" font-size="12" fill="#52525b" text-anchor="middle">serializer</text>
+
+  <!-- semantic -->
+  <rect x="310" y="82" width="100" height="38" rx="6" stroke="#e4e4e7" stroke-width="1.5" fill="transparent"/>
+  <text x="360" y="106" font-family="'Geist Mono', ui-monospace, monospace" font-size="12" fill="#52525b" text-anchor="middle">semantic</text>
+
+  <!-- serializer → api -->
+  <path d="M200 120 L250 154" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M246 150 L251 155 L257 151" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- semantic → api -->
+  <path d="M340 120 L290 154" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M283 151 L289 155 L294 150" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- api -->
+  <rect x="220" y="154" width="100" height="38" rx="6" stroke="#e4e4e7" stroke-width="1.5" fill="transparent"/>
+  <text x="270" y="178" font-family="'Geist Mono', ui-monospace, monospace" font-size="12" fill="#52525b" text-anchor="middle">api</text>
+
+  <!-- api → cli -->
+  <path d="M270 192 L270 202" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M265 198 L270 203 L275 198" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- cli -->
+  <rect x="220" y="202" width="100" height="14" rx="4" stroke="#e4e4e7" stroke-width="1.5" fill="transparent"/>
+  <text x="270" y="213" font-family="'Geist Mono', ui-monospace, monospace" font-size="11" fill="#71717a" text-anchor="middle">cli</text>
+</svg>
