@@ -74,6 +74,25 @@ lazy val cli =
     )
     .withAssembly("teckel-etl")
 
+lazy val docs =
+  (project in file("./teckel-docs"))
+    .dependsOn(api)
+    .enablePlugins(MdocPlugin)
+    .disablePlugins(BuildPlugin, AssemblyPlugin, HeaderPlugin)
+    .settings(
+      name           := "teckel-docs",
+      publish / skip := true,
+      scalaVersion   := Version.Scala,
+      mdocIn         := file("teckel-docs/docs"),
+      mdocOut        := file("docs/target/mdoc"),
+      libraryDependencies ++= Dependency.sparkD,
+      mdocVariables := Map(
+        "VERSION" -> version.value,
+        "SCALA_VERSION" -> Version.Scala,
+        "SPARK_VERSION" -> Version.Spark
+      )
+    )
+
 lazy val example =
   (project in file("./example"))
     .dependsOn(api)
