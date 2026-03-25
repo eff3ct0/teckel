@@ -44,8 +44,20 @@ private[teckel] object etl {
       defaultStorageLevel: Option[String] = None
   )
 
+  case class NotificationTarget(
+      channel: String, // "webhook", "log", "file"
+      url: Option[String] = None,
+      path: Option[String] = None
+  )
+
+  case class NotificationConfig(
+      onSuccess: Option[List[NotificationTarget]] = None,
+      onFailure: Option[List[NotificationTarget]] = None
+  )
+
   case class PipelineConfig(
-      cache: Option[CachePolicy] = None
+      cache: Option[CachePolicy] = None,
+      notifications: Option[NotificationConfig] = None
   )
 
   case class Template(
