@@ -47,15 +47,14 @@ object Run {
   ): F[Unit] =
     Validator
       .validate(context)
-      .toEither
-      .left
-      .map(errors =>
-        new IllegalArgumentException(
-          Validator.formatErrors(Validator.validate(context)).getOrElse("Validation failed")
+      .toEither match {
+      case Right(_) => MonadThrow[F].unit
+      case Left(_) =>
+        MonadThrow[F].raiseError[Unit](
+          new IllegalArgumentException(
+            Validator.formatErrors(Validator.validate(context)).getOrElse("Validation failed")
+          )
         )
-      ) match {
-      case Right(_)  => MonadThrow[F].unit
-      case Left(err) => MonadThrow[F].raiseError[Unit](err)
     }
 
   implicit def runF[F[_]: MonadThrow]: Run[F] = new Run[F] {
