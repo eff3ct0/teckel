@@ -65,6 +65,7 @@ object transformation {
       case e: EnrichT        => e.asJson
       case a: AssertionT     => a.asJson
       case s: SchemaEnforceT => s.asJson
+      case cu: CustomT       => cu.asJson
     }
 
   implicit val decodeEvent: Decoder[Transformation] =
@@ -98,7 +99,8 @@ object transformation {
       Decoder[SCD2T].widen,
       Decoder[EnrichT].widen,
       Decoder[AssertionT].widen,
-      Decoder[SchemaEnforceT].widen
+      Decoder[SchemaEnforceT].widen,
+      Decoder[CustomT].widen
     ).reduceLeft(_ or _)
 
   case class Select(name: String, select: SelectOp)       extends Transformation
@@ -148,5 +150,7 @@ object transformation {
   case class AssertionT(name: String, assertion: AssertionOp) extends Transformation
 
   case class SchemaEnforceT(name: String, schemaEnforce: SchemaEnforceOp) extends Transformation
+
+  case class CustomT(name: String, custom: CustomOp) extends Transformation
 
 }

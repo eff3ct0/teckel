@@ -192,5 +192,8 @@ object DocGen {
         }
         .mkString(", ")
       s"- **Type**: Data Quality Assertion\n- **From**: ${s.assetRef}\n- **On Failure**: ${s.onFailure}\n- **Checks**: $checks\n"
+    case s: Custom =>
+      val opts = s.options.map { case (k, v) => s"$k=$v" }.mkString(", ")
+      s"- **Type**: Custom Plugin\n- **From**: ${s.assetRef}\n- **Component**: ${s.component}\n- **Options**: $opts\n"
   }
 }

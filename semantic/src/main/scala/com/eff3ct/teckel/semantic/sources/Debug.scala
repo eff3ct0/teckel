@@ -73,6 +73,7 @@ object Debug {
       case s: Enrich        => enrich(df, s)
       case s: SchemaEnforce => schemaEnforce(df, s)
       case s: Assertion     => assertion(df, s)
+      case s: Custom        => custom(df, s)
     }
 
   /** Select */
@@ -363,6 +364,14 @@ object Debug {
       }
     }
     df
+  }
+
+  /** Custom */
+  def custom[S <: Custom](df: DataFrame, source: S): DataFrame = {
+    import com.eff3ct.teckel.model.plugin.PluginRegistry
+    import com.eff3ct.teckel.semantic.plugin.TeckelTransformer
+    val transformer = PluginRegistry.resolve[TeckelTransformer]("transformer", source.component)
+    transformer.transform(source.options, df)
   }
 
   /** Join */

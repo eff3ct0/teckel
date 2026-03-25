@@ -112,6 +112,9 @@ object Source {
       columns: Option[NonEmptyList[Column]]
   ) extends Transformation
 
+  case class Custom(assetRef: AssetRef, component: String, options: Map[String, String])
+      extends Transformation
+
   case class Coalesce(assetRef: AssetRef, numPartitions: Int) extends Transformation
 
   case class Rollup(assetRef: AssetRef, by: NonEmptyList[Column], aggregate: NonEmptyList[Column])

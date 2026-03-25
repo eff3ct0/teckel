@@ -55,9 +55,19 @@ private[teckel] object etl {
       onFailure: Option[List[NotificationTarget]] = None
   )
 
+  case class ComponentDef(name: Option[String] = None, `class`: Option[String] = None)
+
+  case class ComponentsConfig(
+      readers: Option[List[Map[String, ComponentDef]]] = None,
+      transformers: Option[List[Map[String, ComponentDef]]] = None,
+      writers: Option[List[Map[String, ComponentDef]]] = None
+  )
+
   case class PipelineConfig(
+      backend: Option[String] = None,
       cache: Option[CachePolicy] = None,
-      notifications: Option[NotificationConfig] = None
+      notifications: Option[NotificationConfig] = None,
+      components: Option[ComponentsConfig] = None
   )
 
   case class Template(
