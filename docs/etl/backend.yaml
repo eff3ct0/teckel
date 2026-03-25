@@ -1,0 +1,13 @@
+config:
+  backend: spark  # "spark" (default) | "datafusion" (future)
+
+input:
+  - name: events
+    format: parquet
+    path: /data/events
+
+output:
+  - name: events
+    format: parquet
+    mode: overwrite
+    path: /data/output
