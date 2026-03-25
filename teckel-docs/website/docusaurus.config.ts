@@ -11,10 +11,10 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://teckel.eff3ct.com',
-  baseUrl: '/',
+  url: 'https://eff3ct0.github.io',
+  baseUrl: '/teckel/',
 
-  organizationName: 'eff3ct',
+  organizationName: 'eff3ct0',
   projectName: 'teckel',
 
   onBrokenLinks: 'throw',
@@ -39,7 +39,7 @@ const config: Config = {
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
           editUrl:
-            'https://github.com/eff3ct/teckel/edit/master/teckel-docs/website/',
+            'https://github.com/eff3ct0/teckel/edit/master/teckel-docs/website/',
         },
         blog: false,
         theme: {
@@ -70,7 +70,7 @@ const config: Config = {
           label: 'Documentation',
         },
         {
-          href: 'https://github.com/eff3ct/teckel',
+          href: 'https://github.com/eff3ct0/teckel',
           label: 'GitHub',
           position: 'right',
         },
@@ -89,11 +89,11 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/eff3ct/teckel',
+              href: 'https://github.com/eff3ct0/teckel',
             },
             {
               label: 'MIT License',
-              href: 'https://github.com/eff3ct/teckel/blob/master/LICENSE',
+              href: 'https://github.com/eff3ct0/teckel/blob/master/LICENSE',
             },
             {
               label: 'Maven Central',
