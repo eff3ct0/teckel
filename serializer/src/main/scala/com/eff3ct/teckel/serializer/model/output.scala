@@ -55,4 +55,31 @@ object output {
   }
 
   implicit val encodeOutput: Encoder[Output] = deriveEncoder[Output]
+
+  case class StreamingOutput(
+      name: String,
+      format: String,
+      options: Map[String, PrimitiveType] = Map.empty,
+      path: Option[String] = None,
+      outputMode: Option[String] = None,
+      checkpointLocation: Option[String] = None,
+      trigger: Option[String] = None
+  )
+
+  implicit val decodeStreamingOutput: Decoder[StreamingOutput] = (c: HCursor) => {
+    for {
+      name               <- c.downField("name").as[String]
+      format             <- c.downField("format").as[String]
+      options            <- c
+        .downField("options")
+        .as[Map[String, PrimitiveType]]
+        .orElse(Right(Map.empty[String, PrimitiveType]))
+      path               <- c.downField("path").as[Option[String]]
+      outputMode         <- c.downField("outputMode").as[Option[String]]
+      checkpointLocation <- c.downField("checkpointLocation").as[Option[String]]
+      trigger            <- c.downField("trigger").as[Option[String]]
+    } yield StreamingOutput(name, format, options, path, outputMode, checkpointLocation, trigger)
+  }
+
+  implicit val encodeStreamingOutput: Encoder[StreamingOutput] = deriveEncoder[StreamingOutput]
 }
