@@ -63,12 +63,18 @@ object Console {
 
     val graphIdx = filteredArgs.indexOf("--graph")
     val (graph, argsWithoutGraph) = if (graphIdx >= 0 && graphIdx + 1 < filteredArgs.length) {
-      (Some(filteredArgs(graphIdx + 1)), filteredArgs.take(graphIdx) ++ filteredArgs.drop(graphIdx + 2))
+      (
+        Some(filteredArgs(graphIdx + 1)),
+        filteredArgs.take(graphIdx) ++ filteredArgs.drop(graphIdx + 2)
+      )
     } else (None, filteredArgs)
 
     val envIdx = argsWithoutGraph.indexOf("--env")
     val (env, argsWithoutEnv) = if (envIdx >= 0 && envIdx + 1 < argsWithoutGraph.length) {
-      (Some(argsWithoutGraph(envIdx + 1)), argsWithoutGraph.take(envIdx) ++ argsWithoutGraph.drop(envIdx + 2))
+      (
+        Some(argsWithoutGraph(envIdx + 1)),
+        argsWithoutGraph.take(envIdx) ++ argsWithoutGraph.drop(envIdx + 2)
+      )
     } else (None, argsWithoutGraph)
 
     argsWithoutEnv match {
@@ -83,7 +89,7 @@ object Console {
 
   def eval[F[_]: Files: Async: Run, O: EvalContext](commands: Commands): fs2.Stream[F, O] =
     commands match {
-      case STDIN(variables)                 => Parser.parseStdin[F, O](variables)
+      case STDIN(variables)                    => Parser.parseStdin[F, O](variables)
       case FILE(file, variables, _, _, env, _) => Parser.parseFile[F, O](file, variables, env)
     }
 

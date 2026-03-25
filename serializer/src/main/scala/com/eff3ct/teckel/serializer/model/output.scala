@@ -68,9 +68,9 @@ object output {
 
   implicit val decodeStreamingOutput: Decoder[StreamingOutput] = (c: HCursor) => {
     for {
-      name               <- c.downField("name").as[String]
-      format             <- c.downField("format").as[String]
-      options            <- c
+      name   <- c.downField("name").as[String]
+      format <- c.downField("format").as[String]
+      options <- c
         .downField("options")
         .as[Map[String, PrimitiveType]]
         .orElse(Right(Map.empty[String, PrimitiveType]))

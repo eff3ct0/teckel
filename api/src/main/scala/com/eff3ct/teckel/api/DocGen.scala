@@ -184,11 +184,13 @@ object DocGen {
           .map(c => s"${c.name}:${c.dataType}${c.nullable.map(n => s" nullable=$n").getOrElse("")}${c.default.map(d => s" default=$d").getOrElse("")}")
           .mkString(", ")}\n"
     case s: Assertion =>
-      val checks = s.checks.toList.map { c =>
-        val col  = c.column.map(v => s"on column `$v`").getOrElse("dataset-level")
-        val desc = c.description.getOrElse(c.rule)
-        s"$desc ($col, rule=`${c.rule}`)"
-      }.mkString(", ")
+      val checks = s.checks.toList
+        .map { c =>
+          val col  = c.column.map(v => s"on column `$v`").getOrElse("dataset-level")
+          val desc = c.description.getOrElse(c.rule)
+          s"$desc ($col, rule=`${c.rule}`)"
+        }
+        .mkString(", ")
       s"- **Type**: Data Quality Assertion\n- **From**: ${s.assetRef}\n- **On Failure**: ${s.onFailure}\n- **Checks**: $checks\n"
   }
 }

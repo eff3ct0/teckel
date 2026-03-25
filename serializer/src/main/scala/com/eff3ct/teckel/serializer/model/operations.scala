@@ -201,9 +201,17 @@ object operations {
       headers: Option[Map[String, String]]
   ) extends Operation
 
-  case class SchemaColumnDef(name: String, dataType: String, nullable: Option[Boolean], default: Option[String])
-  case class SchemaEnforceOp(from: String, columns: NonEmptyList[SchemaColumnDef], mode: Option[String])
-      extends Operation
+  case class SchemaColumnDef(
+      name: String,
+      dataType: String,
+      nullable: Option[Boolean],
+      default: Option[String]
+  )
+  case class SchemaEnforceOp(
+      from: String,
+      columns: NonEmptyList[SchemaColumnDef],
+      mode: Option[String]
+  ) extends Operation
 
   case class QualityCheckDef(column: Option[String], rule: String, description: Option[String])
 

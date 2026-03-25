@@ -235,7 +235,8 @@ object DryRun {
         PlanStep(
           ref,
           "SCD2",
-          s"keyColumns=[${s.keyColumns.toList.mkString(", ")}], trackColumns=[${s.trackColumns.toList.mkString(", ")}]",
+          s"keyColumns=[${s.keyColumns.toList
+              .mkString(", ")}], trackColumns=[${s.trackColumns.toList.mkString(", ")}]",
           List(s.assetRef)
         )
       case s: Enrich =>
@@ -255,11 +256,13 @@ object DryRun {
           List(s.assetRef)
         )
       case s: Assertion =>
-        val checks = s.checks.toList.map { c =>
-          val col  = c.column.map(v => s"column=$v, ").getOrElse("")
-          val desc = c.description.map(v => s" ($v)").getOrElse("")
-          s"${col}rule=${c.rule}$desc"
-        }.mkString("; ")
+        val checks = s.checks.toList
+          .map { c =>
+            val col  = c.column.map(v => s"column=$v, ").getOrElse("")
+            val desc = c.description.map(v => s" ($v)").getOrElse("")
+            s"${col}rule=${c.rule}$desc"
+          }
+          .mkString("; ")
         PlanStep(
           ref,
           "ASSERTION",

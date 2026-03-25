@@ -163,7 +163,12 @@ object Source {
       headers: Option[Map[String, String]]
   ) extends Transformation
 
-  case class SchemaColumn(name: Column, dataType: String, nullable: Option[Boolean], default: Option[String])
+  case class SchemaColumn(
+      name: Column,
+      dataType: String,
+      nullable: Option[Boolean],
+      default: Option[String]
+  )
 
   case class SchemaEnforce(assetRef: AssetRef, columns: NonEmptyList[SchemaColumn], mode: String)
       extends Transformation

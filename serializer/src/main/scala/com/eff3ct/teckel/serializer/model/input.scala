@@ -63,8 +63,8 @@ object input {
 
   implicit val decodeStreamingInput: Decoder[StreamingInput] = (c: HCursor) => {
     for {
-      name    <- c.downField("name").as[String]
-      format  <- c.downField("format").as[String]
+      name   <- c.downField("name").as[String]
+      format <- c.downField("format").as[String]
       options <- c
         .downField("options")
         .as[Map[String, PrimitiveType]]

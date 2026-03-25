@@ -277,7 +277,7 @@ object Debug {
   def conditional[S <: Conditional](df: DataFrame, source: S): DataFrame = {
     import org.apache.spark.sql.functions.{when, lit}
     val firstBranch = source.branches.head
-    var colExpr = when(expr(firstBranch.condition), expr(firstBranch.value))
+    var colExpr     = when(expr(firstBranch.condition), expr(firstBranch.value))
     source.branches.tail.foreach { branch =>
       colExpr = colExpr.when(expr(branch.condition), expr(branch.value))
     }

@@ -106,7 +106,7 @@ object GraphViz {
   }
 
   def toAscii(context: Context[Asset]): String = {
-    val sb = new StringBuilder("Pipeline DAG:\n")
+    val sb         = new StringBuilder("Pipeline DAG:\n")
     val inputs     = context.filter(_._2.source.isInstanceOf[Input]).keys
     val outputs    = context.filter(_._2.source.isInstanceOf[Output]).keys
     val transforms = context.filter(e => e._2.source.isInstanceOf[Transformation]).keys
