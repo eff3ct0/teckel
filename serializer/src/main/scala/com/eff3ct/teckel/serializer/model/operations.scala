@@ -36,18 +36,18 @@ object operations {
 
   implicit val encodeEvent: Encoder[Operation] =
     Encoder.instance {
-      case s: SelectOp  => s.asJson
-      case w: WhereOp   => w.asJson
-      case g: GroupByOp => g.asJson
-      case o: OrderByOp => o.asJson
-      case j: JoinOp    => j.asJson
-      case d: DistinctOp => d.asJson
-      case l: LimitOp    => l.asJson
+      case s: SelectOp        => s.asJson
+      case w: WhereOp         => w.asJson
+      case g: GroupByOp       => g.asJson
+      case o: OrderByOp       => o.asJson
+      case j: JoinOp          => j.asJson
+      case d: DistinctOp      => d.asJson
+      case l: LimitOp         => l.asJson
       case a: AddColumnsOp    => a.asJson
       case d: DropColumnsOp   => d.asJson
       case r: RenameColumnsOp => r.asJson
       case c: CastColumnsOp   => c.asJson
-      case s: SqlOp            => s.asJson
+      case s: SqlOp           => s.asJson
       case u: UnionOp         => u.asJson
       case i: IntersectOp     => i.asJson
       case e: ExceptOp        => e.asJson
@@ -95,16 +95,16 @@ object operations {
   case class OrderByOp(from: String, by: NonEmptyList[String], order: Option[String])
       extends Operation
 
-  case class JoinOp(left: String, right: NonEmptyList[Relation]) extends Operation
+  case class JoinOp(left: String, right: NonEmptyList[Relation])             extends Operation
   case class DistinctOp(from: String, columns: Option[NonEmptyList[String]]) extends Operation
   case class LimitOp(from: String, count: Int)                               extends Operation
 
   case class ColumnDef(name: String, expression: String)
   case class CastColumnDef(name: String, targetType: String)
 
-  case class AddColumnsOp(from: String, columns: NonEmptyList[ColumnDef])     extends Operation
-  case class DropColumnsOp(from: String, columns: NonEmptyList[String])       extends Operation
-  case class RenameColumnsOp(from: String, mappings: Map[String, String])     extends Operation
+  case class AddColumnsOp(from: String, columns: NonEmptyList[ColumnDef])      extends Operation
+  case class DropColumnsOp(from: String, columns: NonEmptyList[String])        extends Operation
+  case class RenameColumnsOp(from: String, mappings: Map[String, String])      extends Operation
   case class CastColumnsOp(from: String, columns: NonEmptyList[CastColumnDef]) extends Operation
   case class SqlOp(from: String, query: String)                                extends Operation
 
@@ -124,8 +124,12 @@ object operations {
   case class FlattenOp(from: String, separator: Option[String], explodeArrays: Option[Boolean])
       extends Operation
 
-  case class SampleOp(from: String, fraction: Double, withReplacement: Option[Boolean], seed: Option[Long])
-      extends Operation
+  case class SampleOp(
+      from: String,
+      fraction: Double,
+      withReplacement: Option[Boolean],
+      seed: Option[Long]
+  ) extends Operation
 
   case class RepartitionOp(from: String, numPartitions: Int, columns: Option[NonEmptyList[String]])
       extends Operation
@@ -145,18 +149,18 @@ object operations {
   implicit val encodeRelationType: Encoder[Relation] =
     Encoder.instance { r =>
       Json.obj(
-        "name"    -> r.name.asJson,
-        "type"    -> r.relationType.asJson,
-        "on"      -> r.on.asJson
+        "name" -> r.name.asJson,
+        "type" -> r.relationType.asJson,
+        "on"   -> r.on.asJson
       )
     }
 
   implicit val decodeRelationType: Decoder[Relation] =
     Decoder.instance { c =>
       for {
-        name    <- c.downField("name").as[String]
+        name         <- c.downField("name").as[String]
         relationType <- c.downField("type").as[String]
-        on      <- c.downField("on").as[List[String]]
+        on           <- c.downField("on").as[List[String]]
       } yield Relation(name, relationType, on)
     }
 

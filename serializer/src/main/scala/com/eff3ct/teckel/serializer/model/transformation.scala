@@ -35,13 +35,13 @@ object transformation {
 
   implicit val encodeEvent: Encoder[Transformation] =
     Encoder.instance {
-      case s: Select  => s.asJson
-      case w: Where   => w.asJson
-      case g: GroupBy => g.asJson
-      case o: OrderBy => o.asJson
-      case j: Join    => j.asJson
-      case d: Distinct => d.asJson
-      case l: Limit    => l.asJson
+      case s: Select        => s.asJson
+      case w: Where         => w.asJson
+      case g: GroupBy       => g.asJson
+      case o: OrderBy       => o.asJson
+      case j: Join          => j.asJson
+      case d: Distinct      => d.asJson
+      case l: Limit         => l.asJson
       case a: AddColumns    => a.asJson
       case d: DropColumns   => d.asJson
       case r: RenameColumns => r.asJson
@@ -55,6 +55,8 @@ object transformation {
       case s: SampleT       => s.asJson
       case r: RepartitionT  => r.asJson
       case c: CoalesceT     => c.asJson
+      case ro: RollupT      => ro.asJson
+      case cu: CubeT        => cu.asJson
       case s: SplitT        => s.asJson
     }
 
@@ -80,24 +82,26 @@ object transformation {
       Decoder[SampleT].widen,
       Decoder[RepartitionT].widen,
       Decoder[CoalesceT].widen,
+      Decoder[RollupT].widen,
+      Decoder[CubeT].widen,
       Decoder[SplitT].widen
     ).reduceLeft(_ or _)
 
-  case class Select(name: String, select: SelectOp)  extends Transformation
-  case class Where(name: String, where: WhereOp)     extends Transformation
-  case class GroupBy(name: String, group: GroupByOp) extends Transformation
-  case class OrderBy(name: String, order: OrderByOp) extends Transformation
-  case class Join(name: String, join: JoinOp)        extends Transformation
+  case class Select(name: String, select: SelectOp)       extends Transformation
+  case class Where(name: String, where: WhereOp)          extends Transformation
+  case class GroupBy(name: String, group: GroupByOp)      extends Transformation
+  case class OrderBy(name: String, order: OrderByOp)      extends Transformation
+  case class Join(name: String, join: JoinOp)             extends Transformation
   case class Distinct(name: String, distinct: DistinctOp) extends Transformation
   case class Limit(name: String, limit: LimitOp)          extends Transformation
 
-  case class AddColumns(name: String, addColumns: AddColumnsOp)       extends Transformation
-  case class DropColumns(name: String, dropColumns: DropColumnsOp)    extends Transformation
+  case class AddColumns(name: String, addColumns: AddColumnsOp)          extends Transformation
+  case class DropColumns(name: String, dropColumns: DropColumnsOp)       extends Transformation
   case class RenameColumns(name: String, renameColumns: RenameColumnsOp) extends Transformation
-  case class CastColumns(name: String, castColumns: CastColumnsOp)    extends Transformation
-  case class SqlExpr(name: String, sql: SqlOp)                        extends Transformation
+  case class CastColumns(name: String, castColumns: CastColumnsOp)       extends Transformation
+  case class SqlExpr(name: String, sql: SqlOp)                           extends Transformation
 
-  case class UnionT(name: String, union: UnionOp)            extends Transformation
+  case class UnionT(name: String, union: UnionOp)             extends Transformation
   case class IntersectT(name: String, intersect: IntersectOp) extends Transformation
   case class ExceptT(name: String, except: ExceptOp)          extends Transformation
 
@@ -110,6 +114,10 @@ object transformation {
   case class RepartitionT(name: String, repartition: RepartitionOp) extends Transformation
 
   case class CoalesceT(name: String, coalesce: CoalesceOp) extends Transformation
+
+  case class RollupT(name: String, rollup: RollupOp) extends Transformation
+
+  case class CubeT(name: String, cube: CubeOp) extends Transformation
 
   case class SplitT(name: String, split: SplitOp) extends Transformation
 

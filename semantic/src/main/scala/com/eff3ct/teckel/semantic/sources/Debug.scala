@@ -28,8 +28,8 @@ import cats.data.NonEmptyList
 import com.eff3ct.teckel.model.Context
 import com.eff3ct.teckel.model.Source._
 import org.apache.spark.sql.expressions.{Window => SparkWindow}
-import org.apache.spark.sql.functions.{expr, col, explode_outer}
-import org.apache.spark.sql.types.{StructType, ArrayType}
+import org.apache.spark.sql.functions.{col, explode_outer, expr}
+import org.apache.spark.sql.types.{ArrayType, StructType}
 import org.apache.spark.sql.{Column, DataFrame, RelationalGroupedDataset, SparkSession}
 
 object Debug {
@@ -44,13 +44,13 @@ object Debug {
       S: SparkSession
   ): DataFrame =
     source match {
-      case s: Select  => select(df, s)
-      case s: Where   => where(df, s)
-      case s: GroupBy => groupBy(df, s)
-      case s: OrderBy => orderBy(df, s)
-      case s: Join    => join(s, df, others)
-      case s: Distinct => distinct(df, s)
-      case s: Limit    => limit(df, s)
+      case s: Select        => select(df, s)
+      case s: Where         => where(df, s)
+      case s: GroupBy       => groupBy(df, s)
+      case s: OrderBy       => orderBy(df, s)
+      case s: Join          => join(s, df, others)
+      case s: Distinct      => distinct(df, s)
+      case s: Limit         => limit(df, s)
       case s: AddColumns    => addColumns(df, s)
       case s: DropColumns   => dropColumns(df, s)
       case s: RenameColumns => renameColumns(df, s)
@@ -64,6 +64,8 @@ object Debug {
       case s: Sample        => sample(df, s)
       case s: Repartition   => repartition(df, s)
       case s: Coalesce      => coalesce(df, s)
+      case s: Rollup        => rollup(df, s)
+      case s: Cube          => cube(df, s)
     }
 
   /** Select */
@@ -144,7 +146,11 @@ object Debug {
   }
 
   /** Intersect */
-  def intersect[S <: Intersect](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {
+  def intersect[S <: Intersect](
+      source: S,
+      df: DataFrame,
+      context: Context[DataFrame]
+  ): DataFrame = {
     val otherDfs = source.others.map(ref => context(ref))
     otherDfs.foldLeft(df) { (acc, other) =>
       if (source.all) acc.intersectAll(other) else acc.intersect(other)
@@ -173,7 +179,7 @@ object Debug {
 
   /** Flatten */
   def flatten[S <: Flatten](df: DataFrame, source: S): DataFrame = {
-    val sep = source.separator.getOrElse("_")
+    val sep     = source.separator.getOrElse("_")
     val explode = source.explodeArrays.getOrElse(true)
 
     def flattenSchema(schema: StructType, prefix: String): Array[Column] =
@@ -183,13 +189,19 @@ object Debug {
           case st: StructType =>
             flattenSchema(st, colName)
           case _: ArrayType if explode =>
-            Array(explode_outer(col(
-              if (prefix.isEmpty) field.name else s"$prefix.${field.name}"
-            )).as(colName))
+            Array(
+              explode_outer(
+                col(
+                  if (prefix.isEmpty) field.name else s"$prefix.${field.name}"
+                )
+              ).as(colName)
+            )
           case _ =>
-            Array(col(
-              if (prefix.isEmpty) field.name else s"$prefix.${field.name}"
-            ).as(colName))
+            Array(
+              col(
+                if (prefix.isEmpty) field.name else s"$prefix.${field.name}"
+              ).as(colName)
+            )
         }
       }
 
@@ -215,6 +227,24 @@ object Debug {
   /** Coalesce */
   def coalesce[S <: Coalesce](df: DataFrame, source: S): DataFrame =
     df.coalesce(source.numPartitions)
+
+  /** Rollup */
+  def rollup[S <: Rollup](df: DataFrame, source: S): DataFrame = {
+    val relDF = df.rollup(source.by.toList.map(df(_)): _*)
+    source.aggregate match {
+      case NonEmptyList(a, Nil)  => relDF.agg(expr(a))
+      case NonEmptyList(a, tail) => relDF.agg(expr(a), tail.map(expr): _*)
+    }
+  }
+
+  /** Cube */
+  def cube[S <: Cube](df: DataFrame, source: S): DataFrame = {
+    val relDF = df.cube(source.by.toList.map(df(_)): _*)
+    source.aggregate match {
+      case NonEmptyList(a, Nil)  => relDF.agg(expr(a))
+      case NonEmptyList(a, tail) => relDF.agg(expr(a), tail.map(expr): _*)
+    }
+  }
 
   /** Join */
   def join[S <: Join](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {

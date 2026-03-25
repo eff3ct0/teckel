@@ -125,16 +125,40 @@ object Rewrite {
     )
 
   def rewriteOp(item: FlattenT): Asset =
-    Asset(item.name, Source.Flatten(item.flatten.from, item.flatten.separator, item.flatten.explodeArrays))
+    Asset(
+      item.name,
+      Source.Flatten(item.flatten.from, item.flatten.separator, item.flatten.explodeArrays)
+    )
 
   def rewriteOp(item: SampleT): Asset =
-    Asset(item.name, Source.Sample(item.sample.from, item.sample.fraction, item.sample.withReplacement, item.sample.seed))
+    Asset(
+      item.name,
+      Source.Sample(
+        item.sample.from,
+        item.sample.fraction,
+        item.sample.withReplacement,
+        item.sample.seed
+      )
+    )
 
   def rewriteOp(item: RepartitionT): Asset =
-    Asset(item.name, Source.Repartition(item.repartition.from, item.repartition.numPartitions, item.repartition.columns))
+    Asset(
+      item.name,
+      Source.Repartition(
+        item.repartition.from,
+        item.repartition.numPartitions,
+        item.repartition.columns
+      )
+    )
 
   def rewriteOp(item: CoalesceT): Asset =
     Asset(item.name, Source.Coalesce(item.coalesce.from, item.coalesce.numPartitions))
+
+  def rewriteOp(item: RollupT): Asset =
+    Asset(item.name, Source.Rollup(item.rollup.from, item.rollup.by, item.rollup.agg))
+
+  def rewriteOp(item: CubeT): Asset =
+    Asset(item.name, Source.Cube(item.cube.from, item.cube.by, item.cube.agg))
 
   def rewriteOp(item: WindowT): Asset =
     Asset(
@@ -149,13 +173,13 @@ object Rewrite {
 
   def rewrite(item: Transformation): Asset =
     item match {
-      case s: Select  => rewriteOp(s)
-      case s: Where   => rewriteOp(s)
-      case s: GroupBy => rewriteOp(s)
-      case s: OrderBy => rewriteOp(s)
-      case s: Join    => rewriteOp(s)
-      case s: Distinct => rewriteOp(s)
-      case s: Limit    => rewriteOp(s)
+      case s: Select        => rewriteOp(s)
+      case s: Where         => rewriteOp(s)
+      case s: GroupBy       => rewriteOp(s)
+      case s: OrderBy       => rewriteOp(s)
+      case s: Join          => rewriteOp(s)
+      case s: Distinct      => rewriteOp(s)
+      case s: Limit         => rewriteOp(s)
       case s: AddColumns    => rewriteOp(s)
       case s: DropColumns   => rewriteOp(s)
       case s: RenameColumns => rewriteOp(s)
@@ -169,6 +193,8 @@ object Rewrite {
       case s: SampleT       => rewriteOp(s)
       case s: RepartitionT  => rewriteOp(s)
       case s: CoalesceT     => rewriteOp(s)
+      case s: RollupT       => rewriteOp(s)
+      case s: CubeT         => rewriteOp(s)
       case _: SplitT        => throw new IllegalStateException("SplitT is expanded in tcontext")
     }
 

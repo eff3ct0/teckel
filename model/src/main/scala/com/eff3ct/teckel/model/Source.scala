@@ -59,7 +59,8 @@ object Source {
 
   case class Join(assetRef: AssetRef, others: NonEmptyList[Relation]) extends Transformation
 
-  case class Distinct(assetRef: AssetRef, columns: Option[NonEmptyList[Column]]) extends Transformation
+  case class Distinct(assetRef: AssetRef, columns: Option[NonEmptyList[Column]])
+      extends Transformation
 
   case class Limit(assetRef: AssetRef, count: Int) extends Transformation
 
@@ -75,10 +76,12 @@ object Source {
 
   case class CastColumn(name: Column, targetType: String)
 
-  case class CastColumns(assetRef: AssetRef, columns: NonEmptyList[CastColumn]) extends Transformation
+  case class CastColumns(assetRef: AssetRef, columns: NonEmptyList[CastColumn])
+      extends Transformation
 
   case class Sql(assetRef: AssetRef, query: String) extends Transformation
-  case class Union(assetRef: AssetRef, others: NonEmptyList[AssetRef], all: Boolean) extends Transformation
+  case class Union(assetRef: AssetRef, others: NonEmptyList[AssetRef], all: Boolean)
+      extends Transformation
 
   case class Intersect(assetRef: AssetRef, others: NonEmptyList[AssetRef], all: Boolean)
       extends Transformation
@@ -96,11 +99,18 @@ object Source {
   case class Flatten(assetRef: AssetRef, separator: Option[String], explodeArrays: Option[Boolean])
       extends Transformation
 
-  case class Sample(assetRef: AssetRef, fraction: Double, withReplacement: Option[Boolean], seed: Option[Long])
-      extends Transformation
+  case class Sample(
+      assetRef: AssetRef,
+      fraction: Double,
+      withReplacement: Option[Boolean],
+      seed: Option[Long]
+  ) extends Transformation
 
-  case class Repartition(assetRef: AssetRef, numPartitions: Int, columns: Option[NonEmptyList[Column]])
-      extends Transformation
+  case class Repartition(
+      assetRef: AssetRef,
+      numPartitions: Int,
+      columns: Option[NonEmptyList[Column]]
+  ) extends Transformation
 
   case class Coalesce(assetRef: AssetRef, numPartitions: Int) extends Transformation
 

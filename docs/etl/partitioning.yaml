@@ -1,0 +1,23 @@
+input:
+  - name: sales
+    format: parquet
+    path: 'data/parquet/sales'
+
+transformation:
+  - name: repartitioned
+    repartition:
+      from: sales
+      numPartitions: 8
+      columns:
+        - region
+
+  - name: coalesced
+    coalesce:
+      from: repartitioned
+      numPartitions: 2
+
+output:
+  - name: coalesced
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/sales_partitioned'
