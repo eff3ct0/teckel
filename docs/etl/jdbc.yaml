@@ -1,0 +1,16 @@
+input:
+  - name: dbTable
+    format: jdbc
+    path: ''
+    options:
+      url: 'jdbc:postgresql://host:5432/mydb'
+      dbtable: 'schema.table_name'
+      user: '{{secrets.db_user}}'
+      password: '{{secrets.db_password}}'
+      driver: 'org.postgresql.Driver'
+
+output:
+  - name: dbTable
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/db_export'

@@ -1,0 +1,16 @@
+input:
+  - name: orders
+    format: parquet
+    path: 'data/parquet/orders'
+
+transformation:
+  - name: validated
+    where:
+      from: orders
+      filter: 'amount > 0 AND customer_id IS NOT NULL'
+
+output:
+  - name: validated
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/validated_orders'

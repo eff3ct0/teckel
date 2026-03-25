@@ -1,0 +1,16 @@
+input:
+  - name: deltaSource
+    format: delta
+    path: 'data/delta/events'
+
+transformation:
+  - name: recent
+    where:
+      from: deltaSource
+      filter: 'event_date >= current_date() - 7'
+
+output:
+  - name: recent
+    format: delta
+    mode: overwrite
+    path: 'data/delta/recent_events'
