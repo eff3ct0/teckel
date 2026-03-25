@@ -27,6 +27,7 @@ package com.eff3ct.teckel.app
 import cats.effect.{Async, ExitCode, IO}
 import com.eff3ct.teckel.api.{DocGen, DryRun, GraphViz}
 import com.eff3ct.teckel.api.core.Run
+import com.eff3ct.teckel.api.server.TeckelServer
 import com.eff3ct.teckel.api.spark.SparkETL
 import com.eff3ct.teckel.io.Console
 import com.eff3ct.teckel.semantic.core.EvalContext
@@ -70,6 +71,12 @@ object Main extends SparkETL {
             case Right(graph) => println(graph)
             case Left(err)    => println(s"Error: ${err.getMessage}")
           }
+          ExitCode.Success
+        }
+      case Console.SERVER(port) =>
+        IO {
+          TeckelServer.start(port)
+          Thread.currentThread().join()
           ExitCode.Success
         }
       case _ =>
