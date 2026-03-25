@@ -23,7 +23,8 @@
  */
 
 package com.eff3ct.teckel
-import scala.collection.mutable.{Map => MMap}
+import java.util.concurrent.ConcurrentHashMap
+import scala.jdk.CollectionConverters._
 
 package object model {
 
@@ -33,8 +34,11 @@ package object model {
   type Mode       = String
   type Options    = Map[String, String]
   type Context[T] = Map[AssetRef, T]
-  // TODO. Use a Effect Mutable State to keep track of the already evaluated assets
-  type Mutex[T] = MMap[AssetRef, T]
+  type Mutex[T]   = scala.collection.concurrent.Map[AssetRef, T]
+
+  object Mutex {
+    def empty[T]: Mutex[T] = new ConcurrentHashMap[AssetRef, T]().asScala
+  }
 
   type Column       = String
   type Condition    = String

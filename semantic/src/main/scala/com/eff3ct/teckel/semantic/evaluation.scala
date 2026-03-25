@@ -30,8 +30,6 @@ import com.eff3ct.teckel.semantic.core._
 import com.eff3ct.teckel.semantic.sources._
 import org.apache.spark.sql._
 
-import scala.collection.mutable.{Map => MMap}
-
 object evaluation {
 
   private def register(
@@ -45,7 +43,7 @@ object evaluation {
 
   implicit def debug(implicit S: SparkSession): EvalAsset[DataFrame] =
     new EvalAsset[DataFrame] {
-      val global: Mutex[DataFrame] = MMap()
+      val global: Mutex[DataFrame] = Mutex.empty[DataFrame]
       override def eval(context: Context[Asset], asset: Asset): DataFrame = {
         val registerCallBack: DataFrame => DataFrame     = register(global, asset, _)
         val getTableCallBack: Asset => Option[DataFrame] = a => global.get(a.assetRef)
