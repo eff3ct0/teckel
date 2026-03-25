@@ -38,7 +38,8 @@ object Console {
       variables: Map[String, String],
       dryRun: Boolean = false,
       doc: Boolean = false,
-      env: Option[String] = None
+      env: Option[String] = None,
+      graph: Option[String] = None
   ) extends Commands
 
   def parseCommand(args: List[String]): Commands = {
@@ -57,27 +58,39 @@ object Console {
       }
       .toMap
 
-    val filteredArgs = args.filterNot(a => a.startsWith("-D") || a == "--dry-run" || a == "--doc")
+    val filteredArgs =
+      args.filterNot(a => a.startsWith("-D") || a == "--dry-run" || a == "--doc")
 
-    val envIdx = filteredArgs.indexOf("--env")
-    val (env, argsWithoutEnv) = if (envIdx >= 0 && envIdx + 1 < filteredArgs.length) {
-      (Some(filteredArgs(envIdx + 1)), filteredArgs.take(envIdx) ++ filteredArgs.drop(envIdx + 2))
+    val graphIdx = filteredArgs.indexOf("--graph")
+    val (graph, argsWithoutGraph) = if (graphIdx >= 0 && graphIdx + 1 < filteredArgs.length) {
+      (
+        Some(filteredArgs(graphIdx + 1)),
+        filteredArgs.take(graphIdx) ++ filteredArgs.drop(graphIdx + 2)
+      )
     } else (None, filteredArgs)
+
+    val envIdx = argsWithoutGraph.indexOf("--env")
+    val (env, argsWithoutEnv) = if (envIdx >= 0 && envIdx + 1 < argsWithoutGraph.length) {
+      (
+        Some(argsWithoutGraph(envIdx + 1)),
+        argsWithoutGraph.take(envIdx) ++ argsWithoutGraph.drop(envIdx + 2)
+      )
+    } else (None, argsWithoutGraph)
 
     argsWithoutEnv match {
       case "-c" :: Nil         => STDIN(variables)
-      case "-f" :: file :: Nil => FILE(file, variables, dryRun, doc, env)
+      case "-f" :: file :: Nil => FILE(file, variables, dryRun, doc, env, graph)
       case _ =>
         throw new IllegalArgumentException(
-          s"Invalid arguments: ${args.mkString(" ")}. Usage: -f <file> [--env <env>] [--dry-run] [--doc] [-D key=value ...] or -c [-D key=value ...]"
+          s"Invalid arguments: ${args.mkString(" ")}. Usage: -f <file> [--env <env>] [--dry-run] [--doc] [--graph <format>] [-D key=value ...] or -c [-D key=value ...]"
         )
     }
   }
 
   def eval[F[_]: Files: Async: Run, O: EvalContext](commands: Commands): fs2.Stream[F, O] =
     commands match {
-      case STDIN(variables)                 => Parser.parseStdin[F, O](variables)
-      case FILE(file, variables, _, _, env) => Parser.parseFile[F, O](file, variables, env)
+      case STDIN(variables)                    => Parser.parseStdin[F, O](variables)
+      case FILE(file, variables, _, _, env, _) => Parser.parseFile[F, O](file, variables, env)
     }
 
   def command[F[_]: Sync](args: List[String]): fs2.Stream[F, Commands] =

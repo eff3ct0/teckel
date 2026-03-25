@@ -232,36 +232,60 @@ object Rewrite {
       )
     )
 
+  def rewriteOp(item: SchemaEnforceT): Asset =
+    Asset(
+      item.name,
+      Source.SchemaEnforce(
+        item.schemaEnforce.from,
+        item.schemaEnforce.columns.map(c =>
+          Source.SchemaColumn(c.name, c.dataType, c.nullable, c.default)
+        ),
+        item.schemaEnforce.mode.getOrElse("strict")
+      )
+    )
+
+  def rewriteOp(item: AssertionT): Asset =
+    Asset(
+      item.name,
+      Source.Assertion(
+        item.assertion.from,
+        item.assertion.checks.map(c => Source.QualityCheck(c.column, c.rule, c.description)),
+        item.assertion.onFailure.getOrElse("fail")
+      )
+    )
+
   def rewrite(item: Transformation): Asset =
     item match {
-      case s: Select        => rewriteOp(s)
-      case s: Where         => rewriteOp(s)
-      case s: GroupBy       => rewriteOp(s)
-      case s: OrderBy       => rewriteOp(s)
-      case s: Join          => rewriteOp(s)
-      case s: Distinct      => rewriteOp(s)
-      case s: Limit         => rewriteOp(s)
-      case s: AddColumns    => rewriteOp(s)
-      case s: DropColumns   => rewriteOp(s)
-      case s: RenameColumns => rewriteOp(s)
-      case s: CastColumns   => rewriteOp(s)
-      case s: SqlExpr       => rewriteOp(s)
-      case s: UnionT        => rewriteOp(s)
-      case s: IntersectT    => rewriteOp(s)
-      case s: ExceptT       => rewriteOp(s)
-      case s: WindowT       => rewriteOp(s)
-      case s: FlattenT      => rewriteOp(s)
-      case s: SampleT       => rewriteOp(s)
-      case s: RepartitionT  => rewriteOp(s)
-      case s: CoalesceT     => rewriteOp(s)
-      case s: RollupT       => rewriteOp(s)
-      case s: CubeT         => rewriteOp(s)
-      case s: PivotT        => rewriteOp(s)
-      case s: UnpivotT      => rewriteOp(s)
-      case s: ConditionalT  => rewriteOp(s)
-      case s: SCD2T         => rewriteOp(s)
-      case s: EnrichT       => rewriteOp(s)
-      case _: SplitT        => throw new IllegalStateException("SplitT is expanded in tcontext")
+      case s: Select         => rewriteOp(s)
+      case s: Where          => rewriteOp(s)
+      case s: GroupBy        => rewriteOp(s)
+      case s: OrderBy        => rewriteOp(s)
+      case s: Join           => rewriteOp(s)
+      case s: Distinct       => rewriteOp(s)
+      case s: Limit          => rewriteOp(s)
+      case s: AddColumns     => rewriteOp(s)
+      case s: DropColumns    => rewriteOp(s)
+      case s: RenameColumns  => rewriteOp(s)
+      case s: CastColumns    => rewriteOp(s)
+      case s: SqlExpr        => rewriteOp(s)
+      case s: UnionT         => rewriteOp(s)
+      case s: IntersectT     => rewriteOp(s)
+      case s: ExceptT        => rewriteOp(s)
+      case s: WindowT        => rewriteOp(s)
+      case s: FlattenT       => rewriteOp(s)
+      case s: SampleT        => rewriteOp(s)
+      case s: RepartitionT   => rewriteOp(s)
+      case s: CoalesceT      => rewriteOp(s)
+      case s: RollupT        => rewriteOp(s)
+      case s: CubeT          => rewriteOp(s)
+      case s: PivotT         => rewriteOp(s)
+      case s: UnpivotT       => rewriteOp(s)
+      case s: ConditionalT   => rewriteOp(s)
+      case s: SCD2T          => rewriteOp(s)
+      case s: EnrichT        => rewriteOp(s)
+      case s: SchemaEnforceT => rewriteOp(s)
+      case s: AssertionT     => rewriteOp(s)
+      case _: SplitT         => throw new IllegalStateException("SplitT is expanded in tcontext")
     }
 
   def icontext(item: NonEmptyList[Input]): Context[Asset] =
