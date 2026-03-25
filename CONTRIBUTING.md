@@ -1,66 +1,123 @@
 # Contributing to Teckel
 
-Thank you for considering contributing to Teckel! We welcome contributions from the community to improve this project. Below are some guidelines to help you get started.
+Thank you for your interest in contributing to Teckel! This guide covers the development setup, testing, code style, and release process.
 
-## Code of Conduct
+## Development Setup
 
-Please adhere to our [Code of Conduct](CODE_OF_CONDUCT.md) during your interactions in the project repository. We strive to provide a welcoming and inclusive environment for all contributors.
+### Prerequisites
 
-## How to Contribute
+- **JDK 8 or 11** (CI runs against both)
+- **sbt** (Scala Build Tool)
+- **Scala 2.13.12**
 
-### 1. Fork the Repository
+### Getting Started
 
-Fork the repository on GitHub by clicking the "Fork" button at the top right of the page.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/eff3ct0/teckel.git
+   cd teckel
+   ```
 
-### 2. Clone Your Fork
+2. Compile the project:
+   ```bash
+   sbt compile
+   ```
 
-Clone your fork to your local machine:
+3. Build the CLI uber JAR:
+   ```bash
+   sbt cli/assembly
+   ```
 
-```sh
-git clone https://github.com/your-username/teckel.git
-cd teckel
+## Project Structure
+
+The project is organized into the following modules:
+
+```
+model --> serializer --> api --> cli
+  \-------> semantic -->/
 ```
 
-### 3. Create a Branch
+- **model**: Core data types (`Asset`, `Source`, transformations)
+- **serializer**: YAML parsing via Circe + FS2
+- **semantic**: ETL execution engine
+- **api**: Public library API
+- **cli**: Command-line entry point
+- **example**: Reference implementations
 
-Create a branch for your feature or bug fix:
+## Running Tests
 
-```sh
-git checkout -b my-feature-branch
+Run all tests with coverage:
+```bash
+sbt clean coverage test coverageReport coverageAggregate
 ```
 
-### 4. Make Changes
-
-Make your changes to the code. Ensure your code adheres to the project's coding standards.
-
-### 5. Commit Your Changes
-
-Commit your changes with a descriptive commit message:
-
-```sh
-git commit -m "Add feature X"
+Run tests for a specific module:
+```bash
+sbt "api/test"
+sbt "serializer/test"
+sbt "semantic/test"
 ```
 
-### 6. Push to Your Fork
+Tests run forked and non-parallel. The test framework is ScalaTest with Spark Testing Base. The coverage minimum is currently set at 30%.
 
-Push your changes to your fork on GitHub:
+## Code Style
 
-```sh
-git push origin my-feature-branch
+This project uses **scalafmt** for code formatting and **sbt-header** for license headers.
+
+Before submitting a pull request, run:
+```bash
+sbt headerCreateAll scalafmtAll
 ```
 
-### 7. Open a Pull Request
+This ensures all files have the MIT license header and are formatted consistently.
 
-Go to the original repository and open a pull request. Provide a clear and descriptive title and description of your changes.
+## Release Process
 
-## Code of Conduct
+Releases are published to **Maven Central** via `sbt-ci-release` and are triggered by version tags.
 
-Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms.
+### How Releases Work
+
+1. The CI pipeline (GitHub Actions) runs tests on both Java 8 and Java 11.
+2. Coverage reports are sent to Codecov.
+3. When a version tag is pushed (e.g., `v1.0.0`), `sbt ci-release` automatically:
+   - Determines the version from the git tag
+   - Publishes artifacts to Maven Central via Sonatype
+   - Signs artifacts with GPG
+
+### Publishing Settings
+
+The project's publication metadata is configured in `project/SonatypePublish.scala`:
+- **Organization**: `com.eff3ct`
+- **Homepage**: https://github.com/eff3ct0/teckel
+- **License**: MIT
+- **SCM**: https://github.com/eff3ct0/teckel
+
+### Creating a Release
+
+1. Ensure all tests pass on the `master` branch.
+2. Tag the commit with a version:
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+3. The CI pipeline will handle the rest.
+
+### Snapshot Releases
+
+Commits to `master` without a version tag produce SNAPSHOT versions that are not published to Maven Central.
+
+## Submitting Changes
+
+1. Fork the repository and create a feature branch.
+2. Make your changes and ensure tests pass.
+3. Run `sbt headerCreateAll scalafmtAll` to format code.
+4. Open a pull request against the `master` branch.
+5. Provide a clear description of the changes and their purpose.
 
 ## Reporting Issues
 
 If you find a bug or have a feature request, please create an issue on GitHub. Provide as much detail as possible to help us address it.
 
-## Thank You!
+## Example YAML Configurations
 
-Thank you for contributing to Teckel! Your help is greatly appreciated.
+Reference ETL configurations are available in `docs/etl/` for various transformation types (simple, complex, join, window, etc.). These serve as documentation and can be used for manual testing.
