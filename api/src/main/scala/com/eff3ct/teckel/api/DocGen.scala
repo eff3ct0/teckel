@@ -172,5 +172,12 @@ object DocGen {
       s"- **Type**: Conditional\n- **From**: ${s.assetRef}\n- **Output Column**: ${s.outputColumn}\n- **Branches**: ${s.branches.toList
           .map(b => s"when ${b.condition} then ${b.value}")
           .mkString("; ")}\n${s.otherwise.map(o => s"- **Otherwise**: $o\n").getOrElse("")}"
+    case s: SCD2 =>
+      s"- **Type**: SCD Type 2\n- **From**: ${s.assetRef}\n- **Key Columns**: ${s.keyColumns.toList
+          .mkString(", ")}\n- **Track Columns**: ${s.trackColumns.toList
+          .mkString(", ")}\n- **Start Date**: ${s.startDateColumn}\n- **End Date**: ${s.endDateColumn}\n- **Current Flag**: ${s.currentFlagColumn}\n"
+    case s: Enrich =>
+      s"- **Type**: API Enrichment\n- **From**: ${s.assetRef}\n- **URL**: ${s.url}\n- **Method**: ${s.method
+          .getOrElse("GET")}\n- **Key Column**: ${s.keyColumn}\n- **Response Column**: ${s.responseColumn}\n"
   }
 }
