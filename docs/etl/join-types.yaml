@@ -1,0 +1,109 @@
+input:
+  - name: employees
+    format: csv
+    path: 'data/csv/employees.csv'
+    options:
+      header: true
+      sep: ','
+
+  - name: departments
+    format: csv
+    path: 'data/csv/departments.csv'
+    options:
+      header: true
+      sep: ','
+
+  - name: salaries
+    format: parquet
+    path: 'data/parquet/salaries'
+
+transformation:
+
+  # INNER JOIN - only matching rows from both sides
+  - name: innerJoin
+    join:
+      left: employees
+      right:
+        - name: departments
+          type: inner
+          on:
+            - employees.dept_id == departments.dept_id
+
+  # LEFT JOIN - all rows from left, matching from right
+  - name: leftJoin
+    join:
+      left: employees
+      right:
+        - name: departments
+          type: left
+          on:
+            - employees.dept_id == departments.dept_id
+
+  # RIGHT JOIN - all rows from right, matching from left
+  - name: rightJoin
+    join:
+      left: employees
+      right:
+        - name: departments
+          type: right
+          on:
+            - employees.dept_id == departments.dept_id
+
+  # FULL OUTER JOIN - all rows from both sides
+  - name: fullOuterJoin
+    join:
+      left: employees
+      right:
+        - name: departments
+          type: outer
+          on:
+            - employees.dept_id == departments.dept_id
+
+  # CROSS JOIN - cartesian product
+  - name: crossJoin
+    join:
+      left: employees
+      right:
+        - name: departments
+          type: cross
+          on: []
+
+  # LEFT SEMI JOIN - rows from left that have a match in right
+  - name: semiJoin
+    join:
+      left: employees
+      right:
+        - name: departments
+          type: left_semi
+          on:
+            - employees.dept_id == departments.dept_id
+
+  # LEFT ANTI JOIN - rows from left that have no match in right
+  - name: antiJoin
+    join:
+      left: employees
+      right:
+        - name: departments
+          type: left_anti
+          on:
+            - employees.dept_id == departments.dept_id
+
+  # Multiple join types chained together
+  - name: multiJoin
+    join:
+      left: employees
+      right:
+        - name: departments
+          type: inner
+          on:
+            - employees.dept_id == departments.dept_id
+        - name: salaries
+          type: left
+          on:
+            - employees.emp_id == salaries.emp_id
+
+output:
+  - name: antiJoin
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/join_types_output'

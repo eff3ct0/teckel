@@ -52,7 +52,7 @@ object Parser {
           overlayContent <- Files[F].readUtf8(Path(envFile))
           merged = ConfigMerger.merge(baseContent, overlayContent) match {
             case Right(content) => content
-            case Left(err)      => throw new RuntimeException(s"Failed to merge configs: ${err.message}")
+            case Left(err) => throw new RuntimeException(s"Failed to merge configs: ${err.message}")
           }
           resolved = SecretResolver.resolve(VariableResolver.resolve(merged, variables))
           result <- fs2.Stream.eval(Run[F].run[O](resolved))

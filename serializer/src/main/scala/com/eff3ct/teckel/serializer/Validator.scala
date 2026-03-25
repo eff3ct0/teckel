@@ -99,13 +99,13 @@ object Validator {
 
   private def dependencies(ref: AssetRef, context: Context[Asset]): List[AssetRef] =
     context.get(ref).map(_.source).toList.flatMap {
-      case _: Input           => Nil
-      case s: Output          => List(s.assetRef)
-      case s: Join            => s.assetRef :: s.others.toList.map(_.name)
-      case s: Union           => s.assetRef :: s.others.toList
-      case s: Intersect       => s.assetRef :: s.others.toList
-      case s: Except          => List(s.assetRef, s.other)
-      case t: Transformation  => List(t.assetRef)
+      case _: Input          => Nil
+      case s: Output         => List(s.assetRef)
+      case s: Join           => s.assetRef :: s.others.toList.map(_.name)
+      case s: Union          => s.assetRef :: s.others.toList
+      case s: Intersect      => s.assetRef :: s.others.toList
+      case s: Except         => List(s.assetRef, s.other)
+      case t: Transformation => List(t.assetRef)
     }
 
   private def suggest(target: String, candidates: Iterable[String]): String = {
@@ -130,6 +130,8 @@ object Validator {
 
   def formatErrors(result: ValidationResult): Option[String] =
     result.toEither.left.toOption.map { errors =>
-      s"Pipeline validation failed with ${errors.size} error(s):\n${errors.toList.zipWithIndex.map { case (e, i) => s"  ${i + 1}. $e" }.mkString("\n")}"
+      s"Pipeline validation failed with ${errors.size} error(s):\n${errors.toList.zipWithIndex
+          .map { case (e, i) => s"  ${i + 1}. $e" }
+          .mkString("\n")}"
     }
 }
