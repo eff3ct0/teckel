@@ -1,0 +1,18 @@
+input:
+  - name: events
+    format: parquet
+    path: /data/events
+
+transformation:
+  - name: sampled_events
+    sample:
+      from: events
+      fraction: 0.1
+      withReplacement: false
+      seed: 42
+
+output:
+  - name: sampled_events
+    format: parquet
+    mode: overwrite
+    path: /data/sampled

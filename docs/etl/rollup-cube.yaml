@@ -1,0 +1,45 @@
+input:
+  - name: sales
+    format: csv
+    path: 'data/csv/sales.csv'
+    options:
+      header: true
+      sep: ','
+
+transformation:
+
+  # Rollup - hierarchical aggregation with subtotals
+  # Produces rows for (region, product), (region), and grand total
+  - name: salesRollup
+    rollup:
+      from: sales
+      by:
+        - region
+        - product
+      agg:
+        - sum(amount) as total_amount
+        - count(1) as num_sales
+
+  # Cube - multi-dimensional aggregation
+  # Produces rows for all combinations: (region, product), (region), (product), and grand total
+  - name: salesCube
+    cube:
+      from: sales
+      by:
+        - region
+        - product
+      agg:
+        - sum(amount) as total_amount
+        - avg(amount) as avg_amount
+        - count(1) as num_sales
+
+output:
+  - name: salesRollup
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/sales_rollup'
+
+  - name: salesCube
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/sales_cube'
