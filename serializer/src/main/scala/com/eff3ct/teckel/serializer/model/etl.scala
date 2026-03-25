@@ -32,10 +32,18 @@ import io.circe.generic.auto._
 
 private[teckel] object etl {
 
+  case class Hook(name: String, command: String)
+
+  case class Hooks(
+      preExecution: Option[List[Hook]],
+      postExecution: Option[List[Hook]]
+  )
+
   case class ETL(
       input: NonEmptyList[Input],
       transformation: Option[NonEmptyList[Transformation]],
-      output: NonEmptyList[Output]
+      output: NonEmptyList[Output],
+      hooks: Option[Hooks] = None
   )
 
   object ETL {

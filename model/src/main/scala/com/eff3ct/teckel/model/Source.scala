@@ -135,4 +135,13 @@ object Source {
       variableColumn: Column,
       valueColumn: Column
   ) extends Transformation
+
+  case class WhenBranch(condition: String, value: String)
+
+  case class Conditional(
+      assetRef: AssetRef,
+      outputColumn: Column,
+      branches: NonEmptyList[WhenBranch],
+      otherwise: Option[String]
+  ) extends Transformation
 }

@@ -195,6 +195,17 @@ object Rewrite {
       )
     )
 
+  def rewriteOp(item: ConditionalT): Asset =
+    Asset(
+      item.name,
+      Source.Conditional(
+        item.conditional.from,
+        item.conditional.outputColumn,
+        item.conditional.branches.map(b => Source.WhenBranch(b.condition, b.value)),
+        item.conditional.otherwise
+      )
+    )
+
   def rewrite(item: Transformation): Asset =
     item match {
       case s: Select        => rewriteOp(s)
@@ -221,6 +232,7 @@ object Rewrite {
       case s: CubeT         => rewriteOp(s)
       case s: PivotT        => rewriteOp(s)
       case s: UnpivotT      => rewriteOp(s)
+      case s: ConditionalT  => rewriteOp(s)
       case _: SplitT        => throw new IllegalStateException("SplitT is expanded in tcontext")
     }
 

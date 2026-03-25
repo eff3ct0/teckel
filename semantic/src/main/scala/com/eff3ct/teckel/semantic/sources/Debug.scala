@@ -68,6 +68,7 @@ object Debug {
       case s: Cube          => cube(df, s)
       case s: Pivot         => pivot(df, s)
       case s: Unpivot       => unpivot(df, s)
+      case s: Conditional   => conditional(df, s)
     }
 
   /** Select */
@@ -266,6 +267,21 @@ object Debug {
     val idCols    = source.ids.toList.map(col).toArray
     val valueCols = source.values.toList.map(col).toArray
     df.unpivot(idCols, valueCols, source.variableColumn, source.valueColumn)
+  }
+
+  /** Conditional */
+  def conditional[S <: Conditional](df: DataFrame, source: S): DataFrame = {
+    import org.apache.spark.sql.functions.{when, lit}
+    val firstBranch = source.branches.head
+    var colExpr = when(expr(firstBranch.condition), expr(firstBranch.value))
+    source.branches.tail.foreach { branch =>
+      colExpr = colExpr.when(expr(branch.condition), expr(branch.value))
+    }
+    val finalExpr = source.otherwise match {
+      case Some(ow) => colExpr.otherwise(expr(ow))
+      case None     => colExpr
+    }
+    df.withColumn(source.outputColumn, finalExpr)
   }
 
   /** Join */
