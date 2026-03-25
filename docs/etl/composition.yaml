@@ -1,0 +1,52 @@
+# Pipeline Composition Example
+# This shows how multiple pipelines can be composed together.
+# Each pipeline is defined independently and can reference outputs
+# from other pipelines as inputs.
+
+# Pipeline: ingest
+# Reads raw data and produces a cleaned dataset.
+input:
+  - name: raw_events
+    format: csv
+    path: /data/raw/events
+    options:
+      header: true
+
+transformation:
+  - name: clean_events
+    where:
+      from: raw_events
+      filter: "event_id IS NOT NULL"
+
+output:
+  - name: clean_events
+    format: parquet
+    mode: overwrite
+    path: /data/staging/clean_events
+
+# A second pipeline (e.g., enrich.yaml) would consume
+# the output of this pipeline:
+#
+# input:
+#   - name: clean_events
+#     format: parquet
+#     path: /data/staging/clean_events
+#
+#   - name: users
+#     format: parquet
+#     path: /data/dim/users
+#
+# transformation:
+#   - name: enriched_events
+#     join:
+#       left: clean_events
+#       right:
+#         - name: users
+#           relationType: left
+#           on: "clean_events.user_id = users.id"
+#
+# output:
+#   - name: enriched_events
+#     format: parquet
+#     mode: overwrite
+#     path: /data/output/enriched_events
