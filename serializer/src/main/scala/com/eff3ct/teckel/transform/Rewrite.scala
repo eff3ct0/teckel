@@ -206,6 +206,32 @@ object Rewrite {
       )
     )
 
+  def rewriteOp(item: SCD2T): Asset =
+    Asset(
+      item.name,
+      Source.SCD2(
+        item.scd2.from,
+        item.scd2.keyColumns,
+        item.scd2.trackColumns,
+        item.scd2.startDateColumn,
+        item.scd2.endDateColumn,
+        item.scd2.currentFlagColumn
+      )
+    )
+
+  def rewriteOp(item: EnrichT): Asset =
+    Asset(
+      item.name,
+      Source.Enrich(
+        item.enrich.from,
+        item.enrich.url,
+        item.enrich.method,
+        item.enrich.keyColumn,
+        item.enrich.responseColumn,
+        item.enrich.headers
+      )
+    )
+
   def rewrite(item: Transformation): Asset =
     item match {
       case s: Select        => rewriteOp(s)
@@ -233,6 +259,8 @@ object Rewrite {
       case s: PivotT        => rewriteOp(s)
       case s: UnpivotT      => rewriteOp(s)
       case s: ConditionalT  => rewriteOp(s)
+      case s: SCD2T         => rewriteOp(s)
+      case s: EnrichT       => rewriteOp(s)
       case _: SplitT        => throw new IllegalStateException("SplitT is expanded in tcontext")
     }
 

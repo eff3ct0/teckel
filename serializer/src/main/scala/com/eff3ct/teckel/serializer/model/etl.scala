@@ -39,11 +39,41 @@ private[teckel] object etl {
       postExecution: Option[List[Hook]]
   )
 
+  case class CachePolicy(
+      autoCacheThreshold: Option[Int] = None,
+      defaultStorageLevel: Option[String] = None
+  )
+
+  case class NotificationTarget(
+      channel: String, // "webhook", "log", "file"
+      url: Option[String] = None,
+      path: Option[String] = None
+  )
+
+  case class NotificationConfig(
+      onSuccess: Option[List[NotificationTarget]] = None,
+      onFailure: Option[List[NotificationTarget]] = None
+  )
+
+  case class PipelineConfig(
+      cache: Option[CachePolicy] = None,
+      notifications: Option[NotificationConfig] = None
+  )
+
+  case class Template(
+      name: String,
+      parameters: Option[Map[String, String]] = None
+  )
+
   case class ETL(
       input: NonEmptyList[Input],
       transformation: Option[NonEmptyList[Transformation]],
       output: NonEmptyList[Output],
-      hooks: Option[Hooks] = None
+      hooks: Option[Hooks] = None,
+      config: Option[PipelineConfig] = None,
+      templates: Option[List[Template]] = None,
+      streamingInput: Option[NonEmptyList[StreamingInput]] = None,
+      streamingOutput: Option[NonEmptyList[StreamingOutput]] = None
   )
 
   object ETL {

@@ -1,0 +1,33 @@
+config:
+  cache:
+    autoCacheThreshold: 3
+    defaultStorageLevel: MEMORY_AND_DISK
+
+input:
+  - name: events
+    format: parquet
+    path: /data/events
+
+  - name: users
+    format: parquet
+    path: /data/users
+
+transformation:
+  - name: filtered_events
+    where:
+      from: events
+      filter: "status = 'active'"
+
+  - name: enriched_events
+    select:
+      from: filtered_events
+      columns:
+        - event_id
+        - user_id
+        - event_type
+
+output:
+  - name: enriched_events
+    format: parquet
+    mode: overwrite
+    path: /data/output/enriched_events

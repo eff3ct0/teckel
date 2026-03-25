@@ -52,4 +52,27 @@ object input {
   }
 
   implicit val encodeInput: Encoder[Input] = deriveEncoder[Input]
+
+  case class StreamingInput(
+      name: String,
+      format: String,
+      options: Map[String, PrimitiveType] = Map.empty,
+      path: Option[String] = None,
+      trigger: Option[String] = None
+  )
+
+  implicit val decodeStreamingInput: Decoder[StreamingInput] = (c: HCursor) => {
+    for {
+      name    <- c.downField("name").as[String]
+      format  <- c.downField("format").as[String]
+      options <- c
+        .downField("options")
+        .as[Map[String, PrimitiveType]]
+        .orElse(Right(Map.empty[String, PrimitiveType]))
+      path    <- c.downField("path").as[Option[String]]
+      trigger <- c.downField("trigger").as[Option[String]]
+    } yield StreamingInput(name, format, options, path, trigger)
+  }
+
+  implicit val encodeStreamingInput: Encoder[StreamingInput] = deriveEncoder[StreamingInput]
 }

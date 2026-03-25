@@ -1,0 +1,47 @@
+# Notification Configuration Example
+#
+# Teckel supports pipeline notifications that trigger on success or failure.
+# Supported channels: "log", "webhook", "file"
+#
+# Configure notifications in the pipeline config section:
+#
+#   config:
+#     notifications:
+#       onSuccess:
+#         - channel: log
+#         - channel: webhook
+#           url: "https://hooks.example.com/pipeline-events"
+#       onFailure:
+#         - channel: log
+#         - channel: webhook
+#           url: "https://hooks.example.com/pipeline-alerts"
+#         - channel: file
+#           path: "/var/log/teckel/failures.log"
+
+input:
+  - asset: raw_events
+    format: parquet
+    path: "data/input/events.parquet"
+
+transformation:
+  - asset: filtered_events
+    from: raw_events
+    where:
+      - condition: "status = 'active'"
+
+output:
+  - asset: filtered_events
+    format: parquet
+    path: "data/output/filtered_events.parquet"
+    mode: overwrite
+
+config:
+  notifications:
+    onSuccess:
+      - channel: log
+      - channel: webhook
+        url: "https://hooks.example.com/pipeline-success"
+    onFailure:
+      - channel: log
+      - channel: webhook
+        url: "https://hooks.example.com/pipeline-failure"

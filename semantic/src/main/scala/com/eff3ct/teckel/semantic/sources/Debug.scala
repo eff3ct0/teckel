@@ -69,6 +69,8 @@ object Debug {
       case s: Pivot         => pivot(df, s)
       case s: Unpivot       => unpivot(df, s)
       case s: Conditional   => conditional(df, s)
+      case s: SCD2          => scd2(df, s)
+      case s: Enrich        => enrich(df, s)
     }
 
   /** Select */
@@ -282,6 +284,20 @@ object Debug {
       case None     => colExpr
     }
     df.withColumn(source.outputColumn, finalExpr)
+  }
+
+  /** SCD2 */
+  def scd2[S <: SCD2](df: DataFrame, source: S)(implicit S: SparkSession): DataFrame = {
+    import org.apache.spark.sql.functions._
+    df.withColumn(source.startDateColumn, current_timestamp())
+      .withColumn(source.endDateColumn, lit(null).cast("timestamp"))
+      .withColumn(source.currentFlagColumn, lit(true))
+  }
+
+  /** Enrich */
+  def enrich[S <: Enrich](df: DataFrame, source: S): DataFrame = {
+    import org.apache.spark.sql.functions.lit
+    df.withColumn(source.responseColumn, lit(s"[enrichment:${source.url}]"))
   }
 
   /** Join */
