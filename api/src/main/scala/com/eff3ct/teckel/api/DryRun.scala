@@ -231,6 +231,21 @@ object DryRun {
           s"outputColumn=${s.outputColumn}, branches=[$branches$other]",
           List(s.assetRef)
         )
+      case s: SCD2 =>
+        PlanStep(
+          ref,
+          "SCD2",
+          s"keyColumns=[${s.keyColumns.toList.mkString(", ")}], trackColumns=[${s.trackColumns.toList.mkString(", ")}]",
+          List(s.assetRef)
+        )
+      case s: Enrich =>
+        val method = s.method.getOrElse("GET")
+        PlanStep(
+          ref,
+          "ENRICH",
+          s"url=${s.url}, method=$method, keyColumn=${s.keyColumn}, responseColumn=${s.responseColumn}",
+          List(s.assetRef)
+        )
     }
   // scalastyle:on method.length cyclomatic.complexity
 }

@@ -1,0 +1,30 @@
+# SCD Type 2 - Slowly Changing Dimension
+# Tracks historical changes to dimension records by maintaining
+# start/end date columns and a current flag.
+
+input:
+  - name: customers
+    format: csv
+    path: 'data/csv/customers.csv'
+    options:
+      header: true
+
+transformation:
+  - name: customers_scd2
+    scd2:
+      from: customers
+      keyColumns:
+        - customer_id
+      trackColumns:
+        - name
+        - email
+        - address
+      startDateColumn: valid_from
+      endDateColumn: valid_to
+      currentFlagColumn: is_current
+
+output:
+  - name: customers_scd2
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/customers_scd2'

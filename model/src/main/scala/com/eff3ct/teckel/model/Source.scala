@@ -144,4 +144,22 @@ object Source {
       branches: NonEmptyList[WhenBranch],
       otherwise: Option[String]
   ) extends Transformation
+
+  case class SCD2(
+      assetRef: AssetRef,
+      keyColumns: NonEmptyList[Column],
+      trackColumns: NonEmptyList[Column],
+      startDateColumn: Column,
+      endDateColumn: Column,
+      currentFlagColumn: Column
+  ) extends Transformation
+
+  case class Enrich(
+      assetRef: AssetRef,
+      url: String,
+      method: Option[String],
+      keyColumn: Column,
+      responseColumn: Column,
+      headers: Option[Map[String, String]]
+  ) extends Transformation
 }

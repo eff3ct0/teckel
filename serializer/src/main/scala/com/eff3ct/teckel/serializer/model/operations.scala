@@ -62,6 +62,8 @@ object operations {
       case u: UnpivotOp       => u.asJson
       case c: ConditionalOp   => c.asJson
       case s: SplitOp         => s.asJson
+      case s: SCD2Op          => s.asJson
+      case e: EnrichOp        => e.asJson
     }
 
   implicit val decodeEvent: Decoder[Operation] =
@@ -91,7 +93,9 @@ object operations {
       Decoder[PivotOp].widen,
       Decoder[UnpivotOp].widen,
       Decoder[ConditionalOp].widen,
-      Decoder[SplitOp].widen
+      Decoder[SplitOp].widen,
+      Decoder[SCD2Op].widen,
+      Decoder[EnrichOp].widen
     ).reduceLeft(_ or _)
 
   case class SelectOp(from: String, columns: NonEmptyList[String]) extends Operation
@@ -174,6 +178,24 @@ object operations {
   ) extends Operation
 
   case class SplitOp(from: String, condition: String, pass: String, fail: String) extends Operation
+
+  case class SCD2Op(
+      from: String,
+      keyColumns: NonEmptyList[String],
+      trackColumns: NonEmptyList[String],
+      startDateColumn: String,
+      endDateColumn: String,
+      currentFlagColumn: String
+  ) extends Operation
+
+  case class EnrichOp(
+      from: String,
+      url: String,
+      method: Option[String],
+      keyColumn: String,
+      responseColumn: String,
+      headers: Option[Map[String, String]]
+  ) extends Operation
 
   case class Relation(name: String, relationType: String, on: List[String])
 

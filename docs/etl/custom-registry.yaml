@@ -1,0 +1,42 @@
+# Custom Component Registry example
+# Demonstrates referencing custom readers, transformers, and writers
+# registered via the Registry API.
+#
+# In your Scala code, register components before running the pipeline:
+#
+#   import com.eff3ct.teckel.api.Registry
+#
+#   Registry.registerReader("myJdbcReader") { (spark, options) =>
+#     spark.read
+#       .format("jdbc")
+#       .options(options)
+#       .load()
+#   }
+#
+#   Registry.registerTransformer("deduplicator") { df =>
+#     df.dropDuplicates()
+#   }
+#
+#   Registry.registerWriter("elasticWriter") { (df, options) =>
+#     df.write
+#       .format("org.elasticsearch.spark.sql")
+#       .options(options)
+#       .save()
+#   }
+
+input:
+  - name: raw_data
+    format: parquet
+    path: /data/input/raw.parquet
+
+transformation:
+  - name: cleaned_data
+    type: where
+    source: raw_data
+    condition: "value IS NOT NULL"
+
+output:
+  - name: cleaned_data
+    format: parquet
+    mode: overwrite
+    path: /data/output/cleaned/

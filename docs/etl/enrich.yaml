@@ -1,0 +1,28 @@
+# API Enrichment - HTTP lookup transformation
+# Enriches records by calling an external API endpoint.
+# The response is stored in a new column.
+
+input:
+  - name: orders
+    format: csv
+    path: 'data/csv/orders.csv'
+    options:
+      header: true
+
+transformation:
+  - name: enriched_orders
+    enrich:
+      from: orders
+      url: 'https://api.example.com/v1/products'
+      method: GET
+      keyColumn: product_id
+      responseColumn: product_details
+      headers:
+        Authorization: 'Bearer ${API_TOKEN}'
+        Content-Type: 'application/json'
+
+output:
+  - name: enriched_orders
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/enriched_orders'

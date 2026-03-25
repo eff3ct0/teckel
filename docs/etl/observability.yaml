@@ -1,0 +1,37 @@
+# Observability Configuration Example
+#
+# Teckel supports pipeline observability through structured logging and metrics.
+# The Observability module provides timing, status tracking, and JSON-formatted
+# metrics for each pipeline execution.
+#
+# Usage:
+#   Wrap your ETL execution with Observability.timed to capture:
+#   - Pipeline start/end timestamps
+#   - Duration in milliseconds
+#   - Success/failure status
+#   - Error messages on failure
+#
+# Metrics are logged to stdout in structured format:
+#   [metrics] pipeline=my-pipeline status=SUCCESS duration=1234ms
+#
+# JSON output is also available via formatMetricsJson:
+#   {"pipeline":"my-pipeline","status":"SUCCESS","durationMs":1234,...}
+
+input:
+  - asset: raw_data
+    format: parquet
+    path: "data/input/raw_data.parquet"
+
+transformation:
+  - asset: cleaned_data
+    from: raw_data
+    select:
+      - column: id
+      - column: name
+      - column: value
+
+output:
+  - asset: cleaned_data
+    format: parquet
+    path: "data/output/cleaned_data.parquet"
+    mode: overwrite

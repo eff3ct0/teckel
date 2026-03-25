@@ -1,0 +1,59 @@
+# Spark Structured Streaming ETL example
+# Demonstrates streaming source/sink configuration
+
+input:
+  - name: static_lookup
+    format: parquet
+    path: /data/lookups/users.parquet
+
+streamingInput:
+  - name: kafka_events
+    format: kafka
+    options:
+      kafka.bootstrap.servers: "localhost:9092"
+      subscribe: "events"
+      startingOffsets: "earliest"
+    trigger: "processingTime:10 seconds"
+
+  - name: file_stream
+    format: json
+    path: /data/streaming/incoming/
+    trigger: "once"
+
+transformation:
+  - name: enriched_events
+    type: join
+    source: kafka_events
+    others:
+      - name: static_lookup
+        joinType: left
+        on:
+          - "kafka_events.user_id = static_lookup.id"
+
+  - name: filtered_events
+    type: where
+    source: enriched_events
+    condition: "status = 'active'"
+
+output:
+  - name: batch_summary
+    format: parquet
+    mode: overwrite
+    path: /data/output/summary/
+
+streamingOutput:
+  - name: filtered_events
+    format: kafka
+    options:
+      kafka.bootstrap.servers: "localhost:9092"
+      topic: "processed_events"
+    outputMode: append
+    checkpointLocation: /data/checkpoints/processed_events/
+    trigger: "processingTime:10 seconds"
+
+  - name: enriched_events
+    format: parquet
+    path: /data/output/streaming/enriched/
+    outputMode: append
+    checkpointLocation: /data/checkpoints/enriched/
+    trigger: "once"
