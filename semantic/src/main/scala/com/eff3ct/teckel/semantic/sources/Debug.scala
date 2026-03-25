@@ -130,6 +130,8 @@ object Debug {
     others.foreach { case (name, otherDf) => otherDf.createOrReplaceTempView(name) }
     df.createOrReplaceTempView(source.assetRef)
     S.sql(source.query)
+  }
+
   /** Union */
   def union[S <: Union](source: S, df: DataFrame, context: Context[DataFrame]): DataFrame = {
     val otherDfs = source.others.map(ref => context(ref))
