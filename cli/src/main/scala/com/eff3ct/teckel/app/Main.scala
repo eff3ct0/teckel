@@ -25,7 +25,7 @@
 package com.eff3ct.teckel.app
 
 import cats.effect.{Async, ExitCode, IO}
-import com.eff3ct.teckel.api.DryRun
+import com.eff3ct.teckel.api.{DocGen, DryRun}
 import com.eff3ct.teckel.api.core.Run
 import com.eff3ct.teckel.api.spark.SparkETL
 import com.eff3ct.teckel.io.Console
@@ -42,13 +42,23 @@ object Main extends SparkETL {
   )(implicit spark: SparkSession, logger: slf4j.Logger): IO[ExitCode] = {
     val commands = Console.parseCommand(args)
     commands match {
-      case Console.FILE(file, _, true, _) =>
+      case Console.FILE(file, _, true, _, _) =>
         // Dry run mode
         IO {
           val content = scala.io.Source.fromFile(file).mkString
           DryRun.explain(content) match {
             case Right(plan) => println(plan)
             case Left(err)   => println(s"Error: ${err.getMessage}")
+          }
+          ExitCode.Success
+        }
+      case Console.FILE(file, _, _, true, _) =>
+        // Doc generation mode
+        IO {
+          val content = scala.io.Source.fromFile(file).mkString
+          DocGen.generate(content) match {
+            case Right(doc) => println(doc)
+            case Left(err)  => println(s"Error: ${err.getMessage}")
           }
           ExitCode.Success
         }
