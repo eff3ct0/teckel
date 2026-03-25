@@ -59,6 +59,7 @@ object transformation {
       case cu: CubeT        => cu.asJson
       case p: PivotT        => p.asJson
       case u: UnpivotT      => u.asJson
+      case c: ConditionalT  => c.asJson
       case s: SplitT        => s.asJson
     }
 
@@ -88,6 +89,7 @@ object transformation {
       Decoder[CubeT].widen,
       Decoder[PivotT].widen,
       Decoder[UnpivotT].widen,
+      Decoder[ConditionalT].widen,
       Decoder[SplitT].widen
     ).reduceLeft(_ or _)
 
@@ -126,6 +128,8 @@ object transformation {
   case class PivotT(name: String, pivot: PivotOp) extends Transformation
 
   case class UnpivotT(name: String, unpivot: UnpivotOp) extends Transformation
+
+  case class ConditionalT(name: String, conditional: ConditionalOp) extends Transformation
 
   case class SplitT(name: String, split: SplitOp) extends Transformation
 

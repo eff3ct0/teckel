@@ -1,0 +1,22 @@
+hooks:
+  preExecution:
+    - name: check-dependencies
+      command: "echo 'Checking dependencies...'"
+    - name: validate-inputs
+      command: "echo 'Validating input paths...'"
+  postExecution:
+    - name: notify-completion
+      command: "echo 'Pipeline completed successfully'"
+    - name: cleanup-temp
+      command: "echo 'Cleaning up temp files'"
+
+input:
+  - name: events
+    format: parquet
+    path: /data/events
+
+output:
+  - name: events
+    format: parquet
+    mode: overwrite
+    path: /data/output

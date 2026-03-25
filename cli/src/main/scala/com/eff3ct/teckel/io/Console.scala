@@ -37,11 +37,13 @@ object Console {
       file: String,
       variables: Map[String, String],
       dryRun: Boolean = false,
+      doc: Boolean = false,
       env: Option[String] = None
   ) extends Commands
 
   def parseCommand(args: List[String]): Commands = {
     val dryRun = args.contains("--dry-run")
+    val doc    = args.contains("--doc")
     val variables = args
       .filter(_.startsWith("-D"))
       .map(_.stripPrefix("-D"))
@@ -55,7 +57,7 @@ object Console {
       }
       .toMap
 
-    val filteredArgs = args.filterNot(a => a.startsWith("-D") || a == "--dry-run")
+    val filteredArgs = args.filterNot(a => a.startsWith("-D") || a == "--dry-run" || a == "--doc")
 
     val envIdx = filteredArgs.indexOf("--env")
     val (env, argsWithoutEnv) = if (envIdx >= 0 && envIdx + 1 < filteredArgs.length) {
@@ -64,18 +66,18 @@ object Console {
 
     argsWithoutEnv match {
       case "-c" :: Nil         => STDIN(variables)
-      case "-f" :: file :: Nil => FILE(file, variables, dryRun, env)
+      case "-f" :: file :: Nil => FILE(file, variables, dryRun, doc, env)
       case _ =>
         throw new IllegalArgumentException(
-          s"Invalid arguments: ${args.mkString(" ")}. Usage: -f <file> [--env <env>] [--dry-run] [-D key=value ...] or -c [-D key=value ...]"
+          s"Invalid arguments: ${args.mkString(" ")}. Usage: -f <file> [--env <env>] [--dry-run] [--doc] [-D key=value ...] or -c [-D key=value ...]"
         )
     }
   }
 
   def eval[F[_]: Files: Async: Run, O: EvalContext](commands: Commands): fs2.Stream[F, O] =
     commands match {
-      case STDIN(variables)              => Parser.parseStdin[F, O](variables)
-      case FILE(file, variables, _, env) => Parser.parseFile[F, O](file, variables, env)
+      case STDIN(variables)                 => Parser.parseStdin[F, O](variables)
+      case FILE(file, variables, _, _, env) => Parser.parseFile[F, O](file, variables, env)
     }
 
   def command[F[_]: Sync](args: List[String]): fs2.Stream[F, Commands] =

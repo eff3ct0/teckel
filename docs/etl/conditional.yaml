@@ -1,0 +1,22 @@
+input:
+  - name: orders
+    format: parquet
+    path: /data/orders
+
+transformation:
+  - name: categorized_orders
+    conditional:
+      from: orders
+      outputColumn: size_category
+      branches:
+        - condition: "amount > 1000"
+          value: "'large'"
+        - condition: "amount > 100"
+          value: "'medium'"
+      otherwise: "'small'"
+
+output:
+  - name: categorized_orders
+    format: parquet
+    mode: overwrite
+    path: /data/categorized

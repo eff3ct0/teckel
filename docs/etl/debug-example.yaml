@@ -1,0 +1,62 @@
+input:
+  - name: sales
+    format: csv
+    path: 'data/csv/sales.csv'
+    options:
+      header: true
+      sep: ','
+
+  - name: products
+    format: parquet
+    path: 'data/parquet/products'
+
+transformation:
+  - name: filteredSales
+    where:
+      from: sales
+      filter: 'amount > 100'
+
+  - name: selectedSales
+    select:
+      from: filteredSales
+      columns:
+        - product_id
+        - amount
+        - region
+
+  - name: enrichedSales
+    join:
+      from: selectedSales
+      tables:
+        - name: products
+          type: inner
+          on:
+            - product_id
+
+  - name: groupedSales
+    group:
+      from: enrichedSales
+      by:
+        - region
+        - product_name
+      agg:
+        - sum(amount) as total_amount
+        - count(product_id) as num_sales
+
+  - name: sortedSales
+    order:
+      from: groupedSales
+      by:
+        - total_amount
+      order: Desc
+
+  - name: topSales
+    limit:
+      from: sortedSales
+      count: 50
+
+output:
+  - name: topSales
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/top_sales'

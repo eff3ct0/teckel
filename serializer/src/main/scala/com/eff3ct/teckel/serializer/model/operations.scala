@@ -60,6 +60,7 @@ object operations {
       case cu: CubeOp         => cu.asJson
       case p: PivotOp         => p.asJson
       case u: UnpivotOp       => u.asJson
+      case c: ConditionalOp   => c.asJson
       case s: SplitOp         => s.asJson
     }
 
@@ -89,6 +90,7 @@ object operations {
       Decoder[CubeOp].widen,
       Decoder[PivotOp].widen,
       Decoder[UnpivotOp].widen,
+      Decoder[ConditionalOp].widen,
       Decoder[SplitOp].widen
     ).reduceLeft(_ or _)
 
@@ -160,6 +162,15 @@ object operations {
       values: NonEmptyList[String],
       variableColumn: String,
       valueColumn: String
+  ) extends Operation
+
+  case class WhenBranchDef(condition: String, value: String)
+
+  case class ConditionalOp(
+      from: String,
+      outputColumn: String,
+      branches: NonEmptyList[WhenBranchDef],
+      otherwise: Option[String]
   ) extends Operation
 
   case class SplitOp(from: String, condition: String, pass: String, fail: String) extends Operation
