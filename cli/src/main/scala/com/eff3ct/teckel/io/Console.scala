@@ -41,8 +41,18 @@ object Console {
       env: Option[String] = None,
       graph: Option[String] = None
   ) extends Commands
+  case class SERVER(port: Int = 8080) extends Commands
 
   def parseCommand(args: List[String]): Commands = {
+    // Handle --server mode early
+    if (args.contains("--server")) {
+      val portIdx = args.indexOf("--port")
+      val port =
+        if (portIdx >= 0 && portIdx + 1 < args.length) args(portIdx + 1).toInt
+        else 8080
+      return SERVER(port)
+    }
+
     val dryRun = args.contains("--dry-run")
     val doc    = args.contains("--doc")
     val variables = args
@@ -82,7 +92,7 @@ object Console {
       case "-f" :: file :: Nil => FILE(file, variables, dryRun, doc, env, graph)
       case _ =>
         throw new IllegalArgumentException(
-          s"Invalid arguments: ${args.mkString(" ")}. Usage: -f <file> [--env <env>] [--dry-run] [--doc] [--graph <format>] [-D key=value ...] or -c [-D key=value ...]"
+          s"Invalid arguments: ${args.mkString(" ")}. Usage: -f <file> [--env <env>] [--dry-run] [--doc] [--graph <format>] [--server [--port N]] [-D key=value ...] or -c [-D key=value ...]"
         )
     }
   }
@@ -91,6 +101,10 @@ object Console {
     commands match {
       case STDIN(variables)                    => Parser.parseStdin[F, O](variables)
       case FILE(file, variables, _, _, env, _) => Parser.parseFile[F, O](file, variables, env)
+      case SERVER(_) =>
+        fs2.Stream.raiseError[F](
+          new IllegalStateException("SERVER mode is handled directly in Main, not via eval")
+        )
     }
 
   def command[F[_]: Sync](args: List[String]): fs2.Stream[F, Commands] =
