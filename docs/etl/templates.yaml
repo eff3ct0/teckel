@@ -1,0 +1,35 @@
+# Pipeline Templating Example
+# Templates define reusable modules that can be referenced
+# across pipelines with parameterized values.
+
+templates:
+  - name: standard-csv-reader
+    parameters:
+      header: "true"
+      sep: ","
+      encoding: "UTF-8"
+
+  - name: parquet-writer
+    parameters:
+      compression: snappy
+      mode: overwrite
+
+input:
+  - name: transactions
+    format: csv
+    path: /data/raw/transactions
+    options:
+      header: true
+      sep: ","
+
+transformation:
+  - name: valid_transactions
+    where:
+      from: transactions
+      filter: "amount > 0"
+
+output:
+  - name: valid_transactions
+    format: parquet
+    mode: overwrite
+    path: /data/output/valid_transactions

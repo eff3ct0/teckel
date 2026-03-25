@@ -48,14 +48,18 @@ private[teckel] object etl {
       cache: Option[CachePolicy] = None
   )
 
+  case class Template(
+      name: String,
+      parameters: Option[Map[String, String]] = None
+  )
+
   case class ETL(
       input: NonEmptyList[Input],
       transformation: Option[NonEmptyList[Transformation]],
       output: NonEmptyList[Output],
       hooks: Option[Hooks] = None,
       config: Option[PipelineConfig] = None,
-      streamingInput: Option[NonEmptyList[StreamingInput]] = None,
-      streamingOutput: Option[NonEmptyList[StreamingOutput]] = None
+      templates: Option[List[Template]] = None
   )
 
   object ETL {
