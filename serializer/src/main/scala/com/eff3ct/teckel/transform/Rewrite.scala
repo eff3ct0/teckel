@@ -254,6 +254,16 @@ object Rewrite {
       )
     )
 
+  def rewriteOp(item: CustomT): Asset =
+    Asset(
+      item.name,
+      Source.Custom(
+        item.custom.from,
+        item.custom.component,
+        item.custom.options.getOrElse(Map.empty)
+      )
+    )
+
   def rewrite(item: Transformation): Asset =
     item match {
       case s: Select         => rewriteOp(s)
@@ -285,6 +295,7 @@ object Rewrite {
       case s: EnrichT        => rewriteOp(s)
       case s: SchemaEnforceT => rewriteOp(s)
       case s: AssertionT     => rewriteOp(s)
+      case s: CustomT        => rewriteOp(s)
       case _: SplitT         => throw new IllegalStateException("SplitT is expanded in tcontext")
     }
 

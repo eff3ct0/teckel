@@ -65,6 +65,7 @@ object operations {
       case s: SCD2Op          => s.asJson
       case e: EnrichOp        => e.asJson
       case s: SchemaEnforceOp => s.asJson
+      case cu: CustomOp       => cu.asJson
       case a: AssertionOp     => a.asJson
     }
 
@@ -99,7 +100,8 @@ object operations {
       Decoder[SCD2Op].widen,
       Decoder[EnrichOp].widen,
       Decoder[SchemaEnforceOp].widen,
-      Decoder[AssertionOp].widen
+      Decoder[AssertionOp].widen,
+      Decoder[CustomOp].widen
     ).reduceLeft(_ or _)
 
   case class SelectOp(from: String, columns: NonEmptyList[String]) extends Operation
@@ -220,6 +222,9 @@ object operations {
       checks: NonEmptyList[QualityCheckDef],
       onFailure: Option[String]
   ) extends Operation
+
+  case class CustomOp(from: String, component: String, options: Option[Map[String, String]])
+      extends Operation
 
   case class Relation(name: String, relationType: String, on: List[String])
 
