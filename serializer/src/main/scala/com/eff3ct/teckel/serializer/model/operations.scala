@@ -64,6 +64,8 @@ object operations {
       case s: SplitOp         => s.asJson
       case s: SCD2Op          => s.asJson
       case e: EnrichOp        => e.asJson
+      case s: SchemaEnforceOp => s.asJson
+      case a: AssertionOp     => a.asJson
     }
 
   implicit val decodeEvent: Decoder[Operation] =
@@ -95,7 +97,9 @@ object operations {
       Decoder[ConditionalOp].widen,
       Decoder[SplitOp].widen,
       Decoder[SCD2Op].widen,
-      Decoder[EnrichOp].widen
+      Decoder[EnrichOp].widen,
+      Decoder[SchemaEnforceOp].widen,
+      Decoder[AssertionOp].widen
     ).reduceLeft(_ or _)
 
   case class SelectOp(from: String, columns: NonEmptyList[String]) extends Operation
@@ -195,6 +199,18 @@ object operations {
       keyColumn: String,
       responseColumn: String,
       headers: Option[Map[String, String]]
+  ) extends Operation
+
+  case class SchemaColumnDef(name: String, dataType: String, nullable: Option[Boolean], default: Option[String])
+  case class SchemaEnforceOp(from: String, columns: NonEmptyList[SchemaColumnDef], mode: Option[String])
+      extends Operation
+
+  case class QualityCheckDef(column: Option[String], rule: String, description: Option[String])
+
+  case class AssertionOp(
+      from: String,
+      checks: NonEmptyList[QualityCheckDef],
+      onFailure: Option[String]
   ) extends Operation
 
   case class Relation(name: String, relationType: String, on: List[String])
