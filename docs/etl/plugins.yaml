@@ -1,0 +1,30 @@
+config:
+  components:
+    readers:
+      - default:
+          name: SparkFileReader
+    transformers:
+      - normalize:
+          class: "com.mycompany.NormalizeTransformer"
+    writers:
+      - default:
+          name: SparkFileWriter
+
+input:
+  - name: events
+    format: parquet
+    path: /data/events
+
+transformation:
+  - name: normalized_events
+    custom:
+      from: events
+      component: normalize
+      options:
+        threshold: "0.5"
+
+output:
+  - name: normalized_events
+    format: parquet
+    mode: overwrite
+    path: /data/output

@@ -269,6 +269,14 @@ object DryRun {
           s"onFailure=${s.onFailure}, checks=[$checks]",
           List(s.assetRef)
         )
+      case s: Custom =>
+        val opts = s.options.map { case (k, v) => s"$k=$v" }.mkString(", ")
+        PlanStep(
+          ref,
+          "CUSTOM",
+          s"component=${s.component}, options=[$opts]",
+          List(s.assetRef)
+        )
     }
   // scalastyle:on method.length cyclomatic.complexity
 }
