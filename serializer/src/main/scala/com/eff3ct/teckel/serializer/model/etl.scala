@@ -39,11 +39,23 @@ private[teckel] object etl {
       postExecution: Option[List[Hook]]
   )
 
+  case class CachePolicy(
+      autoCacheThreshold: Option[Int] = None,
+      defaultStorageLevel: Option[String] = None
+  )
+
+  case class PipelineConfig(
+      cache: Option[CachePolicy] = None
+  )
+
   case class ETL(
       input: NonEmptyList[Input],
       transformation: Option[NonEmptyList[Transformation]],
       output: NonEmptyList[Output],
-      hooks: Option[Hooks] = None
+      hooks: Option[Hooks] = None,
+      config: Option[PipelineConfig] = None,
+      streamingInput: Option[NonEmptyList[StreamingInput]] = None,
+      streamingOutput: Option[NonEmptyList[StreamingOutput]] = None
   )
 
   object ETL {
