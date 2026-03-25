@@ -1,0 +1,25 @@
+input:
+  - name: rawData
+    format: csv
+    path: 'data/csv/raw.csv'
+    options:
+      header: true
+      inferSchema: true
+
+transformation:
+  - name: typed
+    castColumns:
+      from: rawData
+      columns:
+        - name: id
+          targetType: integer
+        - name: amount
+          targetType: double
+        - name: created_at
+          targetType: timestamp
+
+output:
+  - name: typed
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/typed'
