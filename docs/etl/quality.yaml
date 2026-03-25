@@ -4,13 +4,22 @@ input:
     path: 'data/parquet/orders'
 
 transformation:
-  - name: validated
-    where:
+  - name: validated_orders
+    assertion:
       from: orders
-      filter: 'amount > 0 AND customer_id IS NOT NULL'
+      checks:
+        - column: customer_id
+          rule: not_null
+          description: 'Customer ID must not be null'
+        - column: amount
+          rule: 'amount > 0'
+          description: 'Amount must be positive'
+        - rule: 'order_date IS NOT NULL'
+          description: 'Order date must be present'
+      onFailure: fail
 
 output:
-  - name: validated
+  - name: validated_orders
     format: parquet
     mode: overwrite
     path: 'data/parquet/validated_orders'

@@ -71,6 +71,8 @@ object Debug {
       case s: Conditional   => conditional(df, s)
       case s: SCD2          => scd2(df, s)
       case s: Enrich        => enrich(df, s)
+      case s: SchemaEnforce => schemaEnforce(df, s)
+      case s: Assertion     => assertion(df, s)
     }
 
   /** Select */
@@ -275,7 +277,7 @@ object Debug {
   def conditional[S <: Conditional](df: DataFrame, source: S): DataFrame = {
     import org.apache.spark.sql.functions.{when, lit}
     val firstBranch = source.branches.head
-    var colExpr = when(expr(firstBranch.condition), expr(firstBranch.value))
+    var colExpr     = when(expr(firstBranch.condition), expr(firstBranch.value))
     source.branches.tail.foreach { branch =>
       colExpr = colExpr.when(expr(branch.condition), expr(branch.value))
     }
@@ -298,6 +300,69 @@ object Debug {
   def enrich[S <: Enrich](df: DataFrame, source: S): DataFrame = {
     import org.apache.spark.sql.functions.lit
     df.withColumn(source.responseColumn, lit(s"[enrichment:${source.url}]"))
+  }
+
+  /** SchemaEnforce */
+  def schemaEnforce[S <: SchemaEnforce](df: DataFrame, source: S): DataFrame = {
+    import org.apache.spark.sql.functions.lit
+    source.mode match {
+      case "strict" =>
+        source.columns.toList.foldLeft(
+          df.select(source.columns.toList.map(c => col(c.name)): _*)
+        ) { (acc, sc) =>
+          val casted = acc.withColumn(sc.name, col(sc.name).cast(sc.dataType))
+          sc.nullable match {
+            case Some(false) => casted.where(col(sc.name).isNotNull)
+            case _           => casted
+          }
+        }
+      case "permissive" =>
+        source.columns.toList.foldLeft(df) { (acc, sc) =>
+          acc.withColumn(sc.name, col(sc.name).cast(sc.dataType))
+        }
+      case "evolve" =>
+        source.columns.toList.foldLeft(df) { (acc, sc) =>
+          val hasCol = acc.columns.contains(sc.name)
+          if (hasCol) acc.withColumn(sc.name, col(sc.name).cast(sc.dataType))
+          else {
+            val defaultVal = sc.default.map(expr).getOrElse(lit(null).cast(sc.dataType))
+            acc.withColumn(sc.name, defaultVal)
+          }
+        }
+      case other => throw new IllegalArgumentException(s"Unknown schema mode: $other")
+    }
+  }
+
+  /** Assertion */
+  def assertion[S <: Assertion](df: DataFrame, source: S): DataFrame = {
+    val totalCount = df.count()
+    val failures = source.checks.toList.flatMap { check =>
+      val failCount = check.column match {
+        case Some(c) if check.rule == "not_null" =>
+          df.where(col(c).isNull).count()
+        case Some(c) =>
+          df.where(!expr(s"${check.rule}")).count()
+        case None =>
+          df.where(!expr(check.rule)).count()
+      }
+      if (failCount > 0) {
+        val desc = check.description.getOrElse(check.rule)
+        Some(s"Check '$desc' failed for $failCount/$totalCount rows")
+      } else None
+    }
+    if (failures.nonEmpty) {
+      source.onFailure match {
+        case "fail" =>
+          throw new RuntimeException(
+            s"Data quality assertion failed:\n${failures.mkString("\n")}"
+          )
+        case "warn" =>
+          failures.foreach(msg => println(s"[WARN] $msg"))
+        case other =>
+          throw new IllegalArgumentException(s"Unknown onFailure mode: $other")
+      }
+    }
+    df
   }
 
   /** Join */

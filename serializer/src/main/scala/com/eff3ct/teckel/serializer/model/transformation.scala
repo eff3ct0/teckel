@@ -35,34 +35,36 @@ object transformation {
 
   implicit val encodeEvent: Encoder[Transformation] =
     Encoder.instance {
-      case s: Select        => s.asJson
-      case w: Where         => w.asJson
-      case g: GroupBy       => g.asJson
-      case o: OrderBy       => o.asJson
-      case j: Join          => j.asJson
-      case d: Distinct      => d.asJson
-      case l: Limit         => l.asJson
-      case a: AddColumns    => a.asJson
-      case d: DropColumns   => d.asJson
-      case r: RenameColumns => r.asJson
-      case c: CastColumns   => c.asJson
-      case s: SqlExpr       => s.asJson
-      case u: UnionT        => u.asJson
-      case i: IntersectT    => i.asJson
-      case e: ExceptT       => e.asJson
-      case w: WindowT       => w.asJson
-      case f: FlattenT      => f.asJson
-      case s: SampleT       => s.asJson
-      case r: RepartitionT  => r.asJson
-      case c: CoalesceT     => c.asJson
-      case ro: RollupT      => ro.asJson
-      case cu: CubeT        => cu.asJson
-      case p: PivotT        => p.asJson
-      case u: UnpivotT      => u.asJson
-      case c: ConditionalT  => c.asJson
-      case s: SplitT        => s.asJson
-      case s: SCD2T         => s.asJson
-      case e: EnrichT       => e.asJson
+      case s: Select         => s.asJson
+      case w: Where          => w.asJson
+      case g: GroupBy        => g.asJson
+      case o: OrderBy        => o.asJson
+      case j: Join           => j.asJson
+      case d: Distinct       => d.asJson
+      case l: Limit          => l.asJson
+      case a: AddColumns     => a.asJson
+      case d: DropColumns    => d.asJson
+      case r: RenameColumns  => r.asJson
+      case c: CastColumns    => c.asJson
+      case s: SqlExpr        => s.asJson
+      case u: UnionT         => u.asJson
+      case i: IntersectT     => i.asJson
+      case e: ExceptT        => e.asJson
+      case w: WindowT        => w.asJson
+      case f: FlattenT       => f.asJson
+      case s: SampleT        => s.asJson
+      case r: RepartitionT   => r.asJson
+      case c: CoalesceT      => c.asJson
+      case ro: RollupT       => ro.asJson
+      case cu: CubeT         => cu.asJson
+      case p: PivotT         => p.asJson
+      case u: UnpivotT       => u.asJson
+      case c: ConditionalT   => c.asJson
+      case s: SplitT         => s.asJson
+      case s: SCD2T          => s.asJson
+      case e: EnrichT        => e.asJson
+      case a: AssertionT     => a.asJson
+      case s: SchemaEnforceT => s.asJson
     }
 
   implicit val decodeEvent: Decoder[Transformation] =
@@ -94,7 +96,9 @@ object transformation {
       Decoder[ConditionalT].widen,
       Decoder[SplitT].widen,
       Decoder[SCD2T].widen,
-      Decoder[EnrichT].widen
+      Decoder[EnrichT].widen,
+      Decoder[AssertionT].widen,
+      Decoder[SchemaEnforceT].widen
     ).reduceLeft(_ or _)
 
   case class Select(name: String, select: SelectOp)       extends Transformation
@@ -140,5 +144,9 @@ object transformation {
   case class SCD2T(name: String, scd2: SCD2Op) extends Transformation
 
   case class EnrichT(name: String, enrich: EnrichOp) extends Transformation
+
+  case class AssertionT(name: String, assertion: AssertionOp) extends Transformation
+
+  case class SchemaEnforceT(name: String, schemaEnforce: SchemaEnforceOp) extends Transformation
 
 }

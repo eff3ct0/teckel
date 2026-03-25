@@ -41,7 +41,7 @@ object Observability {
 
   def timed[F[_]: Sync: Clock, A](name: String)(fa: F[A]): F[(A, PipelineMetrics)] =
     for {
-      start <- Clock[F].realTime.map(_.toMillis)
+      start  <- Clock[F].realTime.map(_.toMillis)
       result <- fa.attempt
       end    <- Clock[F].realTime.map(_.toMillis)
       metrics = result match {

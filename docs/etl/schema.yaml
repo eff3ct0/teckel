@@ -18,8 +18,38 @@ transformation:
         - name: created_at
           targetType: timestamp
 
+  - name: enforced
+    schemaEnforce:
+      from: typed
+      mode: strict
+      columns:
+        - name: id
+          dataType: integer
+          nullable: false
+        - name: amount
+          dataType: double
+          nullable: true
+          default: '0.0'
+        - name: created_at
+          dataType: timestamp
+          nullable: true
+
+  - name: evolved
+    schemaEnforce:
+      from: rawData
+      mode: evolve
+      columns:
+        - name: id
+          dataType: integer
+          nullable: false
+        - name: amount
+          dataType: double
+        - name: status
+          dataType: string
+          default: "'unknown'"
+
 output:
-  - name: typed
+  - name: enforced
     format: parquet
     mode: overwrite
-    path: 'data/parquet/typed'
+    path: 'data/parquet/enforced'

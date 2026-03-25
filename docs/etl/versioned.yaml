@@ -1,0 +1,21 @@
+version: "2.0"
+
+input:
+  - name: users
+    format: csv
+    path: 'data/csv/users.csv'
+    options:
+      header: true
+      sep: ','
+
+transformation:
+  - name: active_users
+    where:
+      from: users
+      filter: "status = 'active'"
+
+output:
+  - name: active_users
+    format: parquet
+    mode: overwrite
+    path: 'data/parquet/active_users'

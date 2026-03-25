@@ -73,7 +73,8 @@ private[teckel] object etl {
       config: Option[PipelineConfig] = None,
       templates: Option[List[Template]] = None,
       streamingInput: Option[NonEmptyList[StreamingInput]] = None,
-      streamingOutput: Option[NonEmptyList[StreamingOutput]] = None
+      streamingOutput: Option[NonEmptyList[StreamingOutput]] = None,
+      version: Option[String] = None
   )
 
   object ETL {
