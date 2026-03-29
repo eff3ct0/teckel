@@ -211,6 +211,17 @@ Stacks datasets with the same schema. With `all: true` it uses `unionAll` (prese
     all: true
 ```
 
+> **v3.0**: Union now supports `byName` and `allowMissingColumns` for schema-flexible unions:
+>
+> ```yaml
+> - name: combined
+>   union:
+>     sources: [old_schema, new_schema]
+>     all: true
+>     byName: true
+>     allowMissingColumns: true   # fills missing columns with NULL
+> ```
+
 ### Intersect
 
 Returns only rows present in all listed datasets.
@@ -285,6 +296,18 @@ Takes a random sample of the dataset. Useful for fast development or for generat
     withReplacement: false  # default: false
     seed: 42                # optional, for reproducibility
 ```
+
+> **v3.0**: Sample now supports range-based sampling and deterministic ordering:
+>
+> ```yaml
+> - name: range_sample
+>   sample:
+>     from: data
+>     lowerBound: 0.2
+>     upperBound: 0.5
+>     deterministicOrder: true
+>     seed: 42
+> ```
 
 ### Repartition
 
@@ -499,3 +522,215 @@ Delegates the transformation to a pluggable external component. Useful when you 
 ```
 
 See the [Plugins](plugins.md) guide for details on how to create and register custom components.
+
+---
+
+## v3.0 Transformations
+
+The following transformations were added in Teckel v3.0 for full Spark Connect compatibility.
+
+### Offset
+
+Skips the first N rows. Combine with `orderBy` for deterministic results.
+
+```yaml
+- name: page2
+  offset:
+    from: sorted_data
+    count: 100
+```
+
+### Tail
+
+Returns the last N rows. Requires materializing the entire dataset.
+
+```yaml
+- name: latest
+  tail:
+    from: sorted_data
+    count: 10
+```
+
+### Fill NA
+
+Replaces NULL values in specified columns. Use `value` for a single fill value across columns, or `values` for per-column fill values.
+
+```yaml
+- name: filled
+  fillNa:
+    from: raw_data
+    values:
+      name: "unknown"
+      age: 0
+      active: false
+```
+
+### Drop NA
+
+Drops rows with NULL values. Use `how: any` (default) to drop rows where any target column is NULL, or `how: all` for rows where all are NULL.
+
+```yaml
+- name: complete
+  dropNa:
+    from: data
+    how: any
+    columns: [name, email]
+```
+
+### Replace
+
+Replaces specific values with new ones across specified columns.
+
+```yaml
+- name: cleaned
+  replace:
+    from: data
+    columns: [status]
+    mappings:
+      - old: "N/A"
+        new: "unknown"
+      - old: ""
+        new: "unknown"
+```
+
+### Merge
+
+Performs a MERGE (upsert) operation — the declarative equivalent of SQL's `MERGE INTO`. Supports matched/unmatched actions for update, insert, and delete.
+
+```yaml
+- name: synced_customers
+  merge:
+    target: existing_customers
+    source: new_data
+    on:
+      - "existing_customers.id = new_data.id"
+    whenMatched:
+      - action: update
+        condition: "existing_customers.updated_at < new_data.updated_at"
+        set:
+          name: "new_data.name"
+          email: "new_data.email"
+          updated_at: "current_timestamp()"
+    whenNotMatched:
+      - action: insert
+        star: true
+    whenNotMatchedBySource:
+      - action: delete
+```
+
+### Parse
+
+Parses string columns containing structured data (JSON, CSV) into typed columns. Useful when ingesting raw event logs or API responses.
+
+```yaml
+- name: parsed_events
+  parse:
+    from: raw_logs
+    column: payload
+    format: json
+    schema:
+      - name: event_type
+        dataType: string
+      - name: timestamp
+        dataType: timestamp
+      - name: metadata
+        dataType: "map<string, string>"
+```
+
+### As-of Join
+
+Temporal join matching each left row with the closest right row by an ordered column. Essential for financial data, IoT, and event processing.
+
+```yaml
+- name: trade_with_quote
+  asOfJoin:
+    left: trades
+    right: quotes
+    leftAsOf: trade_time
+    rightAsOf: quote_time
+    on:
+      - "trades.symbol = quotes.symbol"
+    direction: backward        # backward | forward | nearest
+    tolerance: "INTERVAL 5 MINUTES"
+```
+
+### Lateral Join
+
+Correlated join where the right side may reference columns from the left side.
+
+```yaml
+- name: expanded
+  lateralJoin:
+    left: orders
+    right: order_items
+    type: left
+```
+
+### Transpose
+
+Transposes a dataset — swaps rows and columns. Non-index columns must have compatible types.
+
+```yaml
+- name: transposed
+  transpose:
+    from: monthly_data
+    indexColumns: [metric_name]
+```
+
+### Grouping Sets
+
+Aggregation with arbitrary grouping column combinations. More flexible than `rollup` or `cube` — you define exactly which combinations to compute.
+
+```yaml
+- name: sales_report
+  groupingSets:
+    from: sales
+    sets:
+      - [region, product]     # by region AND product
+      - [region]              # subtotal by region
+      - [product]             # subtotal by product
+      - []                    # grand total
+    agg:
+      - "sum(amount) as total"
+      - "count(1) as cnt"
+```
+
+Use `grouping(col)` to distinguish real NULLs from grouping NULLs.
+
+### Describe
+
+Computes descriptive statistics for numeric columns. Output has one row per statistic.
+
+```yaml
+- name: stats
+  describe:
+    from: metrics
+    columns: [revenue, cost, margin]
+    statistics: [count, mean, stddev, min, max]
+```
+
+### Crosstab
+
+Computes a frequency cross-tabulation (contingency table) of two columns.
+
+```yaml
+- name: dept_by_level
+  crosstab:
+    from: employees
+    col1: department
+    col2: level
+```
+
+### Hint
+
+Provides optimizer hints to the execution engine. Hints are advisory — unrecognized hints are ignored with a warning.
+
+```yaml
+- name: broadcast_products
+  hint:
+    from: products
+    hints:
+      - name: broadcast
+```
+
+Common hints: `broadcast`, `merge`, `shuffle_hash`, `coalesce`, `repartition`, `rebalance`.

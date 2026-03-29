@@ -14,7 +14,7 @@ Writing ETL pipelines with Spark usually means a lot of boilerplate: read from h
 ## What's included
 
 - **Declarative YAML pipelines** — define sources, transformations, and sinks without a single line of Spark code
-- **30+ built-in transformations** — Select, Where, GroupBy, Join, Window, Pivot, SCD2, Assertion, and many more
+- **45+ built-in transformations** — Select, Where, GroupBy, Join, Window, Pivot, Merge, As-of Join, Grouping Sets, Fill/Drop NA, Parse, and many more
 - **Pluggable components** — extend Teckel with custom readers, transformers, and writers
 - **Dry-run mode** — preview the execution plan before launching any Spark job
 - **Documentation generation** — convert any pipeline into human-readable Markdown
