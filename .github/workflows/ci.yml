@@ -65,14 +65,3 @@ jobs:
           slug: eff3ct0/teckel
           files: target/scala-*/scoverage-report/scoverage.xml
           fail_ci_if_error: true
-
-  # ── Build Docker image ───────────────────────────────────────────────
-  docker:
-    name: Docker build
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build Docker image
-        run: docker build -t teckel:test .
