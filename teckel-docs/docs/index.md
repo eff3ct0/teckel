@@ -9,7 +9,11 @@ Writing ETL pipelines with Spark usually means a lot of boilerplate: read from h
 
 **Teckel** is a Scala framework that turns YAML files into complete Apache Spark ETL pipelines. You define *what* you want to do, not *how* to do it. The framework builds the DAG, validates asset references, and executes everything on Spark — you keep the business logic, not the scaffolding.
 
-**[Getting Started](getting-started.md)** · **[Transformations](transformations.md)** · **[API](api.md)** · **[CLI](cli.md)**
+This repository is the **Scala / Spark reference implementation** of the
+[Teckel Specification](https://github.com/eff3ct0/teckel-spec) (current version: **v3.0**).
+A sibling Rust implementation lives at [eff3ct0/teckel-rs](https://github.com/eff3ct0/teckel-rs).
+
+**[Getting Started](getting-started.md)** · **[Transformations](transformations.md)** · **[API](api.md)** · **[CLI](cli.md)** · **[Spec v3.0](https://github.com/eff3ct0/teckel-spec/blob/master/spec/v3.0/teckel-spec.md)**
 
 ## What's included
 
@@ -33,6 +37,8 @@ libraryDependencies += "com.eff3ct" %% "teckel-api" % "@VERSION@"
 Write a pipeline:
 
 ```yaml
+version: "3.0"
+
 input:
   - name: users
     format: csv

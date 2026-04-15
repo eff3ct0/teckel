@@ -2,6 +2,11 @@
 
 Transformations are the core of Teckel. Each one represents an operation over a Spark DataFrame, expressed as a typed YAML block. They chain together by name, forming a DAG: the output of one becomes the input of the next.
 
+The canonical names and semantics are defined in
+[Teckel Specification v3.0 §8](https://github.com/eff3ct0/teckel-spec/blob/master/spec/v3.0/teckel-spec.md).
+This implementation deviates in two key names: it accepts `group` and `order` as the YAML keys
+(the spec uses `groupBy` and `orderBy`); all other operations match the spec.
+
 Every transformation follows the same pattern: a `name` field that identifies the resulting asset, and an operation block with its specific parameters.
 
 ```yaml

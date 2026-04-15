@@ -1,113 +1,124 @@
 # Teckel
 
-[![Release](https://github.com/rafafrdz/teckel/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/rafafrdz/teckel/actions/workflows/release.yml)
+[![Release](https://github.com/eff3ct0/teckel/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/eff3ct0/teckel/actions/workflows/release.yml)
 [![codecov](https://codecov.io/gh/eff3ct0/teckel/graph/badge.svg?token=24E1IZ0K2H)](https://codecov.io/gh/eff3ct0/teckel)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Teckel is a framework designed to simplify the creation of Apache Spark ETL (Extract, Transform,
-Load) processes using YAML configuration files. This tool aims to standardize and streamline ETL workflow creation by
-enabling the definition of data transformations in a declarative, user-friendly format without writing extensive code.
+Teckel is a **Scala / Apache Spark reference implementation** of the
+[Teckel Specification](https://github.com/eff3ct0/teckel-spec) — a declarative YAML language for
+defining data transformation pipelines. You describe *what* you want done; Teckel parses the YAML,
+builds the DAG, validates references, and executes it on Spark.
 
 ![Logo](./docs/images/teckel-banner.png)
 
-This concept is further developed on my
-blog: [Big Data with Zero Code](https://blog.rafaelfernandez.dev/posts/big-data-with-zero-code/)
+Background reading: [Big Data with Zero Code](https://blog.rafaelfernandez.dev/posts/big-data-with-zero-code/).
+
+## Sibling projects
+
+| Project | Role |
+|---------|------|
+| [eff3ct0/teckel-spec](https://github.com/eff3ct0/teckel-spec) | Language-agnostic specification (current: **v3.0**). Defines syntax, semantics, expression grammar, validation rules, conformance levels, error catalog. |
+| **eff3ct0/teckel** *(this repo)* | Scala 2.13 + Apache Spark 3.5.x reference implementation. |
+| [eff3ct0/teckel-rs](https://github.com/eff3ct0/teckel-rs) | Rust implementation (parser + model layer for v3.0). |
 
 ## Features
 
-- **Declarative ETL Configuration:** Define your ETL processes with simple YAML files.
-- **Support for Multiple Data Sources:** Easily integrate inputs in CSV, JSON, and Parquet formats.
-- **Flexible Transformations:** Perform joins, aggregations, and selections with clear syntax.
-- **Spark Compatibility:** Leverage the power of Apache Spark for large-scale data processing.
+- **Declarative YAML pipelines** — sources, transformations, sinks defined as data, not code.
+- **45+ built-in transformations** — relational (`select`, `where`, `group`, `order`, `join`,
+  `union`/`intersect`/`except`, `distinct`, `limit`), column ops (`addColumns`, `dropColumns`,
+  `renameColumns`, `castColumns`), analytical (`window`, `pivot`, `unpivot`, `flatten`, `sample`,
+  `rollup`, `cube`, `groupingSets`), warehousing (`scd2`, `merge`, `enrich`, `schemaEnforce`),
+  control flow (`conditional`, `split`, `sql`), v3.0 additions (`offset`, `tail`, `fillNa`,
+  `dropNa`, `replace`, `parse`, `asOfJoin`, `lateralJoin`, `transpose`, `describe`, `crosstab`,
+  `hint`), and pluggable `custom` components.
+- **Variable substitution** — `${VAR}` and `${VAR:default}` resolved from env vars.
+- **Secrets** — `{{secrets.<alias>}}` placeholders backed by env vars or pluggable providers.
+- **Hooks** — `preExecution` / `postExecution` shell commands around the pipeline run.
+- **Pipeline config** — backend selection, cache policy, notifications, custom component declarations.
+- **Streaming I/O** — `streamingInput` / `streamingOutput` for Structured Streaming pipelines.
+- **Dry-run & validation** — preview the execution plan and catch broken references before Spark starts.
+- **Doc generation** — render any pipeline as Markdown.
+- **DAG visualization** — Mermaid, DOT, or ASCII output.
+- **Embedded REST server** — expose pipelines as HTTP endpoints with no extra dependencies.
 
-## ETL Yaml Example
+> Naming note: this implementation uses `group` / `order` as the YAML keys (instead of the
+> spec-canonical `groupBy` / `orderBy`). All other top-level keys and operation names match the spec.
 
-Here's an example of a fully defined ETL configuration using a YAML file:
+## Quick example
 
-### SQL ETL
+```yaml
+version: "3.0"
 
-- Simple Example: [here](./docs/etl/simple.yaml)
-- Complex Example: [here](./docs/etl/complex.yaml)
-- Other Example: [here](./docs/etl/example.yaml)
+input:
+  - name: employees
+    format: csv
+    path: 'data/employees.csv'
+    options:
+      header: true
+      inferSchema: true
 
-### SQL Transformations
+transformation:
+  - name: active
+    where:
+      from: employees
+      filter: "status = 'active'"
 
-- `Select` Example: [here](./docs/etl/select.yaml)
-- `Where` Example: [here](./docs/etl/where.yaml)
-- `Group By` Example: [here](./docs/etl/group-by.yaml)
-- `Order By` Example: [here](./docs/etl/order-by.yaml)
-- `Join` Example: [here](./docs/etl/join.yaml)
+  - name: by_dept
+    group:
+      from: active
+      by: [department]
+      agg:
+        - "count(*) as headcount"
+        - "avg(salary) as avg_salary"
+
+output:
+  - name: by_dept
+    format: parquet
+    mode: overwrite
+    path: 'data/output/by_dept'
+```
+
+More examples under [`docs/etl/`](./docs/etl/) — `simple.yaml`, `complex.yaml`, `join.yaml`,
+`window.yaml`, `merge.yaml`, `quality.yaml`, `secrets.yaml`, `streaming.yaml`, and many more.
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Apache Spark**: Ensure you have Apache Spark installed and properly configured.
-- **YAML files**: Create configuration files specifying your data sources and transformations.
+- **JDK 8 or 11** (Spark 3.5.x is not fully supported on Java 17 in all configurations).
+- **Apache Spark 3.5.x** at runtime (declared `provided` in the library artifacts).
+- **YAML pipeline files**.
 
-#### Deployment on Docker or Kubernetes
+#### Spark on Docker / Kubernetes
 
-In case of you don't have Apache Spark installed previously, you can deploy an Apache Spark cluster using the following
-docker image [
-`eff3ct/spark:latest`](https://hub.docker.com/r/eff3ct/spark) available in
-the [eff3ct0/spark-docker](https://github.com/eff3ct0/spark-docker) GitHub repository.
+If you don't already run Spark, the
+[`eff3ct/spark`](https://hub.docker.com/r/eff3ct/spark) image
+([eff3ct0/spark-docker](https://github.com/eff3ct0/spark-docker)) is a ready-to-use cluster.
 
 ### Installation
 
-Clone the Teckel repository and integrate it with your existing Spark setup:
+Clone and build:
 
 ```bash
-git clone https://github.com/rafafrdz/teckel.git
+git clone https://github.com/eff3ct0/teckel.git
 cd teckel
-```
-
-#### Building the Teckel ETL Uber JAR
-
-Build the Teckel ETL CLI into an Uber JAR using the following command:
-
-```bash
 sbt cli/assembly
 ```
 
-The resulting JAR, `teckel-etl_2.13.jar`, will be located in the `cli/target/scala-2.13/` directory.
+The CLI uber JAR is `cli/target/scala-2.13/teckel-etl_2.13.jar` (Spark bundled in).
 
-### Usage in Apache Spark Ecosystem with the CLI
+### CLI
 
-Once the `teckel-etl_2.13.jar`is ready, use it to execute ETL processes on Apache Spark with the following arguments:
-
-- `-f` or `--file`: The path to the ETL file.
-- `-c` or `--console`: Run the ETL in the console.
-
-#### Example: Running ETL in Apache Spark using STDIN
-
-<details><summary>Demo - Teckel and Apache Spark by STDIN</summary>
-
-[![Teckel and Apache Spark by Yaml File](https://res.cloudinary.com/marcomontalbano/image/upload/v1735905159/video_to_markdown/images/youtube--eJwJIbNAtto-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.youtube.com/watch?v=V9PzMdZ6u2U "Teckel and Apache Spark by STDIN")
-
-</details>
-
-To run the ETL in the **console**, you can use the following command:
-
-```bash
-cat << EOF | /opt/spark/bin/spark-submit --class com.eff3ct.teckel.app.Main teckel-etl_2.13.jar -c
-input:
-  - name: table1
-    format: csv
-    path: '/path/to/data/file.csv'
-    options:
-      header: true
-      sep: '|'
-
-
-output:
-  - name: table1
-    format: parquet
-    mode: overwrite
-    path: '/path/to/output/'
-EOF
+```
+-f, --file     <path>   run the pipeline at <path>
+-c, --console           read YAML from stdin
+    --dry-run           print the execution plan, no Spark
+    --doc               emit Markdown documentation for the pipeline
+    --graph             emit the DAG (Mermaid by default)
+    --server [--port N] start the embedded REST server
 ```
 
-#### Example: Running ETL in Apache Spark using a file
+#### Run from a file
 
 <details><summary>Demo - Teckel and Apache Spark by Yaml File</summary>
 
@@ -115,38 +126,68 @@ EOF
 
 </details>
 
-To run the ETL from a **file**, you can use the following command:
+```bash
+/opt/spark/bin/spark-submit --class com.eff3ct.teckel.app.Main teckel-etl_2.13.jar -f /path/to/pipeline.yaml
+```
+
+#### Run from stdin
+
+<details><summary>Demo - Teckel and Apache Spark by STDIN</summary>
+
+[![Teckel and Apache Spark by STDIN](https://res.cloudinary.com/marcomontalbano/image/upload/v1735905159/video_to_markdown/images/youtube--eJwJIbNAtto-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.youtube.com/watch?v=V9PzMdZ6u2U "Teckel and Apache Spark by STDIN")
+
+</details>
 
 ```bash
-/opt/spark/bin/spark-submit --class com.eff3ct.teckel.app.Main teckel-etl_2.13.jar -f /path/to/etl/file.yaml
+cat << 'EOF' | /opt/spark/bin/spark-submit --class com.eff3ct.teckel.app.Main teckel-etl_2.13.jar -c
+version: "3.0"
+input:
+  - name: t
+    format: csv
+    path: '/path/to/data/file.csv'
+    options:
+      header: true
+      sep: '|'
+output:
+  - name: t
+    format: parquet
+    mode: overwrite
+    path: '/path/to/output/'
+EOF
 ```
 
 > [!IMPORTANT]
 >
 > **Teckel CLI as dependency / Teckel ETL as framework.**
 >
-> The Teckel CLI is a standalone application that can be used as a dependency in your project. Notice that the uber jar
-> name is `teckel-etl` and not `teckel-cli` or `teckel-cli-assembly`. This is because
-> we want to distinguish between the Teckel CLI dependency and the ETL framework.
+> The Teckel CLI is also usable as a library dependency. The uber JAR is named `teckel-etl`
+> (not `teckel-cli`) precisely to distinguish the CLI from the framework when both end up on the
+> same classpath.
 >
-> Check the [Integration with Apache Spark](./docs/integration-apache-spark.md) documentation for more information.
+> See [Integration with Apache Spark](./docs/integration-apache-spark.md) for embedding details.
 
 ## Integration with Apache Spark
 
-Teckel can be integrated with Apache Spark easily just adding either the Teckel CLI or Teckel Api as a
-dependency in your project or using it as a framework in your Apache Spark project.
+Teckel integrates with any existing Spark application — either as a CLI invoked via
+`spark-submit`, or as a library (`teckel-api`) embedded in your Scala code. Three entry points
+are exposed: `etl[F, O]` (polymorphic), `etlIO[O]` (fixes `F = IO`), and `unsafeETL[O]`
+(synchronous). See [Integration with Apache Spark](./docs/integration-apache-spark.md).
 
-Check the [Integration with Apache Spark](./docs/integration-apache-spark.md) documentation for more information.
+## Documentation
+
+The Docusaurus site under [`teckel-docs/`](./teckel-docs/) contains the full guide:
+Getting Started, Transformations, API, CLI, Plugins, and Examples. The canonical language
+reference lives in
+[teckel-spec v3.0](https://github.com/eff3ct0/teckel-spec/blob/master/spec/v3.0/teckel-spec.md).
 
 ## Development and Contribution
 
-Contributions to Teckel are welcome. If you'd like to contribute, please fork the repository and create a pull request
-with your changes.
+Contributions welcome — fork the repository and open a pull request. For changes affecting the
+YAML surface, please cross-check against the
+[Teckel Specification](https://github.com/eff3ct0/teckel-spec) before submitting.
 
 ## License
 
-Teckel is available under the MIT License. See the [LICENSE](./LICENSE) file for more details.
+Teckel is available under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
-If you have any questions regarding the license, feel free to contact Rafael Fernandez.
-
-For any issues or questions, feel free to open an issue on the GitHub repository.
+For any issues or questions, open an issue on GitHub or contact Rafael Fernandez.

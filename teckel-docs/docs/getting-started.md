@@ -46,6 +46,8 @@ Let's build something concrete: read a CSV file of employees, filter the active 
 Create `my-pipeline.yaml`. Each transformation references its upstream asset by name, which is how Teckel builds the dependency graph: `employees` → `active_employees` → `department_summary` → `sorted_departments`.
 
 ```yaml
+version: "3.0"
+
 input:
   - name: employees
     format: csv
@@ -111,18 +113,45 @@ unsafeETL[Unit](yaml)
 
 ## Pipeline Structure
 
-Every Teckel pipeline YAML has three sections. Two are required:
+A Teckel pipeline YAML follows the [Teckel Specification v3.0](https://github.com/eff3ct0/teckel-spec/blob/master/spec/v3.0/teckel-spec.md). The minimum is `input` and `output`; the rest are optional and unlock additional capabilities:
 
 ```yaml
-input:           # Data sources (required)
+version: "3.0"          # Spec version (recommended)
+
+config:                 # Pipeline-wide config: backend, cache, notifications, components
+  ...
+
+secrets:                # Secret aliases referenced as {{secrets.<alias>}}
+  keys:
+    ...
+
+hooks:                  # Lifecycle commands run before/after the pipeline
+  preExecution: [...]
+  postExecution: [...]
+
+templates:              # Reusable configuration fragments
   - ...
 
-transformation:  # Transformation DAG (optional)
+input:                  # Batch data sources (required, NonEmptyList)
   - ...
 
-output:          # Data sinks (required)
+streamingInput:         # Structured Streaming sources
+  - ...
+
+transformation:         # Transformation DAG (optional)
+  - ...
+
+output:                 # Batch data sinks (required, NonEmptyList)
+  - ...
+
+streamingOutput:        # Structured Streaming sinks
   - ...
 ```
+
+Variable substitution `${VAR}` and `${VAR:default}` is applied to the raw YAML before parsing
+(env vars resolve them); `$$` escapes a literal `$`. Secrets use `{{secrets.<alias>}}` and are
+resolved from the configured provider or env vars (`TECKEL_SECRET__<ALIAS>`). See the spec for
+the full set of validation rules (`V-001`..`V-008`).
 
 ### Input
 
@@ -170,7 +199,7 @@ transformation:
 
 ## Next Steps
 
-- [Transformations](transformations.md) — full reference for all 30+ operations
+- [Transformations](transformations.md) — full reference for all 45+ operations
 - [Plugins](plugins.md) — custom readers, transformers, and writers
 - [CLI](cli.md) — all command-line options
 - [API](api.md) — programmatic integration with Scala and Cats Effect

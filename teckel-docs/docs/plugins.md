@@ -1,6 +1,6 @@
 # Plugins
 
-Teckel's 30+ built-in transformations cover most cases, but there are always pipelines that need something specific: an ML model, a proprietary connector, business logic that doesn't fit in SQL. That's what the plugin system is for.
+Teckel's 45+ built-in transformations cover most cases, but there are always pipelines that need something specific: an ML model, a proprietary connector, business logic that doesn't fit in SQL. That's what the plugin system is for.
 
 The idea is straightforward: define a class that implements one of Teckel's three interfaces, register it with a name, and reference it from YAML as if it were any other transformation. Teckel handles instantiation and passes the DataFrame at the right moment.
 

@@ -7,6 +7,8 @@ A collection of complete pipelines illustrating common ETL patterns. Each exampl
 The simplest possible pipeline: read a CSV and write it as Parquet. No transformations, just format conversion. A good starting point to verify that your environment works.
 
 ```yaml
+version: "3.0"
+
 input:
   - name: raw_data
     format: csv
