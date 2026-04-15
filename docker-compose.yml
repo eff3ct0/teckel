@@ -1,7 +1,0 @@
-services:
-  teckel:
-    build: .
-    volumes:
-      - ./data:/data
-      - ./docs/etl:/etl
-    command: ["-f", "/etl/simple.yaml"]

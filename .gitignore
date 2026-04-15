@@ -1,3 +1,9 @@
+# Agent and assistant files
+AGENT*.md
+agent*.md
+CLAUDE.md
+.claude/
+
 # Created by https://www.toptal.com/developers/gitignore/api/scala,intellij,sbt
 # Edit at https://www.toptal.com/developers/gitignore?templates=scala,intellij,sbt
 
