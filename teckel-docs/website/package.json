@@ -29,6 +29,9 @@
     "@docusaurus/types": "3.9.2",
     "typescript": "~5.6.2"
   },
+  "overrides": {
+    "webpackbar": "7.0.0"
+  },
   "browserslist": {
     "production": [
       ">0.5%",

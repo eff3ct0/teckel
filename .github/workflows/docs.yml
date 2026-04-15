@@ -42,7 +42,7 @@ jobs:
 
       - name: Install website dependencies
         working-directory: teckel-docs/website
-        run: npm install
+        run: npm ci
 
       - name: Build website
         working-directory: teckel-docs/website
